@@ -66,7 +66,7 @@ abstract class FastBuilder implements BuilderInterface
      */
     public function onWorkerStart(Worker $worker): void
     {
-        self::connection()->consume($this->_message);
+        self::connection()->consume($this->getMessage());
     }
 
     /**
@@ -80,9 +80,9 @@ abstract class FastBuilder implements BuilderInterface
             $this->_connection = null;
         }
 
-        if($this->_syncProducer){
-            $this->_syncProducer->close();
-            $this->_syncProducer = null;
+        if($this->_syncConnection){
+            $this->_syncConnection->close();
+            $this->_syncConnection = null;
         }
     }
 
