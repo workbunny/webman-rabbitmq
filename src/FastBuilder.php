@@ -9,8 +9,10 @@ use Bunny\Client as BunnyClient;
 use Bunny\Channel as BunnyChannel;
 use Bunny\Message as BunnyMessage;
 use Workbunny\WebmanRabbitMQ\Protocols\AbstractMessage;
+use Workbunny\WebmanRabbitMQ\Protocols\BuilderInterface;
+use Workerman\Worker;
 
-abstract class FastBuilder
+abstract class FastBuilder implements BuilderInterface
 {
     protected AbstractMessage $_message;
 
@@ -20,25 +22,49 @@ abstract class FastBuilder
 
     protected ?SyncProducer $_syncProducer = null;
 
-    /**
-     * @param array $message = [
-     *  'exchange_type'     => '',
-     *  'routing_key'       => '',
-     *  'consumer_tag'      => '',
-     *  'prefetch_size'     => 0,
-     *  'prefetch_count'    => 0,
-     *  'is_global'         => false,
-     * ]
-     * @param LoggerInterface|null $logger
-     */
-    public function __construct(array $message, ?LoggerInterface $logger = null)
+    public function __construct()
     {
-        $message['queue_name'] = $message['exchange_name'] = str_replace('\\', '.', get_called_class());
+        $message['consumer_tag'] =
+        $message['routing_key'] =
+        $message['queue_name'] =
+        $message['exchange_name'] = str_replace('\\', '.', get_called_class());
         $this->_message = new Message($message);
         $this->_message->setCallback([$this, 'handler']);
-
-        $this->_logger = $logger;
     }
+
+    /**
+     * @param Worker $worker
+     * @return void
+     */
+    public function onWorkerStart(Worker $worker): void
+    {
+        $this->connection()->consume($this->_message);
+    }
+
+    /**
+     * @param Worker $worker
+     * @return void
+     */
+    public function onWorkerStop(Worker $worker): void
+    {
+        if($this->_connection){
+            $this->connection()->close();
+            $this->_connection = null;
+        }
+
+
+        if($this->_syncProducer){
+            $this->syncProducer()->close();
+            $this->_syncProducer = null;
+        }
+    }
+
+    /**
+     * @param Worker $worker
+     * @return void
+     */
+    public function onWorkerReload(Worker $worker): void
+    {}
 
     /**
      * 获取连接
