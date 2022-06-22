@@ -1,0 +1,33 @@
+{
+  "name": "workbunny/webman-rabbitmq",
+  "type": "library",
+  "license": "MIT",
+  "description": "Webman plugin workbunny/webman-rabbitmq",
+  "authors": [
+    {
+      "name": "chaz6chez",
+      "email": "250220719@qq.com",
+      "homepage": "https://chaz6chez.cn"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/workbunny/webman-rabbitmq/issues",
+    "source": "https://github.com/workbunny/webman-rabbitmq"
+  },
+  "require": {
+    "php": ">=7.4",
+    "ext-json": "*",
+    "workerman/rabbitmq": "^1.0"
+  },
+  "require-dev": {
+    "workerman/webman-framework": "^1.3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Workbunny\\WebmanRabbitMQ\\": "src"
+    },
+    "files": [
+      "./src/helpers.php"
+    ]
+  }
+}
