@@ -14,20 +14,50 @@ use Workerman\Worker;
 
 abstract class FastBuilder implements BuilderInterface
 {
-    protected AbstractMessage $_message;
+    protected int $prefetch_size = 0;
 
-    protected ?LoggerInterface $_logger = null;
+    protected int $prefetch_count = 0;
 
-    protected ?Connection $_connection = null;
+    protected bool $is_global = false;
 
-    protected ?SyncProducer $_syncProducer = null;
+
+    /**
+     * @var AbstractMessage|Message
+     */
+    private AbstractMessage $_message;
+
+    /**
+     * @var Connection|null
+     */
+    private ?Connection $_connection = null;
+
+    /**
+     * @var SyncProducer|null
+     */
+    private ?SyncProducer $_syncProducer = null;
+
+    protected static ?FastBuilder $_builder = null;
+
+    /**
+     * @return FastBuilder|static
+     */
+    public static function instance() : FastBuilder
+    {
+        if(self::$_builder instanceof FastBuilder){
+            self::$_builder = new static();
+        }
+        return self::$_builder;
+    }
 
     public function __construct()
     {
-        $message['consumer_tag'] =
-        $message['routing_key'] =
-        $message['queue_name'] =
+        $message['consumer_tag'] = $message['routing_key'] = $message['queue_name'] =
         $message['exchange_name'] = str_replace('\\', '.', get_called_class());
+
+        $message['prefetch_size'] = $this->prefetch_size;
+        $message['prefetch_count'] = $this->prefetch_count;
+        $message['is_global'] = $this->is_global;
+
         $this->_message = new Message($message);
         $this->_message->setCallback([$this, 'handler']);
     }
@@ -38,7 +68,7 @@ abstract class FastBuilder implements BuilderInterface
      */
     public function onWorkerStart(Worker $worker): void
     {
-        $this->connection()->consume($this->_message);
+        self::connection()->consume($this->_message);
     }
 
     /**
@@ -48,13 +78,12 @@ abstract class FastBuilder implements BuilderInterface
     public function onWorkerStop(Worker $worker): void
     {
         if($this->_connection){
-            $this->connection()->close();
+            $this->_connection->close();
             $this->_connection = null;
         }
 
-
         if($this->_syncProducer){
-            $this->syncProducer()->close();
+            $this->_syncProducer->close();
             $this->_syncProducer = null;
         }
     }
@@ -88,6 +117,14 @@ abstract class FastBuilder implements BuilderInterface
             $this->_syncProducer = new SyncProducer();
         }
         return $this->_syncProducer;
+    }
+
+    /**
+     * @return Message|null
+     */
+    public function getMessage(): ?Message
+    {
+        return $this->_message;
     }
 
     /**

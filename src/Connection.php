@@ -7,7 +7,9 @@ use Bunny\Channel;
 use Bunny\Message;
 use Bunny\Protocol\MethodBasicConsumeOkFrame;
 use Closure;
+use Psr\Log\LoggerInterface;
 use React\Promise\PromiseInterface;
+use support\Log;
 use Workbunny\WebmanRabbitMQ\Protocols\AbstractMessage;
 
 class Connection

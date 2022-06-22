@@ -89,7 +89,7 @@ class SyncProducer
      * @param bool $close
      * @return bool
      */
-    public function produce(AbstractMessage $abstractMessage, bool $close = true): bool
+    public function publish(AbstractMessage $abstractMessage, bool $close = true): bool
     {
         try {
             $this->_getChannel()->exchangeDeclare(
