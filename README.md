@@ -12,7 +12,7 @@
 ## 创建Builder
 
 ```
-composer reuire wokbunny/webman-rabbitmq
+composer require wokbunny/webman-rabbitmq
 ```
 
 1. 创建一个builder
