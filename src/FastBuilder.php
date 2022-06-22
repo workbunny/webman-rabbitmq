@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ;
 
-use Psr\Log\LoggerInterface;
-
 use Bunny\Client as BunnyClient;
 use Bunny\Channel as BunnyChannel;
 use Bunny\Message as BunnyMessage;
@@ -32,9 +30,9 @@ abstract class FastBuilder implements BuilderInterface
     private ?Connection $_connection = null;
 
     /**
-     * @var SyncProducer|null
+     * @var SyncConnection|null
      */
-    private ?SyncProducer $_syncProducer = null;
+    private ?SyncConnection $_syncConnection = null;
 
     protected static ?FastBuilder $_builder = null;
 
@@ -109,14 +107,14 @@ abstract class FastBuilder implements BuilderInterface
 
     /**
      * 获取同步生产者
-     * @return SyncProducer
+     * @return SyncConnection
      */
-    public function syncProducer() : SyncProducer
+    public function syncConnection() : SyncConnection
     {
-        if(!$this->_syncProducer instanceof SyncProducer){
-            $this->_syncProducer = new SyncProducer();
+        if(!$this->_syncConnection instanceof SyncConnection){
+            $this->_syncConnection = new SyncConnection();
         }
-        return $this->_syncProducer;
+        return $this->_syncConnection;
     }
 
     /**

@@ -216,7 +216,7 @@ class Connection
      * @param bool $close
      * @return bool|PromiseInterface
      */
-    public function publish(AbstractMessage $abstractMessage, bool $close = true) : PromiseInterface
+    public function publish(AbstractMessage $abstractMessage, bool $close = false) : PromiseInterface
     {
         if($this->client()->isConnected()){
             return $this->_getChannel()->publish(

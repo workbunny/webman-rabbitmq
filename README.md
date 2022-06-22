@@ -76,16 +76,22 @@ return [
 
 ## 实现生产
 
-- 同步生产
+- 每个builder各包含一个连接，使用多个builder会创建多个连接
+
+- 生产消息默认不关闭当前连接
+
+- 异步生产的连接与消费者共用
+
+### 同步生产
 
 ```php
 $builder = \Examples\TestBuilder::instance();
 $message = $builder->getMessage();
 $message->setBody('abcd');
-$builder->syncProducer()->publish($message); # return bool
+$builder->syncConnection()->publish($message); # return bool
 ```
 
-- 异步生产
+### 异步生产
 
 ```php
 $builder = \Examples\TestBuilder::instance();

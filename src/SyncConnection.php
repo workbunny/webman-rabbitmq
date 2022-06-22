@@ -9,7 +9,7 @@ use Closure;
 use Throwable;
 use Workbunny\WebmanRabbitMQ\Protocols\AbstractMessage;
 
-class SyncProducer
+class SyncConnection
 {
     /**
      * @var Channel|null
@@ -89,7 +89,7 @@ class SyncProducer
      * @param bool $close
      * @return bool
      */
-    public function publish(AbstractMessage $abstractMessage, bool $close = true): bool
+    public function publish(AbstractMessage $abstractMessage, bool $close = false): bool
     {
         try {
             $this->_getChannel()->exchangeDeclare(
