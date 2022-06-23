@@ -16,7 +16,6 @@
   },
   "require": {
     "php": ">=7.4",
-    "ext-json": "*",
     "workerman/rabbitmq": "^1.0"
   },
   "require-dev": {
