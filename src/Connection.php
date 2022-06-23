@@ -35,9 +35,9 @@ class Connection
     protected ?Closure $_errorCallback = null;
 
 
-    public function __construct(array $config = [])
+    public function __construct(?array $config = null)
     {
-        $this->_config = $config ?? config('plugin.workbunny.webman-rabbitmq.app');
+        $this->_config = ($config !== null) ? $config : config('plugin.workbunny.webman-rabbitmq.app');
         $this->_errorCallback = $this->_config['error_callback'] ?? null;
         $this->_client = new AsyncClient($this->_config);
     }

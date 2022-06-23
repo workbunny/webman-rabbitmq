@@ -84,6 +84,8 @@ return [
 
 ### 同步生产
 
+- 利用创建的Builder生产
+
 ```php
 $builder = \Examples\TestBuilder::instance();
 $message = $builder->getMessage();
@@ -91,11 +93,29 @@ $message->setBody('abcd');
 $builder->syncConnection()->publish($message); # return bool
 ```
 
+- 助手函数生产
+
+```php
+use function Workbunny\WebmanRabbitMQ\sync_publish;
+
+sync_publish('abc'); # return bool
+```
+
 ### 异步生产
+
+- 利用创建的Builder生产
 
 ```php
 $builder = \Examples\TestBuilder::instance();
 $message = $builder->getMessage();
 $message->setBody('abcd');
-$builder->connection()->publish($message); # return PromiseInterface
+$builder->connection()->publish($message); # return PromiseInterface|bool
+```
+
+- 助手函数生产
+
+```php
+use function Workbunny\WebmanRabbitMQ\async_publish;
+
+async_publish('abc'); # return PromiseInterface|bool
 ```
