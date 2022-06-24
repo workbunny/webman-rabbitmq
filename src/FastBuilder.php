@@ -41,7 +41,7 @@ abstract class FastBuilder implements BuilderInterface
      */
     public static function instance() : FastBuilder
     {
-        if(self::$_builder instanceof FastBuilder){
+        if(!self::$_builder instanceof FastBuilder){
             self::$_builder = new static();
         }
         return self::$_builder;
