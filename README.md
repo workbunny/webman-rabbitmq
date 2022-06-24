@@ -7,10 +7,6 @@
 # A PHP implementation of RabbitMQ Client for webman plugin
 
 
-# 说明
-
-本组件
-
 ## 使用
 
 ```
