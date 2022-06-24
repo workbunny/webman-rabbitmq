@@ -34,17 +34,20 @@ abstract class FastBuilder implements BuilderInterface
      */
     private ?SyncConnection $_syncConnection = null;
 
-    protected static ?FastBuilder $_builder = null;
+    /**
+     * @var FastBuilder[]
+     */
+    protected static array $_builders = [];
 
     /**
      * @return FastBuilder|static
      */
     public static function instance() : FastBuilder
     {
-        if(!self::$_builder instanceof FastBuilder){
-            self::$_builder = new static();
+        if(!isset(self::$_builders[$class = get_called_class()])){
+            self::$_builders[$class] = new $class();
         }
-        return self::$_builder;
+        return self::$_builders[$class];
     }
 
     public function __construct()
@@ -132,6 +135,7 @@ abstract class FastBuilder implements BuilderInterface
     public function setMessage(AbstractMessage $message): void
     {
         $this->_message = $message;
+        $this->_message->setCallback([$this, 'handler']);
     }
 
     /**

@@ -87,7 +87,9 @@ return [
 - 利用创建的Builder生产
 
 ```php
-$builder = \Examples\TestBuilder::instance();
+use Examples\TestBuilder;
+
+$builder = TestBuilder::instance();
 $message = $builder->getMessage();
 $message->setBody('abcd');
 $builder->syncConnection()->publish($message); # return bool
@@ -97,8 +99,9 @@ $builder->syncConnection()->publish($message); # return bool
 
 ```php
 use function Workbunny\WebmanRabbitMQ\sync_publish;
+use Examples\TestBuilder;
 
-sync_publish('abc'); # return bool
+sync_publish(TestBuilder::instance(), 'abc'); # return bool
 ```
 
 ### 异步生产
@@ -106,7 +109,9 @@ sync_publish('abc'); # return bool
 - 利用创建的Builder生产
 
 ```php
-$builder = \Examples\TestBuilder::instance();
+use Examples\TestBuilder;
+
+$builder = TestBuilder::instance();
 $message = $builder->getMessage();
 $message->setBody('abcd');
 $builder->connection()->publish($message); # return PromiseInterface|bool
@@ -116,6 +121,7 @@ $builder->connection()->publish($message); # return PromiseInterface|bool
 
 ```php
 use function Workbunny\WebmanRabbitMQ\async_publish;
+use Examples\TestBuilder;
 
-async_publish('abc'); # return PromiseInterface|bool
+async_publish(TestBuilder::instance(), 'abc'); # return PromiseInterface|bool
 ```
