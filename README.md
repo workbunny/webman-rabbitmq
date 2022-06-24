@@ -7,26 +7,30 @@
 # A PHP implementation of RabbitMQ Client for webman plugin
 
 
-## 说明
+# 说明
 
-## 创建Builder
+本组件
+
+## 使用
 
 ```
 composer require workbunny/webman-rabbitmq
 ```
 
-1. 创建一个builder
+## 创建Builder
 
-```php
-use Workbunny\WebmanRabbitMQ\FastBuilder;
+**Builder** 可以理解为类似 **ORM Model**，创建一个 **Builder** 就对应了一个队列；
+使用该 **Builder** 对象进行 **publish()** 时，会向该队列投放消息；
 
-class TestBuilder extends FastBuilder
-{
+创建多少个 **Builder** 就相当于创建了多少条队列；**注： 前提是将所创建的 Builder
+加入了 webman 自定义进程配置 porcess.php**
 
-}
-```
 
-2. 重写参数【可选】
+- 继承FastBuilder
+- 实现handler方法
+- 重写属性【可选】
+
+以下以 **TestBuilder** 举例：
 
 ```php
 use Workbunny\WebmanRabbitMQ\FastBuilder;
@@ -39,19 +43,7 @@ class TestBuilder extends FastBuilder
     protected int $prefetch_size = 2;
     // 是否全局 【可选， 默认false】
     protected bool $is_global = true;
-}
-```
-
-## 实现消费
-
-1. 实现消费者处理函数
-
-```php
-use Workbunny\WebmanRabbitMQ\FastBuilder;
-use Workbunny\WebmanRabbitMQ\Constants;
-
-class TestBuilder extends FastBuilder
-{
+    
     public function handler(\Bunny\Message $message,\Bunny\Channel $channel,\Bunny\Client $client) : string{
         var_dump($message->content);
         return Constants::ACK;
@@ -61,7 +53,11 @@ class TestBuilder extends FastBuilder
 }
 ```
 
-2. 将 **TestBuilder** 配置入 **Webman** 自定义进程中
+## 实现消费
+
+**消费是异步的，不会阻塞当前进程，不会影响webman/workerman的status；**
+
+1. 将 **TestBuilder** 配置入 **Webman** 自定义进程中
 
 ```php
 return [
@@ -72,7 +68,7 @@ return [
 ];
 ```
 
-3. **启动 webman**
+2. 启动 **webman** 后会自动创建queue、exchange并进行消费，连接数与配置的进程数 **count** 相同
 
 ## 实现生产
 
@@ -84,7 +80,9 @@ return [
 
 ### 同步生产
 
-- 利用创建的Builder生产
+**该方法会阻塞等待至消息生产成功，返回bool**
+
+- 向 **TestBuilder** 队列发布消息
 
 ```php
 use Examples\TestBuilder;
@@ -95,7 +93,7 @@ $message->setBody('abcd');
 $builder->syncConnection()->publish($message); # return bool
 ```
 
-- 助手函数生产
+- 使用助手函数向 **TestBuilder** 发布消息
 
 ```php
 use function Workbunny\WebmanRabbitMQ\sync_publish;
@@ -106,7 +104,9 @@ sync_publish(TestBuilder::instance(), 'abc'); # return bool
 
 ### 异步生产
 
-- 利用创建的Builder生产
+**该方法不会阻塞等待，立即返回 promise，可以利用 promise 进行 wait；也可以纯异步不等待**
+
+- 向 **TestBuilder** 队列发布消息
 
 ```php
 use Examples\TestBuilder;
@@ -117,7 +117,7 @@ $message->setBody('abcd');
 $builder->connection()->publish($message); # return PromiseInterface|bool
 ```
 
-- 助手函数生产
+- 使用助手函数向 **TestBuilder** 发布消息
 
 ```php
 use function Workbunny\WebmanRabbitMQ\async_publish;
