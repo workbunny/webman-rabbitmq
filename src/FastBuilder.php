@@ -126,6 +126,15 @@ abstract class FastBuilder implements BuilderInterface
     }
 
     /**
+     * @param AbstractMessage $message
+     * @return void
+     */
+    public function setMessage(AbstractMessage $message): void
+    {
+        $this->_message = $message;
+    }
+
+    /**
      * 消费响应处理器
      * @param BunnyMessage $message
      * @param BunnyChannel $channel
