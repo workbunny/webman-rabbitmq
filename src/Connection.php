@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ;
 
+use Bunny\Async\Client;
 use Bunny\Channel;
 use Bunny\Message;
 use Bunny\Protocol\MethodBasicConsumeOkFrame;
 use Closure;
-use Psr\Log\LoggerInterface;
 use React\Promise\PromiseInterface;
-use support\Log;
+use Throwable;
 use Workbunny\WebmanRabbitMQ\Protocols\AbstractMessage;
 
 class Connection
@@ -78,14 +78,14 @@ class Connection
             function (AsyncClient $client){
                 return $client->channel()->then(function (Channel $channel){
                     return $channel;
-                },function (\Throwable $throwable){
+                },function (Throwable $throwable){
                     $this->close();
                     if($this->_errorCallback){
                         ($this->_errorCallback)($throwable);
                     }
                 });
             },
-            function (\Throwable $throwable){
+            function (Throwable $throwable){
                 $this->close();
                 if($this->_errorCallback){
                     ($this->_errorCallback)($throwable);
@@ -105,7 +105,7 @@ class Connection
                 function () use ($channel) {
                     return $channel;
                 },
-                function (\Throwable $throwable){
+                function (Throwable $throwable){
                     if($this->_errorCallback){
                         ($this->_errorCallback)($throwable);
                     }
@@ -124,7 +124,7 @@ class Connection
                 function () use ($channel) {
                     return $channel;
                 },
-                function (\Throwable $throwable){
+                function (Throwable $throwable){
                     if($this->_errorCallback){
                         ($this->_errorCallback)($throwable);
                     }
@@ -141,7 +141,7 @@ class Connection
                 function () use ($channel) {
                     return $channel;
                 },
-                function (\Throwable $throwable){
+                function (Throwable $throwable){
                     if($this->_errorCallback){
                         ($this->_errorCallback)($throwable);
                     }
@@ -156,7 +156,7 @@ class Connection
                 function () use ($channel) {
                     return $channel;
                 },
-                function (\Throwable $throwable){
+                function (Throwable $throwable){
                     if($this->_errorCallback){
                         ($this->_errorCallback)($throwable);
                     }
@@ -165,25 +165,27 @@ class Connection
         })->then(function (Channel $channel) use ($abstractMessage) {
             //Waiting for messages
             $channel->consume(
-                function (Message $message, Channel $channel, AsyncClient $client) use ($abstractMessage) {
-                    $tag = ($abstractMessage->getCallback())($message, $channel, $client);
-                    switch ($tag) {
-                        case Constants::ACK:
+                function (Message $message, Channel $channel, Client $client) use ($abstractMessage) {
+                    try {
+                        $tag = ($abstractMessage->getCallback())($message, $channel, $client);
+                    }catch (Throwable $throwable){
+                        $tag = null;
+                    }
+                    switch (true) {
+                        case $tag === Constants::ACK:
                             $res = $channel->ack($message);
                             break;
-                        case Constants::NACK:
+                        case $tag === Constants::NACK:
                             $res = $channel->nack($message);
                             break;
-                        case Constants::REQUEUE:
+                        case $tag === Constants::REQUEUE:
                         default:
                             $res = $channel->reject($message);
                             break;
                     }
                     $res->then(
-                        function (){
-
-                        },
-                        function (\Throwable $throwable){
+                        function (){},
+                        function (Throwable $throwable){
                             if($this->_errorCallback){
                                 ($this->_errorCallback)($throwable);
                             }
@@ -201,7 +203,7 @@ class Connection
                 function (MethodBasicConsumeOkFrame $ok){
 
                 },
-                function (\Throwable $throwable){
+                function (Throwable $throwable){
                     if($this->_errorCallback){
                         ($this->_errorCallback)($throwable);
                     }
@@ -234,7 +236,7 @@ class Connection
                     }
                     return true;
                 },
-                function (\Throwable $throwable){
+                function (Throwable $throwable){
                     $this->_setChannel();
                     $this->close();
                     if($this->_errorCallback){
@@ -248,7 +250,7 @@ class Connection
                 return $client->channel()->then(function (Channel $channel){
                     $this->_setChannel($channel);
                     return $channel;
-                },function (\Throwable $throwable){
+                },function (Throwable $throwable){
                     $this->_setChannel();
                     $this->close();
                     if($this->_errorCallback){
@@ -256,7 +258,7 @@ class Connection
                     }
                     return false;
                 });
-            },function (\Throwable $throwable){
+            },function (Throwable $throwable){
                 $this->_setChannel();
                 $this->close();
                 if($this->_errorCallback){
@@ -276,7 +278,7 @@ class Connection
                     function () use ($channel) {
                         return $channel;
                     },
-                    function (\Throwable $throwable){
+                    function (Throwable $throwable){
                         $this->_setChannel();
                         $this->close();
                         if($this->_errorCallback){
@@ -298,7 +300,7 @@ class Connection
                     function () use ($channel) {
                         return $channel;
                     },
-                    function (\Throwable $throwable){
+                    function (Throwable $throwable){
                         $this->_setChannel();
                         $this->close();
                         if($this->_errorCallback){
@@ -318,7 +320,7 @@ class Connection
                     function () use ($channel) {
                         return $channel;
                     },
-                    function (\Throwable $throwable){
+                    function (Throwable $throwable){
                         $this->_setChannel();
                         $this->close();
                         if($this->_errorCallback){
@@ -343,7 +345,7 @@ class Connection
                         }
                         return true;
                     },
-                    function (\Throwable $throwable){
+                    function (Throwable $throwable){
                         $this->_setChannel();
                         $this->close();
                         if($this->_errorCallback){

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ;
 
-use Bunny\Client as BunnyClient;
+use Bunny\Async\Client as BunnyClient;
 use Bunny\Channel as BunnyChannel;
 use Bunny\Message as BunnyMessage;
 use Workbunny\WebmanRabbitMQ\Protocols\AbstractMessage;
@@ -69,7 +69,7 @@ abstract class FastBuilder implements BuilderInterface
      */
     public function onWorkerStart(Worker $worker): void
     {
-        self::connection()->consume($this->getMessage());
+        $this->connection()->consume($this->getMessage());
     }
 
     /**

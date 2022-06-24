@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Examples;
 
 use Bunny\Channel as BunnyChannel;
-use Bunny\Client as BunnyClient;
+use Bunny\Async\Client as BunnyClient;
 use Bunny\Message as BunnyMessage;
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\FastBuilder;

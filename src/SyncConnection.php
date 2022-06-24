@@ -77,8 +77,6 @@ class SyncConnection
         }catch (ClientException $exception){
             $this->_client = null;
             $this->client()->connect();
-        }catch (Throwable $throwable){
-            throw $throwable;
         }finally {
             return $this->_client;
         }

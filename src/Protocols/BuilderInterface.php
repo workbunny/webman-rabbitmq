@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Workbunny\WebmanRabbitMQ\Protocols;
 
 use Bunny\Channel as BunnyChannel;
-use Bunny\Client as BunnyClient;
+use Bunny\Async\Client as BunnyClient;
 use Bunny\Message as BunnyMessage;
 use Workerman\Worker;
 
