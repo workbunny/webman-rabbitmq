@@ -8,9 +8,10 @@ class Install
     /**
      * @var array
      */
-    protected static $pathRelation = array (
-  'config/plugin/workbunny/webman-rabbitmq' => 'config/plugin/workbunny/webman-rabbitmq',
-);
+    protected static $pathRelation = [
+        'config/plugin/workbunny/webman-rabbitmq' => 'config/plugin/workbunny/webman-rabbitmq',
+        'command/initWorkbunnyWebmanRabbitMQBuilder.php' => 'command/initWorkbunnyWebmanRabbitMQBuilder.php',
+    ];
 
     /**
      * Install
