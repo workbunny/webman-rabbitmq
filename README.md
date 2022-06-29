@@ -178,11 +178,11 @@ use Examples\TestBuilder;
 async_publish(TestBuilder::instance(), 'abc'); # return PromiseInterface|bool
 ```
 
-## 延迟队列
+### 实现延迟队列
 
 延迟队列需要借助RabbitMQ的插件实现，所以需要先给RabbitMQ安装相关支撑插件。
 
-### 安装插件
+#### 安装插件
 
 1. 进入 rabbitMQ 的 plugins 目录下执行命令下载插件（以rabbitMQ 3.8.x举例）：
 
@@ -196,7 +196,7 @@ wget https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/down
 rabbitmq-plugins enable rabbitmq_delayed_message_exchange
 ```
 
-### 使用
+#### 使用方法
 
 1. 继承重写 **Builder** 的 **delayed** 属性：
 
@@ -245,6 +245,8 @@ class DelayBuilder extends FastBuilder
 
 
 ## 说明
-1. **Message** 可以理解为队列、交换机的配置信息；
-2. 继承实现 **AbstractMessage** 可以自定义Message；
-2. **Builder** 可通过 **Builder->setMessage()** 可设置自定义配置；
+- 目前这套代码在我司生产环境运行，我会做及时的维护，**欢迎 [issue](https://github.com/workbunny/webman-rabbitmq/issues) 和 PR**；
+- **Message** 可以理解为队列、交换机的配置信息；
+- 继承实现 **AbstractMessage** 可以自定义Message；
+- **Builder** 可通过 **Builder->setMessage()** 可设置自定义配置；
+- 可使用 **SyncClient** 或 **AsyncClient** 自行实现一些自定义消费/自定义生产的功能；
