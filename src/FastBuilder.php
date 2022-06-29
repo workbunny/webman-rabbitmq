@@ -18,6 +18,8 @@ abstract class FastBuilder implements BuilderInterface
 
     protected bool $is_global = false;
 
+    protected bool $delayed = false;
+
 
     /**
      * @var AbstractMessage|Message
@@ -61,6 +63,14 @@ abstract class FastBuilder implements BuilderInterface
 
         $this->_message = new Message($message);
         $this->_message->setCallback([$this, 'handler']);
+
+        if($this->delayed){
+            $exchangeType = $this->_message->getExchangeType();
+            $this->_message->setExchangeType(Constants::DELAYED);
+            $this->_message->setArguments([
+                'x-delayed-type' => $exchangeType
+            ]);
+        }
     }
 
     /**
@@ -136,6 +146,14 @@ abstract class FastBuilder implements BuilderInterface
     {
         $this->_message = $message;
         $this->_message->setCallback([$this, 'handler']);
+
+        if($this->delayed){
+            $exchangeType = $this->_message->getExchangeType();
+            $this->_message->setExchangeType(Constants::DELAYED);
+            $this->_message->setArguments([
+                'x-delayed-type' => $exchangeType
+            ]);
+        }
     }
 
     /**

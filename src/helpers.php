@@ -18,7 +18,7 @@ function sync_publish(FastBuilder $builder, string $body, ?array $headers = null
     $message = $builder->getMessage();
     $message->setBody($body);
     if($headers !== null){
-        $message->setHeaders($headers);
+        $message->setHeaders(array_merge($message->getHeaders(), $headers));
     }
     return $builder->syncConnection()->publish($message, $close);
 }
@@ -36,7 +36,7 @@ function async_publish(FastBuilder $builder, string $body, ?array $headers = nul
     $message = $builder->getMessage();
     $message->setBody($body);
     if($headers !== null){
-        $message->setHeaders($headers);
+        $message->setHeaders(array_merge($message->getHeaders(), $headers));
     }
     return $builder->connection()->publish($message, $close);
 }

@@ -5,10 +5,11 @@ namespace Workbunny\WebmanRabbitMQ;
 
 class Constants
 {
-    const DIRECT = 'direct';
-    const FANOUT = 'fanout';
-    const TOPIC  = 'topic';
-    const HEADER = 'header';
+    const DIRECT  = 'direct';
+    const FANOUT  = 'fanout';
+    const TOPIC   = 'topic';
+    const HEADER  = 'header';
+    const DELAYED = 'x-delayed-message';
 
     const ACK = 'ack';
     const NACK = 'nack';
