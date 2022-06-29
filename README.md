@@ -99,8 +99,8 @@ class TestBuilder extends FastBuilder
     protected int $prefetch_size = 2;
     // 是否全局 【可选， 默认false】
     protected bool $is_global = true;
-	// 是否延迟队列 【可选， 默认false】
-	protected bool $delayed = true;
+    // 是否延迟队列 【可选， 默认false】
+    protected bool $delayed = true;
     
     public function handler(\Bunny\Message $message,\Bunny\Channel $channel,\Bunny\Client $client) : string{
         var_dump($message->content);
