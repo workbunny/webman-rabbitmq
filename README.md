@@ -89,6 +89,10 @@ return [
 ```php
 namespace process；
 
+use Bunny\Channel as BunnyChannel;
+use Bunny\Async\Client as BunnyClient;
+use Bunny\Message as BunnyMessage;
+use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\FastBuilder;
 
 class TestBuilder extends FastBuilder
@@ -101,8 +105,9 @@ class TestBuilder extends FastBuilder
     protected bool $is_global = true;
     // 是否延迟队列 【可选， 默认false】
     protected bool $delayed = true;
-    
-    public function handler(\Bunny\Message $message,\Bunny\Channel $channel,\Bunny\Client $client) : string{
+
+    public function handler(BunnyMessage $message, BunnyChannel $channel, BunnyClient $client): string
+    {
         var_dump($message->content);
         return Constants::ACK;
         # Constants::NACK
