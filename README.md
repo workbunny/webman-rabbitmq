@@ -38,6 +38,8 @@ RabbitMQ的webman客户端插件；
 
 简单易用高效，可以轻易的实现master/worker的队列模式（一个队列多个消费者）；
 
+支持延迟队列；
+
 
 ## 安装
 
@@ -82,9 +84,15 @@ return [
 - 实现handler方法
 - 重写属性【可选】
 
-以下以 **TestBuilder** 举例：
+以下以 **TestBuilder** 举例 **（如：创建了app/process/TestBuilder.php）**：
 
 ```php
+namespace process；
+
+use Bunny\Channel as BunnyChannel;
+use Bunny\Async\Client as BunnyClient;
+use Bunny\Message as BunnyMessage;
+use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\FastBuilder;
 
 class TestBuilder extends FastBuilder
@@ -95,8 +103,11 @@ class TestBuilder extends FastBuilder
     protected int $prefetch_size = 2;
     // 是否全局 【可选， 默认false】
     protected bool $is_global = true;
-    
-    public function handler(\Bunny\Message $message,\Bunny\Channel $channel,\Bunny\Client $client) : string{
+    // 是否延迟队列 【可选， 默认false】
+    protected bool $delayed = true;
+
+    public function handler(BunnyMessage $message, BunnyChannel $channel, BunnyClient $client): string
+    {
         var_dump($message->content);
         return Constants::ACK;
         # Constants::NACK
@@ -109,12 +120,12 @@ class TestBuilder extends FastBuilder
 
 **消费是异步的，不会阻塞当前进程，不会影响webman/workerman的status；**
 
-1. 将 **TestBuilder** 配置入 **Webman** 自定义进程中
+1. 将创建的 **app/process/TestBuilder.php** 配置入 **Webman** 自定义进程中
 
 ```php
 return [
     'test-builder' => [
-        'handler' => \Examples\TestBuilder::class,
+        'handler' => \process\TestBuilder::class,
         'count'   => cpu_count(), # 建议与CPU数量保持一致，也可自定义
     ],
 ];
@@ -134,10 +145,12 @@ return [
 
 **该方法会阻塞等待至消息生产成功，返回bool**
 
-- 向 **TestBuilder** 队列发布消息
+**注：以下两种方式任选一种即可**
+
+- 使用单例对象向 **TestBuilder** 队列发布消息
 
 ```php
-use Examples\TestBuilder;
+use process\TestBuilder;
 
 $builder = TestBuilder::instance();
 $message = $builder->getMessage();
@@ -149,7 +162,7 @@ $builder->syncConnection()->publish($message); # return bool
 
 ```php
 use function Workbunny\WebmanRabbitMQ\sync_publish;
-use Examples\TestBuilder;
+use process\TestBuilder;
 
 sync_publish(TestBuilder::instance(), 'abc'); # return bool
 ```
@@ -158,10 +171,12 @@ sync_publish(TestBuilder::instance(), 'abc'); # return bool
 
 **该方法不会阻塞等待，立即返回 promise，可以利用 promise 进行 wait；也可以纯异步不等待**
 
-- 向 **TestBuilder** 队列发布消息
+**注：以下两种方式任选一种即可**
+
+- 使用单例对象向 **TestBuilder** 队列发布消息
 
 ```php
-use Examples\TestBuilder;
+use process\TestBuilder;
 
 $builder = TestBuilder::instance();
 $message = $builder->getMessage();
@@ -173,7 +188,7 @@ $builder->connection()->publish($message); # return PromiseInterface|bool
 
 ```php
 use function Workbunny\WebmanRabbitMQ\async_publish;
-use Examples\TestBuilder;
+use process\TestBuilder;
 
 async_publish(TestBuilder::instance(), 'abc'); # return PromiseInterface|bool
 ```
@@ -201,6 +216,8 @@ rabbitmq-plugins enable rabbitmq_delayed_message_exchange
 1. 继承重写 **Builder** 的 **delayed** 属性：
 
 ```php
+namespace process；
+
 use Workbunny\WebmanRabbitMQ\FastBuilder;
 
 class DelayBuilder extends FastBuilder
@@ -220,7 +237,7 @@ class DelayBuilder extends FastBuilder
 
    - 同步生产
      ```php
-     use Examples\DelayBuilder;
+     use process\DelayBuilder;
 
      $builder = DelayBuilder::instance();
      $message = $builder->getMessage();
@@ -233,7 +250,7 @@ class DelayBuilder extends FastBuilder
 
      ```php
      use function Workbunny\WebmanRabbitMQ\sync_publish;
-     use Examples\DelayBuilder;
+     use process\DelayBuilder;
 
      sync_publish(DelayBuilder::instance(), 'abc', [
          'x-delay' => 10000, # 延迟10秒
