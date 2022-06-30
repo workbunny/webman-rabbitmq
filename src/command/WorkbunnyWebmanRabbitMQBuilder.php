@@ -8,10 +8,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class InitWorkbunnyWebmanRabbitMQBuilder extends Command
+class WorkbunnyWebmanRabbitMQBuilder extends Command
 {
     protected static $defaultName        = 'workbunny:rabbitmq-builder';
-    protected static $defaultDescription = '创建并初始化一个workbunny/webman-rabbitmq的Builder. ';
+    protected static $defaultDescription = '创建一个workbunny/webman-rabbitmq的Builder. ';
 
     /**
      * @return void
