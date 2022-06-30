@@ -19,6 +19,7 @@ class WorkbunnyWebmanRabbitMQBuilder extends Command
     protected function configure()
     {
         $this->addArgument('name', InputArgument::REQUIRED, 'builder name');
+        $this->addArgument('count', InputArgument::REQUIRED, 'builder count');
     }
 
     /**
@@ -29,6 +30,7 @@ class WorkbunnyWebmanRabbitMQBuilder extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $name = $input->getArgument('name');
+        $count = $input->getArgument('count');
         $output->writeln("Make workbunny/webman-rabbitmq Builder {$name}");
         if (!($pos = strrpos($name, '/'))) {
             $name = $this->getClassName($name);
@@ -41,6 +43,7 @@ class WorkbunnyWebmanRabbitMQBuilder extends Command
             $namespace = str_replace('/', '\\', $path);
         }
         $this->createBuilder($name, $namespace, $file);
+        $this->initBuilder($name, $namespace, (int)$count);
         $output->writeln("<info>Builder {$name} create succeeded. </info>");
 
         return self::SUCCESS;
@@ -55,6 +58,33 @@ class WorkbunnyWebmanRabbitMQBuilder extends Command
         return preg_replace_callback('/:([a-zA-Z])/', function ($matches) {
                 return strtoupper($matches[1]);
             }, ucfirst($name)) . 'Builder';
+    }
+
+    /**
+     * @param string $name
+     * @param string $namespace
+     * @param int $count
+     * @return void
+     */
+    protected function initBuilder(string $name, string $namespace, int $count)
+    {
+        if(file_exists($config = config_path() . '/plugin/workbunny/webman-rabbitmq/process.php')){
+
+            $name = str_replace('\\', '.', $class = "{$namespace}\{$name}");
+
+            $string = preg_replace_callback('/(];)(?!.*\1)/',function () use ($name, $class, $count){
+                return <<<EOF
+
+    '$name' => [
+        'handler' => $class::class,
+        'count'   => $count
+    ],
+];
+EOF;
+            }, file_get_contents($config),1);
+
+            file_put_contents($config, $string);
+        }
     }
 
     /**
