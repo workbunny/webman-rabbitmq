@@ -13,22 +13,22 @@
 
 1. 什么时候使用消息队列？
 
-	**当你需要对系统进行解耦、削峰、异步的时候；如发送短信验证码、秒杀活动、资产的异步分账清算等。**
+   **当你需要对系统进行解耦、削峰、异步的时候；如发送短信验证码、秒杀活动、资产的异步分账清算等。**
 
 2. RabbitMQ和Redis的区别？
 
-	**Redis中的Stream的特性同样适用于消息队列，并且也包含了比较完善的ACK机制，但在一些点上与RabbitMQ存在不同：**
+   **Redis中的Stream的特性同样适用于消息队列，并且也包含了比较完善的ACK机制，但在一些点上与RabbitMQ存在不同：**
 	- **Redis Stream没有完善的后台管理；RabbitMQ拥有较为完善的后台管理及Api；**
 	- **Redis的持久化策略取舍：默认的RDB策略极端情况下存在丢失数据，AOF策略则需要牺牲一些性能；Redis持久化方案更多，可对消息持久化也可对队列持久化；**
 	- **RabbitMQ拥有更多的插件可以提供更完善的协议支持及功能支持；**
 
 3. 什么时候使用Redis？什么时候使用RabbitMQ？
 
-	**当你的队列使用比较单一或者比较轻量的时候，请选用 Redis Stream；当你需要一个比较完整的消息队列体系，包括需要利用交换机来绑定不同队列做一些比较复杂的消息任务的时候，请选择RabbitMQ；**
+   **当你的队列使用比较单一或者比较轻量的时候，请选用 Redis Stream；当你需要一个比较完整的消息队列体系，包括需要利用交换机来绑定不同队列做一些比较复杂的消息任务的时候，请选择RabbitMQ；**
 
-	**当然，如果你的队列使用也比较单一，但你需要用到一些管理后台相关系统化的功能的时候，又不想花费太多时间去开发的时候，也可以使用RabbitMQ；因为RabbitMQ提供了一整套后台管理的体系及 HTTP API 供开发者兼容到自己的管理后台中，不需要再消耗多余的时间去开发功能；**
+   **当然，如果你的队列使用也比较单一，但你需要用到一些管理后台相关系统化的功能的时候，又不想花费太多时间去开发的时候，也可以使用RabbitMQ；因为RabbitMQ提供了一整套后台管理的体系及 HTTP API 供开发者兼容到自己的管理后台中，不需要再消耗多余的时间去开发功能；**
 
-	注：这里的 **轻量** 指的是 **无须将应用中的队列服务独立化，该队列服务是该应用独享的**
+   注：这里的 **轻量** 指的是 **无须将应用中的队列服务独立化，该队列服务是该应用独享的**
 
 ## 简介
 
@@ -42,13 +42,11 @@ RabbitMQ的webman客户端插件；
 
 
 ## 安装
-
 ```
 composer require workbunny/webman-rabbitmq
 ```
 
 ## 配置
-
 ```php
 <?php
 return [
@@ -73,21 +71,56 @@ return [
 
 ### 创建Builder
 
-**Builder** 可以理解为类似 **ORM** 的 **Model**，创建一个 **Builder** 就对应了一个队列；
-使用该 **Builder** 对象进行 **publish()** 时，会向该队列投放消息；
+- **创建一个消费者进程数量为1的普通队列：（在项目根目录执行）**
+```shell
+./webman workbunny:rabbitmq-builder test 1
+```
 
-创建多少个 **Builder** 就相当于创建了多少条队列；**注： 前提是将所创建的 Builder
-加入了 webman 自定义进程配置 porcess.php**
+- **创建一个消费者进程数量为1的延迟队列：（在项目根目录执行）**
+```shell
+./webman workbunny:rabbitmq-builder test 1 -d
+	
+# 或
+	
+./webman workbunny:rabbitmq-builder test 1 --delayed
+```
+
+**注：延迟队列需要为 rabbitMQ 安装 rabbitmq_delayed_message_exchange 插件**
+
+1. 进入 rabbitMQ 的 plugins 目录下执行命令下载插件（以rabbitMQ 3.8.x举例）：
+```shell
+wget https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/download/3.8.17/rabbitmq_delayed_message_exchange-3.8.17.8f537ac.ez
+```
+
+2. 执行安装命令
+```shell
+rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+```
+
+#### 说明：
+
+- **Builder** 可以理解为类似 **ORM** 的 **Model**，创建一个 **Builder** 就对应了一个队列；使用该 **Builder** 对象进行 **publish()** 时，会向该队列投放消息；创建多少个 **Builder** 就相当于创建了多少条队列；
+
+- **命令结构：**
+```shell
+workbunny:rabbitmq-builder [-d|--delayed] [--] <name> <count>
+
+# 【必填】 name：Builder名称
+# 【必填】count：启动的消费者进程数量
+# 【选填】-d/--delayed：是否是延迟队列
+```
+
+- 在项目根目录下命令会在 **process/workbunny/rabbitmq** 路径下创建一个Builder，并且将该Builder自动加入 **config/plugin/workbunny/webman-rabbitmq/process.php** 配置中作为自定义进程启动；**（如不需要自动加载消费者进程，请自行注释该配置）**；
+
+- 消费是异步的，不会阻塞当前进程，不会影响 **webman/workerman** 的 **status**；
 
 
-- 继承FastBuilder
-- 实现handler方法
-- 重写属性【可选】
-
-以下以 **TestBuilder** 举例 **（如：创建了app/process/TestBuilder.php）**：
-
+- **Builder文件结构入下，可自行调整类属性：**
 ```php
-namespace process；
+<?php
+declare(strict_types=1);
+
+namespace process\workbunny\rabbitmq;
 
 use Bunny\Channel as BunnyChannel;
 use Bunny\Async\Client as BunnyClient;
@@ -97,43 +130,27 @@ use Workbunny\WebmanRabbitMQ\FastBuilder;
 
 class TestBuilder extends FastBuilder
 {
-    // QOS计数 【可选， 默认0】
-    protected int $prefetch_count = 1;
-    // QOS大小 【可选， 默认0】
-    protected int $prefetch_size = 2;
-    // 是否全局 【可选， 默认false】
-    protected bool $is_global = true;
-    // 是否延迟队列 【可选， 默认false】
-    protected bool $delayed = true;
-
-    public function handler(BunnyMessage $message, BunnyChannel $channel, BunnyClient $client): string
-    {
-        var_dump($message->content);
-        return Constants::ACK;
-        # Constants::NACK
-        # Constants::REQUEUE
-    }
+   	// QOS 大小
+   	protected int $prefetch_size = 0;
+   	// QOS 数量
+   	protected int $prefetch_count = 0;
+   	// QOS 是否全局
+   	protected bool $is_global = false;
+   	// 是否延迟队列
+   	protected bool $delayed = false;
+   	// 消费回调
+   	public function handler(BunnyMessage $message, BunnyChannel $channel, BunnyClient $client): string
+   	{
+       	// TODO 消费需要的回调逻辑
+       	var_dump('请重写 TestBuilderDelayed::handler() ');
+       	return Constants::ACK;
+       	# Constants::NACK
+       	# Constants::REQUEUE
+   	}
 }
 ```
 
-### 实现消费
-
-**消费是异步的，不会阻塞当前进程，不会影响webman/workerman的status；**
-
-1. 将创建的 **app/process/TestBuilder.php** 配置入 **Webman** 自定义进程中
-
-```php
-return [
-    'test-builder' => [
-        'handler' => \process\TestBuilder::class,
-        'count'   => cpu_count(), # 建议与CPU数量保持一致，也可自定义
-    ],
-];
-```
-
-2. 启动 **webman** 后会自动创建queue、exchange并进行消费，连接数与配置的进程数 **count** 相同
-
-### 实现生产
+### 生产
 
 - 每个builder各包含一个连接，使用多个builder会创建多个连接
 
@@ -141,125 +158,54 @@ return [
 
 - 异步生产的连接与消费者共用
 
-#### 同步生产
+#### 1. 同步发布消息
 
 **该方法会阻塞等待至消息生产成功，返回bool**
 
-**注：以下两种方式任选一种即可**
-
-- 使用单例对象向 **TestBuilder** 队列发布消息
-
-```php
-use process\TestBuilder;
-
-$builder = TestBuilder::instance();
-$message = $builder->getMessage();
-$message->setBody('abcd');
-$builder->syncConnection()->publish($message); # return bool
-```
-
-- 使用助手函数向 **TestBuilder** 发布消息
+- 发布普通消息
 
 ```php
 use function Workbunny\WebmanRabbitMQ\sync_publish;
-use process\TestBuilder;
+use process\workbunny\rabbitmq\TestBuilder;
 
 sync_publish(TestBuilder::instance(), 'abc'); # return bool
 ```
 
-#### 异步生产
-
-**该方法不会阻塞等待，立即返回 promise，可以利用 promise 进行 wait；也可以纯异步不等待**
-
-**注：以下两种方式任选一种即可**
-
-- 使用单例对象向 **TestBuilder** 队列发布消息
+- 发布延迟消息
 
 ```php
-use process\TestBuilder;
+use function Workbunny\WebmanRabbitMQ\sync_publish;
+use process\workbunny\rabbitmq\TestBuilder;
 
-$builder = TestBuilder::instance();
-$message = $builder->getMessage();
-$message->setBody('abcd');
-$builder->connection()->publish($message); # return PromiseInterface|bool
+sync_publish(TestBuilder::instance(), 'abc', [
+	'x-delay' => 10000, # 延迟10秒
+]); # return bool
 ```
 
-- 使用助手函数向 **TestBuilder** 发布消息
+#### 2. 异步发布消息
+
+**该方法不会阻塞等待，立即返回 [React\Promise](https://github.com/reactphp/promise)，
+可以利用 [React\Promise](https://github.com/reactphp/promise) 进行 wait；
+也可以纯异步不等待，[React\Promise 项目地址](https://github.com/reactphp/promise)；**
+- 发布普通消息
 
 ```php
 use function Workbunny\WebmanRabbitMQ\async_publish;
-use process\TestBuilder;
+use process\workbunny\rabbitmq\TestBuilder;
 
 async_publish(TestBuilder::instance(), 'abc'); # return PromiseInterface|bool
 ```
 
-### 实现延迟队列
-
-延迟队列需要借助RabbitMQ的插件实现，所以需要先给RabbitMQ安装相关支撑插件。
-
-#### 安装插件
-
-1. 进入 rabbitMQ 的 plugins 目录下执行命令下载插件（以rabbitMQ 3.8.x举例）：
-
-```shell
-wget https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/download/3.8.17/rabbitmq_delayed_message_exchange-3.8.17.8f537ac.ez
-```
-
-2. 执行安装命令
-
-```shell
-rabbitmq-plugins enable rabbitmq_delayed_message_exchange
-```
-
-#### 使用方法
-
-1. 继承重写 **Builder** 的 **delayed** 属性：
+- 发布延迟消息
 
 ```php
-namespace process；
+use function Workbunny\WebmanRabbitMQ\async_publish;
+use process\workbunny\rabbitmq\TestBuilder;
 
-use Workbunny\WebmanRabbitMQ\FastBuilder;
-
-class DelayBuilder extends FastBuilder
-{
-    protected bool $delayed = true;
-    
-    public function handler(\Bunny\Message $message,\Bunny\Channel $channel,\Bunny\Client $client) : string{
-        var_dump($message->content);
-        return Constants::ACK;
-        # Constants::NACK
-        # Constants::REQUEUE
-    }
-}
+async_publish(TestBuilder::instance(), 'abc', [
+	'x-delay' => 10000, # 延迟10秒
+]); # return PromiseInterface|bool
 ```
-
-2. 生产者添加自定义头部 **x-delay** 实现延迟消息，单位毫秒：
-
-   - 同步生产
-     ```php
-     use process\DelayBuilder;
-
-     $builder = DelayBuilder::instance();
-     $message = $builder->getMessage();
-     $message->setBody('abcd');
-     $message->setHeaders(array_merge($message->getHeaders(), [
-         'x-delay' => 10000, # 延迟10秒
-     ]));
-     $builder->syncConnection()->publish($message); # return bool
-     ```
-
-     ```php
-     use function Workbunny\WebmanRabbitMQ\sync_publish;
-     use process\DelayBuilder;
-
-     sync_publish(DelayBuilder::instance(), 'abc', [
-         'x-delay' => 10000, # 延迟10秒
-     ]); # return bool
-     ```
-   - 异步同理
-
-3. 将 **DelayBuilder** 加入 webman 的 process.php 配置中，启动 webman
-
 
 ## 说明
 - 目前这套代码在我司生产环境运行，我会做及时的维护，**欢迎 [issue](https://github.com/workbunny/webman-rabbitmq/issues) 和 PR**；
