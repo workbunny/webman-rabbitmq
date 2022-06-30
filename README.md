@@ -45,6 +45,7 @@ RabbitMQ的webman客户端插件；
 ```
 composer require workbunny/webman-rabbitmq
 ```
+**注：本插件会在 app/command 目录下创建 Builder 命令， 请勿修改或删除 WorkbunnyWebmanRabbitMQBuilder.php 文件！！！！**
 
 ## 配置
 ```php
