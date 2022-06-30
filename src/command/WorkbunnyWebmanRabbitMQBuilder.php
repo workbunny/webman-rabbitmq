@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class WorkbunnyWebmanRabbitMQBuilder extends Command
 {
     protected static $defaultName        = 'workbunny:rabbitmq-builder';
-    protected static $defaultDescription = '创建一个workbunny/webman-rabbitmq的Builder. ';
+    protected static $defaultDescription = 'Create and initialize a workbunny/webman-rabbitmq Builder. ';
 
     /**
      * @return void
@@ -35,16 +35,15 @@ class WorkbunnyWebmanRabbitMQBuilder extends Command
         if (!($pos = strrpos($name, '/'))) {
             $name = $this->getClassName($name);
             $file = "process/workbunny/rabbitmq/{$name}.php";
-            $namespace = 'process/workbunny/rabbitmq';
+            $namespace = 'process\workbunny\rabbitmq';
         } else {
             $path = substr($name, 0, $pos) . '/workbunny/rabbitmq';
             $name = $this->getClassName(substr($name, $pos + 1));
             $file = "{$path}/{$name}.php";
             $namespace = str_replace('/', '\\', $path);
         }
-        $this->createBuilder($name, $namespace, $file);
-        $this->initBuilder($name, $namespace, (int)$count);
-        $output->writeln("<info>Builder {$name} create succeeded. </info>");
+
+        $this->initBuilder($name, $namespace, (int)$count, $file, $output);
 
         return self::SUCCESS;
     }
@@ -64,27 +63,37 @@ class WorkbunnyWebmanRabbitMQBuilder extends Command
      * @param string $name
      * @param string $namespace
      * @param int $count
+     * @param string $file
+     * @param OutputInterface $output
      * @return void
      */
-    protected function initBuilder(string $name, string $namespace, int $count)
+    protected function initBuilder(string $name, string $namespace, int $count, string $file, OutputInterface $output)
     {
-        if(file_exists($config = config_path() . '/plugin/workbunny/webman-rabbitmq/process.php')){
+        if(file_exists($process = config_path() . '/plugin/workbunny/webman-rabbitmq/process.php')){
+            $processConfig = file_get_contents($process);
+            $processName = str_replace('\\', '.', $className = "$namespace\\$name");
 
-            $name = str_replace('\\', '.', $class = "{$namespace}\{$name}");
+            if(strpos($processConfig, $processName) === false){
+                file_put_contents($process, preg_replace_callback('/(];)(?!.*\1)/',
+                    function () use ($processName, $className, $count){
+                        return <<<EOF
 
-            $string = preg_replace_callback('/(];)(?!.*\1)/',function () use ($name, $class, $count){
-                return <<<EOF
-
-    '$name' => [
-        'handler' => $class::class,
+    '$processName' => [
+        'handler' => \\$className::class,
         'count'   => $count
     ],
 ];
 EOF;
-            }, file_get_contents($config),1);
+                    }, $processConfig,1));
 
-            file_put_contents($config, $string);
+                $this->createBuilder($name, $namespace, $file);
+                $output->writeln("<info>Builder {$name} created successfully. </info>");
+                return;
+            }
+            $output->writeln("<error>Builder {$name} failed to create: Config already exists. </error>");
+            return;
         }
+        $output->writeln("<error>Builder {$name} failed to create: plugin/workbunny/webman-rabbitmq/process.php does not exist. </error>");
     }
 
     /**
@@ -103,7 +112,7 @@ EOF;
 <?php
 declare(strict_types=1);
 
-namespace {$namespace};
+namespace $namespace;
 
 use Bunny\Channel as BunnyChannel;
 use Bunny\Async\Client as BunnyClient;
@@ -111,7 +120,7 @@ use Bunny\Message as BunnyMessage;
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\FastBuilder;
 
-class {$name} extends FastBuilder
+class $name extends FastBuilder
 {
     // QOS 大小
     protected int \$prefetch_size = 0;
@@ -125,7 +134,7 @@ class {$name} extends FastBuilder
     public function handler(BunnyMessage \$message, BunnyChannel \$channel, BunnyClient \$client): string
     {
         // TODO 消费需要的回调逻辑
-        var_dump('请重写 {$name}::handler() ');
+        var_dump('请重写 $name::handler() ');
         return Constants::ACK;
         # Constants::NACK
         # Constants::REQUEUE
