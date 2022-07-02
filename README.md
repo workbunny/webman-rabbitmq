@@ -165,6 +165,8 @@ class TestBuilder extends FastBuilder
 
 - 发布普通消息
 
+**注：向延迟队列发布普通消息会抛出一个 WebmanRabbitMQException 异常**
+
 ```php
 use function Workbunny\WebmanRabbitMQ\sync_publish;
 use process\workbunny\rabbitmq\TestBuilder;
@@ -173,6 +175,8 @@ sync_publish(TestBuilder::instance(), 'abc'); # return bool
 ```
 
 - 发布延迟消息
+
+**注：向普通队列发布延迟消息会抛出一个 WebmanRabbitMQException 异常**
 
 ```php
 use function Workbunny\WebmanRabbitMQ\sync_publish;
@@ -190,6 +194,8 @@ sync_publish(TestBuilder::instance(), 'abc', [
 也可以纯异步不等待，[React\Promise 项目地址](https://github.com/reactphp/promise)；**
 - 发布普通消息
 
+**注：向延迟队列发布普通消息会抛出一个 WebmanRabbitMQException 异常**
+
 ```php
 use function Workbunny\WebmanRabbitMQ\async_publish;
 use process\workbunny\rabbitmq\TestBuilder;
@@ -198,6 +204,8 @@ async_publish(TestBuilder::instance(), 'abc'); # return PromiseInterface|bool
 ```
 
 - 发布延迟消息
+
+**注：向普通队列发布延迟消息会抛出一个 WebmanRabbitMQException 异常**
 
 ```php
 use function Workbunny\WebmanRabbitMQ\async_publish;
