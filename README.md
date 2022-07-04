@@ -45,7 +45,6 @@ RabbitMQ的webman客户端插件；
 ```
 composer require workbunny/webman-rabbitmq
 ```
-**注：本插件会在 app/command 目录下创建 Builder 命令， 请勿修改或删除 WorkbunnyWebmanRabbitMQBuilder.php 文件！！！！**
 
 ## 配置
 ```php
@@ -84,6 +83,14 @@ return [
 # 或
 	
 ./webman workbunny:rabbitmq-builder test 1 --delayed
+```
+
+- **命令支持二级菜单**
+```shell
+# 在 process/workbunny/rabbitmq/project 目录下创建 TestBuilder.php
+./webman workbunny:rabbitmq-builder project/test 1
+
+# 延迟同理
 ```
 
 **注：延迟队列需要为 rabbitMQ 安装 rabbitmq_delayed_message_exchange 插件**
@@ -149,6 +156,37 @@ class TestBuilder extends FastBuilder
        	# Constants::REQUEUE
    	}
 }
+```
+
+### 移除Builder
+
+- **移除名为 test 的普通队列：（在项目根目录执行）**
+
+```shell
+./webman workbunny:rabbitmq-remove test
+```
+
+- **移除名为 test 的延迟队列：（在项目根目录执行）**
+```shell
+./webman workbunny:rabbitmq-remove test -d
+# 或
+./webman workbunny:rabbitmq-remove test --delayed
+```
+
+### 查看Builder
+
+```shell
+./webman workbunny:rabbitmq-list
+```
+
+**注：当 Builder 未启动时，handler 与 count 显示为 --**
+
+```shell
++----------+--------------------------------------------------------------------+-------------------------------------------------+-------+
+| name     | file                                                               | handler                                         | count |
++----------+--------------------------------------------------------------------+-------------------------------------------------+-------+
+| test     | /var/www/your-project/process/workbunny/rabbitmq/TestBuilder.php     | process\workbunny\rabbitmq\TestBuilder            | 1     |
++----------+--------------------------------------------------------------------+-------------------------------------------------+-------+
 ```
 
 ### 生产

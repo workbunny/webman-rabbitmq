@@ -10,7 +10,6 @@ class Install
      */
     protected static array $pathRelation = [
         'config/plugin/workbunny/webman-rabbitmq' => 'config/plugin/workbunny/webman-rabbitmq',
-        'command/WorkbunnyWebmanRabbitMQBuilder.php' => 'app/command/WorkbunnyWebmanRabbitMQBuilder.php',
     ];
 
     /**
@@ -20,6 +19,7 @@ class Install
     public static function install()
     {
         static::installByRelation();
+        static::removeObsoleteCommand();
     }
 
     /**
@@ -69,6 +69,17 @@ class Install
                 continue;
             }
             remove_dir($path);
+        }
+    }
+
+    /**
+     * remove obsolete command
+     * @return void
+     */
+    public static function removeObsoleteCommand()
+    {
+        if(file_exists($file = base_path() . '/app/command/WorkbunnyWebmanRabbitMQBuilder.php')){
+            unlink($file);
         }
     }
     

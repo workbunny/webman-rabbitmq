@@ -1,15 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace app\command;
+namespace Workbunny\WebmanRabbitMQ\Commands;
 
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class WorkbunnyWebmanRabbitMQBuilder extends Command
+class WorkbunnyWebmanRabbitMQBuilder extends AbstractCommand
 {
     protected static $defaultName        = 'workbunny:rabbitmq-builder';
     protected static $defaultDescription = 'Create and initialize a workbunny/webman-rabbitmq Builder. ';
@@ -35,33 +34,11 @@ class WorkbunnyWebmanRabbitMQBuilder extends Command
         $count = $input->getArgument('count');
         $delayed = $input->getOption('delayed');
 
-        if (!($pos = strrpos($name, '/'))) {
-            $name = $this->getClassName($name, $delayed);
-            $file = "process/workbunny/rabbitmq/{$name}.php";
-            $namespace = 'process\workbunny\rabbitmq';
-        } else {
-            $path = substr($name, 0, $pos) . '/workbunny/rabbitmq';
-            $name = $this->getClassName(substr($name, $pos + 1), $delayed);
-            $file = "{$path}/{$name}.php";
-            $namespace = str_replace('/', '\\', $path);
-        }
+        list($name, $namespace, $file) = $this->getFileInfo($name, $delayed);
 
         $this->initBuilder($name, $namespace, (int)$count, $file, $output);
 
         return self::SUCCESS;
-    }
-
-    /**
-     * @param string $name
-     * @param bool $isDelayed
-     * @return string
-     */
-    protected function getClassName(string $name, bool $isDelayed): string
-    {
-        $class = preg_replace_callback('/:([a-zA-Z])/', function ($matches) {
-                return strtoupper($matches[1]);
-            }, ucfirst($name)) . 'Builder';
-        return $isDelayed ? $class . 'Delayed' : $class;
     }
 
     /**
@@ -76,13 +53,13 @@ class WorkbunnyWebmanRabbitMQBuilder extends Command
     {
         if(file_exists($process = config_path() . '/plugin/workbunny/webman-rabbitmq/process.php')){
             $processConfig = file_get_contents($process);
+            $config = config('plugin.workbunny.webman-rabbitmq.process', []);
             $processName = str_replace('\\', '.', $className = "$namespace\\$name");
 
-            if(strpos($processConfig, $processName) === false){
+            if(!isset($config[$processName])){
                 file_put_contents($process, preg_replace_callback('/(];)(?!.*\1)/',
                     function () use ($processName, $className, $count){
                         return <<<EOF
-
     '$processName' => [
         'handler' => \\$className::class,
         'count'   => $count
@@ -150,7 +127,9 @@ class $name extends FastBuilder
     }
 }
 doc;
-        file_put_contents($file, $command_content);
+        if(!file_exists($file)){
+            file_put_contents($file, $command_content);
+        }
     }
 
 }
