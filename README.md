@@ -185,7 +185,7 @@ class TestBuilder extends FastBuilder
 +----------+--------------------------------------------------------------------+-------------------------------------------------+-------+
 | name     | file                                                               | handler                                         | count |
 +----------+--------------------------------------------------------------------+-------------------------------------------------+-------+
-| test     | /var/www/your-project/process/workbunny/rabbitmq/TestBuilder.php     | process\workbunny\rabbitmq\TestBuilder            | 1     |
+| test     | /var/www/your-project/process/workbunny/rabbitmq/TestBuilder.php   | process\workbunny\rabbitmq\TestBuilder          | 1     |
 +----------+--------------------------------------------------------------------+-------------------------------------------------+-------+
 ```
 
