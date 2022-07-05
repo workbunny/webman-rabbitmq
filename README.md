@@ -255,7 +255,7 @@ async_publish(TestBuilder::instance(), 'abc', [
 ```
 
 ## 说明
-- 目前这套代码在我司生产环境运行，我会做及时的维护，**欢迎 [issue](https://github.com/workbunny/webman-rabbitmq/issues) 和 PR**；
+- **生产可用，欢迎 [issue](https://github.com/workbunny/webman-rabbitmq/issues) 和 PR**；
 - **Message** 可以理解为队列、交换机的配置信息；
 - 继承实现 **AbstractMessage** 可以自定义Message；
 - **Builder** 可通过 **Builder->setMessage()** 可设置自定义配置；
