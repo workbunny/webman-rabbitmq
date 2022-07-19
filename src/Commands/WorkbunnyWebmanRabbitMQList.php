@@ -39,7 +39,7 @@ class WorkbunnyWebmanRabbitMQList extends AbstractCommand
             $rows[] = [
                 strtolower(
                     strpos($name, 'BuilderDelayed') ?
-                        str_replace('BuilderDelayed', '', $name) :
+                        str_replace('BuilderDelayed', ' -d', $name) :
                         str_replace('Builder', '', $name)
                 ),
                 $file->getRealPath(),

@@ -20,6 +20,7 @@ class WorkbunnyWebmanRabbitMQRemove extends AbstractCommand
     {
         $this->addArgument('name', InputArgument::REQUIRED, 'builder name');
         $this->addOption('delayed', 'd', InputOption::VALUE_NONE, 'Delayed mode');
+        $this->addOption('close', 'c', InputOption::VALUE_NONE, 'Close only mode');
     }
 
     /**
@@ -31,8 +32,11 @@ class WorkbunnyWebmanRabbitMQRemove extends AbstractCommand
     {
         $name = $input->getArgument('name');
         $delayed = $input->getOption('delayed');
+        $close = $input->getOption('close');
 
         list($name, $namespace, $file) = $this->getFileInfo($name, $delayed);
+
+        $file = $close ? '' : $file;
 
         $this->removeBuilder($name, $namespace, $file, $output);
 
