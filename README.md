@@ -173,6 +173,13 @@ class TestBuilder extends FastBuilder
 ./webman workbunny:rabbitmq-remove test --delayed
 ```
 
+- **仅关闭名为 test 的普通队列：（在项目根目录执行）**
+```shell
+./webman workbunny:rabbitmq-remove test -c
+# 或
+./webman workbunny:rabbitmq-remove test --close
+```
+
 ### 查看Builder
 
 ```shell
