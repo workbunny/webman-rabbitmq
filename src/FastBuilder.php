@@ -54,8 +54,14 @@ abstract class FastBuilder implements BuilderInterface
 
     public function __construct()
     {
-        $message['consumer_tag'] = $message['routing_key'] = $message['queue_name'] =
-        $message['exchange_name'] = str_replace('\\', '.', get_called_class());
+        $classname = str_replace('\\', '.', get_called_class());
+        
+        $message = [];
+        $message['queue_name'] = $this->queue ?? $classname;
+        $message['exchange_type'] = $this->exchange_type ?? Constants::DIRECT;
+        $message['exchange_name'] = $this->exchange_name ?? $classname;
+        $message['routing_key'] = $this->routing_key ?? $classname;
+        $message['consumer_tag'] = $this->consumer_tag ?? $classname;
 
         $message['prefetch_size'] = $this->prefetch_size;
         $message['prefetch_count'] = $this->prefetch_count;
