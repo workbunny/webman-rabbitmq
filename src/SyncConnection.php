@@ -38,6 +38,9 @@ class SyncConnection
         $this->_client = new SyncClient($this->_config);
     }
 
+    /**
+     * @return SyncClient
+     */
     public function client(): SyncClient
     {
         if(!$this->_client instanceof SyncClient){
@@ -46,6 +49,9 @@ class SyncConnection
         return $this->_client;
     }
 
+    /**
+     * @return void
+     */
     public function close(): void
     {
         try {
@@ -130,7 +136,7 @@ class SyncConnection
             }
             return false;
         } finally {
-            if($close){
+            if($close or isset($throwable)){
                 $this->_setChannel();
                 $this->close();
             }
@@ -149,6 +155,10 @@ class SyncConnection
         return $this->_channel;
     }
 
+    /**
+     * @param Channel|null $channel
+     * @return void
+     */
     protected function _setChannel(?Channel $channel = null){
         $this->_channel = $channel;
     }
