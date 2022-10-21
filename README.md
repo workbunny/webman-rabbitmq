@@ -7,7 +7,7 @@
 # A PHP implementation of RabbitMQ Client for webman plugin
 
 
-[![Latest Stable Version](http://poser.pugx.org/workbunny/webman-rabbitmq/v)](https://packagist.org/packages/workbunny/webman-rabbitmq) [![Total Downloads](http://poser.pugx.org/workbunny/webman-rabbitmq/downloads)](https://packagist.org/packages/workbunny/webman-rabbitmq) [![Latest Unstable Version](http://poser.pugx.org/workbunny/webman-rabbitmq/v/unstable)](https://packagist.org/packages/workbunny/webman-rabbitmq) [![License](http://poser.pugx.org/workbunny/webman-rabbitmq/license)](https://packagist.org/packages/workbunny/webman-rabbitmq) [![PHP Version Require](http://poser.pugx.org/workbunny/webman-rabbitmq/require/php)](https://packagist.org/packages/workbunny/webman-rabbitmq)
+[![Latest Stable Version](https://badgen.net/packagist/v/workbunny/webman-rabbitmq/latest)](https://packagist.org/packages/workbunny/webman-rabbitmq) [![Total Downloads](https://badgen.net/packagist/dt/workbunny/webman-rabbitmq)](https://packagist.org/packages/workbunny/webman-rabbitmq) [![License](https://badgen.net/packagist/license/workbunny/webman-rabbitmq)](https://packagist.org/packages/workbunny/webman-rabbitmq) [![PHP Version Require](https://badgen.net/packagist/php/workbunny/webman-rabbitmq)](https://packagist.org/packages/workbunny/webman-rabbitmq)
 
 ## 常见问题
 
