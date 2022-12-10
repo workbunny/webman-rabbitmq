@@ -61,9 +61,9 @@ class SyncConnection
                         $this->_client->stop();
                     });
                 }
-                if ($this->_client->isConnected()) {
-                    $this->_client->run();
-                }
+//                if ($this->_client->isConnected()) {
+//                    $this->_client->run();
+//                }
             }
         }catch (Throwable $throwable){} finally {
             $this->_client = null;

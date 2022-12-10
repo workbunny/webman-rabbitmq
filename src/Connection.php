@@ -5,6 +5,7 @@ namespace Workbunny\WebmanRabbitMQ;
 
 use Bunny\Async\Client;
 use Bunny\Channel;
+use Bunny\Exception\ClientException;
 use Bunny\Message;
 use Bunny\Protocol\MethodBasicConsumeOkFrame;
 use Closure;
@@ -43,17 +44,27 @@ class Connection
     }
 
     /**
+     * @param bool $sync
+     * @param Throwable|null $throwable
      * @return void
      */
-    public function close(): void
+    public function close(bool $sync = false, ?Throwable $throwable = null): void
     {
-        if(
-            $this->_client instanceof AsyncClient and
-            $this->_client->isConnected()
-        ){
-            $this->_client->disconnect();
+        $replyCode = $throwable instanceof ClientException ? $throwable->getCode() : 0;
+        $replyText = $throwable instanceof ClientException ? $throwable->getMessage() : '';
+        try {
+            if($this->_client instanceof AsyncClient){
+                if ($this->_client->isConnected()) {
+                    if(!($this->_client::$sync = $sync)){
+                        $this->_client->disconnect($replyCode, $replyText);
+                    }else{
+                        $this->_client->syncDisconnect($replyCode, $replyText);
+                    }
+                }
+            }
+        }catch (Throwable $throwable){} finally {
+            $this->_client = null;
         }
-        $this->_client = null;
     }
 
     /**
@@ -79,14 +90,14 @@ class Connection
                 return $client->channel()->then(function (Channel $channel){
                     return $channel;
                 },function (Throwable $throwable){
-                    $this->close();
+                    $this->close(true, $throwable);
                     if($this->_errorCallback){
                         ($this->_errorCallback)($throwable);
                     }
                 });
             },
             function (Throwable $throwable){
-                $this->close();
+                $this->close(true, $throwable);
                 if($this->_errorCallback){
                     ($this->_errorCallback)($throwable);
                 }
@@ -106,6 +117,7 @@ class Connection
                     return $channel;
                 },
                 function (Throwable $throwable){
+                    $this->close(true, $throwable);
                     if($this->_errorCallback){
                         ($this->_errorCallback)($throwable);
                     }
@@ -125,6 +137,7 @@ class Connection
                     return $channel;
                 },
                 function (Throwable $throwable){
+                    $this->close(true, $throwable);
                     if($this->_errorCallback){
                         ($this->_errorCallback)($throwable);
                     }
@@ -142,6 +155,7 @@ class Connection
                     return $channel;
                 },
                 function (Throwable $throwable){
+                    $this->close(true, $throwable);
                     if($this->_errorCallback){
                         ($this->_errorCallback)($throwable);
                     }
@@ -157,6 +171,7 @@ class Connection
                     return $channel;
                 },
                 function (Throwable $throwable){
+                    $this->close(true, $throwable);
                     if($this->_errorCallback){
                         ($this->_errorCallback)($throwable);
                     }
@@ -186,6 +201,7 @@ class Connection
                     $res->then(
                         function (){},
                         function (Throwable $throwable){
+                            $this->close(true, $throwable);
                             if($this->_errorCallback){
                                 ($this->_errorCallback)($throwable);
                             }
@@ -204,6 +220,7 @@ class Connection
 
                 },
                 function (Throwable $throwable){
+                    $this->close(true, $throwable);
                     if($this->_errorCallback){
                         ($this->_errorCallback)($throwable);
                     }
@@ -238,7 +255,7 @@ class Connection
                 },
                 function (Throwable $throwable){
                     $this->_setChannel();
-                    $this->close();
+                    $this->close(true, $throwable);
                     if($this->_errorCallback){
                         ($this->_errorCallback)($throwable);
                     }
@@ -252,7 +269,7 @@ class Connection
                     return $channel;
                 },function (Throwable $throwable){
                     $this->_setChannel();
-                    $this->close();
+                    $this->close(true, $throwable);
                     if($this->_errorCallback){
                         ($this->_errorCallback)($throwable);
                     }
@@ -260,7 +277,7 @@ class Connection
                 });
             },function (Throwable $throwable){
                 $this->_setChannel();
-                $this->close();
+                $this->close(true, $throwable);
                 if($this->_errorCallback){
                     ($this->_errorCallback)($throwable);
                 }
@@ -280,10 +297,7 @@ class Connection
                     },
                     function (Throwable $throwable){
                         $this->_setChannel();
-                        $this->close();
-                        if($this->_errorCallback){
-                            ($this->_errorCallback)($throwable);
-                        }
+                        $this->close(true, $throwable);
                         return false;
                     }
                 );
@@ -302,7 +316,7 @@ class Connection
                     },
                     function (Throwable $throwable){
                         $this->_setChannel();
-                        $this->close();
+                        $this->close(true, $throwable);
                         if($this->_errorCallback){
                             ($this->_errorCallback)($throwable);
                         }
@@ -322,7 +336,7 @@ class Connection
                     },
                     function (Throwable $throwable){
                         $this->_setChannel();
-                        $this->close();
+                        $this->close(true, $throwable);
                         if($this->_errorCallback){
                             ($this->_errorCallback)($throwable);
                         }
@@ -347,7 +361,7 @@ class Connection
                     },
                     function (Throwable $throwable){
                         $this->_setChannel();
-                        $this->close();
+                        $this->close(true, $throwable);
                         if($this->_errorCallback){
                             ($this->_errorCallback)($throwable);
                         }

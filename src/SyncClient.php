@@ -6,11 +6,16 @@ namespace Workbunny\WebmanRabbitMQ;
 use Bunny\Client;
 use Bunny\Exception\ClientException;
 use Bunny\Protocol\Buffer;
+use Bunny\Protocol\HeartbeatFrame;
 use Bunny\Protocol\MethodConnectionStartFrame;
+use Exception;
 use React\Promise\PromiseInterface;
 use Throwable;
+use Workerman\Timer;
 
 class SyncClient extends Client {
+
+    protected ?int $heartbeatTimer = null;
 
     /**
      * 重写authResponse方法以支持PLAIN及AMQPLAIN两种机制
@@ -42,10 +47,37 @@ class SyncClient extends Client {
         }
     }
 
+    /**
+     * @return SyncClient
+     * @throws Exception
+     */
+    public function connect(): SyncClient
+    {
+        $result = parent::connect();
+        $this->heartbeatTimer = Timer::add($this->options['heartbeat'] ?? 60, [$this, 'onHeartbeat']);
+        return $result;
+    }
+
     public function __destruct()
     {
         try {
+            if($this->heartbeatTimer){
+                Timer::del($this->heartbeatTimer);
+            }
             parent::__destruct();
         }catch (Throwable $throwable){}
+    }
+
+    /**
+     * Callback when heartbeat timer timed out.
+     */
+    public function onHeartbeat()
+    {
+        $this->writer->appendFrame(new HeartbeatFrame(), $this->writeBuffer);
+        $this->flushWriteBuffer();
+
+        if (is_callable($this->options['heartbeat_callback'] ?? null)) {
+            $this->options['heartbeat_callback']->call($this);
+        }
     }
 }
