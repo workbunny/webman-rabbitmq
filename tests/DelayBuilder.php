@@ -1,20 +1,20 @@
 <?php
 declare(strict_types=1);
 
-namespace Examples;
+namespace Tests;
 
-use Bunny\Channel as BunnyChannel;
 use Bunny\Async\Client as BunnyClient;
+use Bunny\Channel as BunnyChannel;
 use Bunny\Message as BunnyMessage;
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\FastBuilder;
 
-class TestBuilder extends FastBuilder
+class DelayBuilder extends FastBuilder
 {
     protected int $prefetch_size = 1;
     protected int $prefetch_count = 0;
     protected bool $is_global = false;
-
+    protected bool $delayed = true;
 
     public function handler(BunnyMessage $message, BunnyChannel $channel, BunnyClient $client): string
     {

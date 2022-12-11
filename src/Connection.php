@@ -30,10 +30,14 @@ class Connection
      */
     protected array $_config = [];
 
-    /**
-     * @var Closure|mixed|null
-     */
+    /** @var Closure|null  */
+    protected ?Closure $_initCallback = null;
+
+    /** @var Closure|null  */
     protected ?Closure $_errorCallback = null;
+
+    /** @var Closure|null  */
+    protected ?Closure $_finallyCallback = null;
 
 
     public function __construct(?array $config = null)
@@ -85,22 +89,25 @@ class Connection
      */
     public function consume(AbstractMessage $abstractMessage) : void
     {
+        if($this->_initCallback){
+            call_user_func($this->_initCallback, null, $this);
+        }
         $this->client()->connect()->then(
             function (AsyncClient $client){
                 return $client->channel()->then(function (Channel $channel){
                     return $channel;
                 },function (Throwable $throwable){
-                    $this->close(true, $throwable);
                     if($this->_errorCallback){
-                        ($this->_errorCallback)($throwable);
+                        call_user_func($this->_errorCallback, $throwable, $this);
                     }
+                    $this->close(true, $throwable);
                 });
             },
             function (Throwable $throwable){
-                $this->close(true, $throwable);
                 if($this->_errorCallback){
-                    ($this->_errorCallback)($throwable);
+                    call_user_func($this->_errorCallback, $throwable, $this);
                 }
+                $this->close(true, $throwable);
             }
         )->then(function (Channel $channel) use ($abstractMessage) {
             return $channel->exchangeDeclare(
@@ -117,10 +124,10 @@ class Connection
                     return $channel;
                 },
                 function (Throwable $throwable){
-                    $this->close(true, $throwable);
                     if($this->_errorCallback){
-                        ($this->_errorCallback)($throwable);
+                        call_user_func($this->_errorCallback, $throwable, $this);
                     }
+                    $this->close(true, $throwable);
                 }
             );
         })->then(function (Channel $channel) use ($abstractMessage) {
@@ -137,10 +144,10 @@ class Connection
                     return $channel;
                 },
                 function (Throwable $throwable){
-                    $this->close(true, $throwable);
                     if($this->_errorCallback){
-                        ($this->_errorCallback)($throwable);
+                        call_user_func($this->_errorCallback, $throwable, $this);
                     }
+                    $this->close(true, $throwable);
                 }
             );
         })->then(function (Channel $channel) use ($abstractMessage) {
@@ -155,10 +162,10 @@ class Connection
                     return $channel;
                 },
                 function (Throwable $throwable){
-                    $this->close(true, $throwable);
                     if($this->_errorCallback){
-                        ($this->_errorCallback)($throwable);
+                        call_user_func($this->_errorCallback, $throwable, $this);
                     }
+                    $this->close(true, $throwable);
                 }
             );
         })->then(function (Channel $channel) use ($abstractMessage) {
@@ -171,10 +178,10 @@ class Connection
                     return $channel;
                 },
                 function (Throwable $throwable){
-                    $this->close(true, $throwable);
                     if($this->_errorCallback){
-                        ($this->_errorCallback)($throwable);
+                        call_user_func($this->_errorCallback, $throwable, $this);
                     }
+                    $this->close(true, $throwable);
                 }
             );
         })->then(function (Channel $channel) use ($abstractMessage) {
@@ -201,10 +208,10 @@ class Connection
                     $res->then(
                         function (){},
                         function (Throwable $throwable){
-                            $this->close(true, $throwable);
                             if($this->_errorCallback){
-                                ($this->_errorCallback)($throwable);
+                                call_user_func($this->_errorCallback, $throwable, $this);
                             }
+                            $this->close(true, $throwable);
                         }
                     );
             },
@@ -220,10 +227,10 @@ class Connection
 
                 },
                 function (Throwable $throwable){
-                    $this->close(true, $throwable);
                     if($this->_errorCallback){
-                        ($this->_errorCallback)($throwable);
+                        call_user_func($this->_errorCallback, $throwable, $this);
                     }
+                    $this->close(true, $throwable);
                 }
             );
         });
@@ -237,7 +244,8 @@ class Connection
      */
     public function publish(AbstractMessage $abstractMessage, bool $close = false) : PromiseInterface
     {
-        if($this->client()->isConnected()){
+        // 如果存在连接
+        if($this->client()->isConnected() and $this->_getChannel()){
             return $this->_getChannel()->publish(
                 $abstractMessage->getBody(),
                 $abstractMessage->getHeaders(),
@@ -248,39 +256,41 @@ class Connection
             )->then(
                 function () use ($close){
                     if($close){
-                        $this->_setChannel();
                         $this->close();
+                        $this->_setChannel();
                     }
                     return true;
                 },
                 function (Throwable $throwable){
-                    $this->_setChannel();
-                    $this->close(true, $throwable);
                     if($this->_errorCallback){
-                        ($this->_errorCallback)($throwable);
+                        call_user_func($this->_errorCallback, $throwable, $this);
                     }
+                    $this->close(true, $throwable);
+                    $this->_setChannel();
                     return false;
                 }
             );
-        } else{
+        }
+        // 如果不存在连接
+        else {
             return $this->client()->connect()->then(function (AsyncClient $client){
                 return $client->channel()->then(function (Channel $channel){
                     $this->_setChannel($channel);
                     return $channel;
                 },function (Throwable $throwable){
-                    $this->_setChannel();
-                    $this->close(true, $throwable);
                     if($this->_errorCallback){
-                        ($this->_errorCallback)($throwable);
+                        call_user_func($this->_errorCallback, $throwable, $this);
                     }
+                    $this->close(true, $throwable);
+                    $this->_setChannel();
                     return false;
                 });
             },function (Throwable $throwable){
-                $this->_setChannel();
-                $this->close(true, $throwable);
                 if($this->_errorCallback){
-                    ($this->_errorCallback)($throwable);
+                    call_user_func($this->_errorCallback, $throwable, $this);
                 }
+                $this->close(true, $throwable);
+                $this->_setChannel();
             })->then(function (Channel $channel) use ($abstractMessage) {
                 return $channel->exchangeDeclare(
                     $abstractMessage->getExchange(),
@@ -296,8 +306,11 @@ class Connection
                         return $channel;
                     },
                     function (Throwable $throwable){
-                        $this->_setChannel();
+                        if($this->_errorCallback){
+                            call_user_func($this->_errorCallback, $throwable, $this);
+                        }
                         $this->close(true, $throwable);
+                        $this->_setChannel();
                         return false;
                     }
                 );
@@ -315,11 +328,11 @@ class Connection
                         return $channel;
                     },
                     function (Throwable $throwable){
-                        $this->_setChannel();
-                        $this->close(true, $throwable);
                         if($this->_errorCallback){
-                            ($this->_errorCallback)($throwable);
+                            call_user_func($this->_errorCallback, $throwable, $this);
                         }
+                        $this->close(true, $throwable);
+                        $this->_setChannel();
                         return false;
                     }
                 );
@@ -335,11 +348,11 @@ class Connection
                         return $channel;
                     },
                     function (Throwable $throwable){
-                        $this->_setChannel();
-                        $this->close(true, $throwable);
                         if($this->_errorCallback){
-                            ($this->_errorCallback)($throwable);
+                            call_user_func($this->_errorCallback, $throwable, $this);
                         }
+                        $this->close(true, $throwable);
+                        $this->_setChannel();
                         return false;
                     }
                 );
@@ -354,17 +367,17 @@ class Connection
                 )->then(
                     function () use ($close){
                         if($close){
-                            $this->_setChannel();
                             $this->close();
+                            $this->_setChannel();
                         }
                         return true;
                     },
                     function (Throwable $throwable){
-                        $this->_setChannel();
-                        $this->close(true, $throwable);
                         if($this->_errorCallback){
-                            ($this->_errorCallback)($throwable);
+                            call_user_func($this->_errorCallback, $throwable, $this);
                         }
+                        $this->close(true, $throwable);
+                        $this->_setChannel();
                         return false;
                     }
                 );
@@ -375,7 +388,7 @@ class Connection
     /**
      * @return Channel|null
      */
-    protected function _getChannel() : ?Channel
+    public function _getChannel() : ?Channel
     {
         return $this->_channel;
     }
@@ -384,9 +397,59 @@ class Connection
      * @param Channel|null $channel
      * @return void
      */
-    protected function _setChannel(?Channel $channel = null){
+    public function _setChannel(?Channel $channel = null){
         $this->_channel = $channel;
     }
 
 
+    /**
+     * @param Closure $callback
+     * @return void
+     */
+    public function _setErrorCallback(Closure $callback)
+    {
+        $this->_errorCallback = $callback;
+    }
+
+    /**
+     * @return Closure
+     */
+    public function _getErrorCallback(): Closure
+    {
+        return $this->_errorCallback;
+    }
+
+    /**
+     * @param Closure $callback
+     * @return void
+     */
+    public function _setFinallyCallback(Closure $callback)
+    {
+        $this->_finallyCallback = $callback;
+    }
+
+    /**
+     * @return Closure
+     */
+    public function _getFinallyCallback(): Closure
+    {
+        return $this->_finallyCallback;
+    }
+
+    /**
+     * @param Closure $callback
+     * @return void
+     */
+    public function _setInitCallback(Closure $callback)
+    {
+        $this->_initCallback = $callback;
+    }
+
+    /**
+     * @return Closure
+     */
+    public function _getInitCallback(): Closure
+    {
+        return $this->_initCallback;
+    }
 }

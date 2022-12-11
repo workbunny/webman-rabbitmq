@@ -12,6 +12,8 @@ use Workerman\Worker;
 
 abstract class FastBuilder implements BuilderInterface
 {
+    public static bool $debug = false;
+
     protected int $prefetch_size = 0;
 
     protected int $prefetch_count = 0;
@@ -19,7 +21,6 @@ abstract class FastBuilder implements BuilderInterface
     protected bool $is_global = false;
 
     protected bool $delayed = false;
-
 
     /**
      * @var AbstractMessage|Message
@@ -40,6 +41,14 @@ abstract class FastBuilder implements BuilderInterface
      * @var FastBuilder[]
      */
     protected static array $_builders = [];
+
+    /**
+     * @return bool
+     */
+    public static function isDebug(): bool
+    {
+        return self::$debug;
+    }
 
     /**
      * @return FastBuilder|static
@@ -113,7 +122,7 @@ abstract class FastBuilder implements BuilderInterface
     public function connection() : Connection
     {
         if(!$this->_connection instanceof Connection){
-            $this->_connection = new Connection();
+            $this->_connection = new Connection(self::isDebug() ? debug_config('plugin.workbunny.webman-rabbitmq.app') : null);
         }
         return $this->_connection;
     }
@@ -125,7 +134,7 @@ abstract class FastBuilder implements BuilderInterface
     public function syncConnection() : SyncConnection
     {
         if(!$this->_syncConnection instanceof SyncConnection){
-            $this->_syncConnection = new SyncConnection();
+            $this->_syncConnection = new SyncConnection(self::isDebug() ? debug_config('plugin.workbunny.webman-rabbitmq.app') : null);
         }
         return $this->_syncConnection;
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Workbunny\WebmanRabbitMQ;
 
 use React\Promise\PromiseInterface;
+use Webman\Config;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 
 /**
@@ -52,4 +53,15 @@ function async_publish(FastBuilder $builder, string $body, ?array $headers = nul
         $message->setHeaders(array_merge($message->getHeaders(), $headers));
     }
     return $builder->connection()->publish($message, $close);
+}
+
+/**
+ * @param string|null $key
+ * @param $default
+ * @return array|mixed|null
+ */
+function debug_config(string $key = null, $default = null)
+{
+    Config::load(__DIR__ . '/config');
+    return Config::get($key, $default);
 }

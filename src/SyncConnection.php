@@ -26,10 +26,14 @@ class SyncConnection
      */
     protected array $_config = [];
 
-    /**
-     * @var Closure|mixed|null
-     */
+    /** @var Closure|null  */
+    protected ?Closure $_initCallback = null;
+
+    /** @var Closure|null  */
     protected ?Closure $_errorCallback = null;
+
+    /** @var Closure|null  */
+    protected ?Closure $_finallyCallback = null;
 
     public function __construct(?array $config = null)
     {
@@ -50,14 +54,17 @@ class SyncConnection
     }
 
     /**
+     * @param Throwable|null $throwable
      * @return void
      */
-    public function close(): void
+    public function close(?Throwable $throwable = null): void
     {
+        $replyCode = $throwable instanceof ClientException ? $throwable->getCode() : 0;
+        $replyText = $throwable instanceof ClientException ? $throwable->getMessage() : '';
         try {
             if($this->_client instanceof SyncClient){
                 if ($this->_client->isConnected()) {
-                    $this->_client->disconnect()->done(function () {
+                    $this->_client->disconnect($replyCode, $replyText)->done(function () {
                         $this->_client->stop();
                     });
                 }
@@ -76,16 +83,10 @@ class SyncConnection
      */
     public function connect() : SyncClient
     {
-        try {
-            if(!$this->client()->isConnected()){
-                $this->client()->connect();
-            }
-        }catch (ClientException $exception){
-            $this->_client = null;
+        if(!$this->client()->isConnected()){
             $this->client()->connect();
-        }finally {
-            return $this->_client;
         }
+        return $this->client();
     }
 
     /**
@@ -95,6 +96,9 @@ class SyncConnection
      */
     public function publish(AbstractMessage $abstractMessage, bool $close = false): bool
     {
+        if($this->_initCallback){
+            call_user_func($this->_initCallback, null, $this);
+        }
         try {
             $this->_getChannel()->exchangeDeclare(
                 $abstractMessage->getExchange(),
@@ -132,24 +136,28 @@ class SyncConnection
             );
         }catch (Throwable $throwable){
             if($this->_errorCallback){
-                ($this->_errorCallback)($throwable);
+                call_user_func($this->_errorCallback, $throwable, $this);
             }
             return false;
         } finally {
             if($close or isset($throwable)){
+                $this->close($throwable ?? null);
                 $this->_setChannel();
-                $this->close();
+            }
+            if($this->_finallyCallback){
+                call_user_func($this->_finallyCallback, $throwable ?? null, $this);
             }
         }
     }
 
     /**
+     * @param bool $init
      * @return Channel|null
      * @throws Throwable
      */
-    protected function _getChannel() : ?Channel
+    public function _getChannel(bool $init = true) : ?Channel
     {
-        if(!$this->_channel instanceof Channel){
+        if(!$this->_channel instanceof Channel and $init){
             $this->_setChannel($this->connect()->channel());
         }
         return $this->_channel;
@@ -159,7 +167,58 @@ class SyncConnection
      * @param Channel|null $channel
      * @return void
      */
-    protected function _setChannel(?Channel $channel = null){
+    public function _setChannel(?Channel $channel = null){
         $this->_channel = $channel;
+    }
+
+    /**
+     * @param Closure $callback
+     * @return void
+     */
+    public function _setErrorCallback(Closure $callback)
+    {
+        $this->_errorCallback = $callback;
+    }
+
+    /**
+     * @return Closure
+     */
+    public function _getErrorCallback(): Closure
+    {
+        return $this->_errorCallback;
+    }
+
+    /**
+     * @param Closure $callback
+     * @return void
+     */
+    public function _setFinallyCallback(Closure $callback)
+    {
+        $this->_finallyCallback = $callback;
+    }
+
+    /**
+     * @return Closure
+     */
+    public function _getFinallyCallback(): Closure
+    {
+        return $this->_finallyCallback;
+    }
+
+    /**
+     * @param Closure $callback
+     * @return void
+     */
+    public function _setInitCallback(Closure $callback)
+    {
+        $this->_initCallback = $callback;
+    }
+
+    /**
+     * @return Closure
+     */
+    public function _getInitCallback(): Closure
+    {
+        return $this->_initCallback;
     }
 }
