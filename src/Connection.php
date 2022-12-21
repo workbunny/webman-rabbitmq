@@ -245,8 +245,8 @@ class Connection
     public function publish(AbstractMessage $abstractMessage, bool $close = false) : PromiseInterface
     {
         // 如果存在连接
-        if($this->client()->isConnected() and $this->_getChannel()){
-            return $this->_getChannel()->publish(
+        if($channel = $this->_getChannel()){
+            return $channel->publish(
                 $abstractMessage->getBody(),
                 $abstractMessage->getHeaders(),
                 $abstractMessage->getExchange(),
@@ -256,42 +256,44 @@ class Connection
             )->then(
                 function () use ($close){
                     if($close){
-                        $this->close();
                         $this->_setChannel();
+                        $this->close(true);
                     }
                     return true;
                 },
                 function (Throwable $throwable){
+                    $this->_setChannel();
                     if($this->_errorCallback){
                         call_user_func($this->_errorCallback, $throwable, $this);
                     }
                     $this->close(true, $throwable);
-                    $this->_setChannel();
                     return false;
                 }
             );
         }
         // 如果不存在连接
         else {
-            return $this->client()->connect()->then(function (AsyncClient $client){
-                return $client->channel()->then(function (Channel $channel){
-                    $this->_setChannel($channel);
-                    return $channel;
-                },function (Throwable $throwable){
+            return $this->client()->connect()->then(
+                function (AsyncClient $client){
+                    return $client->channel()->then(function (Channel $channel){
+                        $this->_setChannel($channel);
+                        return $channel;
+                    },function (Throwable $throwable){
+                        $this->_setChannel();
+                        if($this->_errorCallback){
+                            call_user_func($this->_errorCallback, $throwable, $this);
+                        }
+                        $this->close(true, $throwable);
+                    });
+                },
+                function (Throwable $throwable){
+                    $this->_setChannel();
                     if($this->_errorCallback){
                         call_user_func($this->_errorCallback, $throwable, $this);
                     }
                     $this->close(true, $throwable);
-                    $this->_setChannel();
-                    return false;
-                });
-            },function (Throwable $throwable){
-                if($this->_errorCallback){
-                    call_user_func($this->_errorCallback, $throwable, $this);
                 }
-                $this->close(true, $throwable);
-                $this->_setChannel();
-            })->then(function (Channel $channel) use ($abstractMessage) {
+            )->then(function (Channel $channel) use ($abstractMessage) {
                 return $channel->exchangeDeclare(
                     $abstractMessage->getExchange(),
                     $abstractMessage->getExchangeType(),
@@ -303,15 +305,15 @@ class Connection
                     $abstractMessage->getArguments()
                 )->then(
                     function () use ($channel) {
+                        $this->_setChannel($channel);
                         return $channel;
                     },
                     function (Throwable $throwable){
+                        $this->_setChannel();
                         if($this->_errorCallback){
                             call_user_func($this->_errorCallback, $throwable, $this);
                         }
                         $this->close(true, $throwable);
-                        $this->_setChannel();
-                        return false;
                     }
                 );
             })->then(function (Channel $channel) use ($abstractMessage) {
@@ -325,15 +327,15 @@ class Connection
                     $abstractMessage->getArguments()
                 )->then(
                     function () use ($channel) {
+                        $this->_setChannel($channel);
                         return $channel;
                     },
                     function (Throwable $throwable){
+                        $this->_setChannel();
                         if($this->_errorCallback){
                             call_user_func($this->_errorCallback, $throwable, $this);
                         }
                         $this->close(true, $throwable);
-                        $this->_setChannel();
-                        return false;
                     }
                 );
             })->then(function (Channel $channel) use ($abstractMessage) {
@@ -345,15 +347,15 @@ class Connection
                     $abstractMessage->getArguments()
                 )->then(
                     function () use ($channel) {
+                        $this->_setChannel($channel);
                         return $channel;
                     },
                     function (Throwable $throwable){
+                        $this->_setChannel();
                         if($this->_errorCallback){
                             call_user_func($this->_errorCallback, $throwable, $this);
                         }
                         $this->close(true, $throwable);
-                        $this->_setChannel();
-                        return false;
                     }
                 );
             })->then(function (Channel $channel) use ($abstractMessage, $close) {
@@ -367,17 +369,17 @@ class Connection
                 )->then(
                     function () use ($close){
                         if($close){
-                            $this->close();
                             $this->_setChannel();
+                            $this->close(true);
                         }
                         return true;
                     },
                     function (Throwable $throwable){
+                        $this->_setChannel();
                         if($this->_errorCallback){
                             call_user_func($this->_errorCallback, $throwable, $this);
                         }
                         $this->close(true, $throwable);
-                        $this->_setChannel();
                         return false;
                     }
                 );
