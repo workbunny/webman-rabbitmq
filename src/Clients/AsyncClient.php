@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Workbunny\WebmanRabbitMQ;
+namespace Workbunny\WebmanRabbitMQ\Clients;
 
 use Bunny\ClientStateEnum;
 use Bunny\Exception\ClientException;

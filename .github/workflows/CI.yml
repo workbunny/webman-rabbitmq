@@ -8,15 +8,27 @@ on:
 jobs:
   PHPUnit:
     name: PHPUnit (PHP ${{ matrix.php }})
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         php:
+          - 8.3
+          - 8.2
           - 8.1
           - 8.0
           - 7.4
+        rabbitmq:
+          - 3.11
+          - 3.10
+          - 3.9
+          - 3.8
     steps:
       - uses: actions/checkout@v3
+      - uses: namoshek/rabbitmq-github-action@v1
+        with:
+          version: ${{ matrix.rabbitmq }}-management
+          ports: '5672:5672 15672:15672'
+          container-name: 'rabbitmq'
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}

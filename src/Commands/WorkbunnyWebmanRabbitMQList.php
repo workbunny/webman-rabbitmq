@@ -23,7 +23,7 @@ class WorkbunnyWebmanRabbitMQList extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $headers = ['name', 'file', 'handler', 'count'];
+        $headers = ['name', 'file', 'handler', 'count', 'mode'];
         $rows = [];
         $files = $this->files(base_path() . '/' . $this->baseProcessPath);
         $configs = config('plugin.workbunny.webman-rabbitmq.process', []);
@@ -44,7 +44,8 @@ class WorkbunnyWebmanRabbitMQList extends AbstractCommand
                 ),
                 $file->getRealPath(),
                 $configs[$key]['handler'] ?? '--',
-                $configs[$key]['count'] ?? '--'
+                $configs[$key]['count'] ?? '--',
+                $configs[$key]['mode'] ?? '--'
             ];
         }
 

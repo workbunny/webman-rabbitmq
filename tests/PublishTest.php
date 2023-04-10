@@ -3,10 +3,9 @@ declare(strict_types=1);
 
 namespace Tests;
 
-use Bunny\Channel;
 use Bunny\Exception\ClientException;
 use Workbunny\WebmanRabbitMQ\Connection;
-use Workbunny\WebmanRabbitMQ\SyncConnection;
+use Workbunny\WebmanRabbitMQ\Connections\SyncConnection;
 use Workerman\Events\Select;
 use Workerman\Worker;
 use function Workbunny\WebmanRabbitMQ\async_publish;

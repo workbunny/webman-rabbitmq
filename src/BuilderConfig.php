@@ -1,11 +1,9 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
-namespace Workbunny\WebmanRabbitMQ\Protocols;
+namespace Workbunny\WebmanRabbitMQ;
 
-use Workbunny\WebmanRabbitMQ\Constants;
-
-abstract class AbstractMessage {
+class BuilderConfig
+{
     protected string $_queue = '';
     protected bool $_passive = false;
     protected bool $_durable = true;

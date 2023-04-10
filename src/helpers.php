@@ -1,58 +1,60 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ;
 
 use React\Promise\PromiseInterface;
 use Webman\Config;
+use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 
 /**
  * 同步生产
- * @param FastBuilder $builder
+ * @param AbstractBuilder $builder
  * @param string $body
- * @param array|null $headers
+ * @param string|null $routingKey
+ * @param array $headers
  * @param bool $close
  * @return bool
  */
-function sync_publish(FastBuilder $builder, string $body, ?array $headers = null, bool $close = false) : bool
+function sync_publish(AbstractBuilder $builder, string $body, ?string $routingKey = null, array $headers = [], bool $close = false) : bool
 {
-    $message = $builder->getMessage();
+    $config = clone $builder->getBuilderConfig();
     if(
-        ($message->getExchangeType() !== Constants::DELAYED and $headers['x-delay'] ?? 0) or
-        ($message->getExchangeType() === Constants::DELAYED and !($headers['x-delay'] ?? 0))
+        ($config->getExchangeType() !== Constants::DELAYED and $headers['x-delay'] ?? 0) or
+        ($config->getExchangeType() === Constants::DELAYED and !($headers['x-delay'] ?? 0))
     ){
         throw new WebmanRabbitMQException('Invalid publish. ');
     }
-    $message->setBody($body);
-    if($headers !== null){
-        $message->setHeaders(array_merge($message->getHeaders(), $headers));
-    }
-    return $builder->syncConnection()->publish($message, $close);
+    $config->setBody($body);
+    $config->setHeaders(array_merge($config->getHeaders(), $headers));
+    $config->setRoutingKey($routingKey ?? $config->getRoutingKey());
+
+    return $builder->getConnection()->syncPublish($config, $close);
 }
 
 /**
  * 异步生产
- * @param FastBuilder $builder
+ * @param AbstractBuilder $builder
  * @param string $body
- * @param array|null $headers
+ * @param string|null $routingKey
+ * @param array $headers
  * @param bool $close
- * @return bool|PromiseInterface
+ * @return PromiseInterface
  */
-function async_publish(FastBuilder $builder, string $body, ?array $headers = null, bool $close = false)
+function async_publish(AbstractBuilder $builder, string $body, ?string $routingKey = null, array $headers = [], bool $close = false): PromiseInterface
 {
-    $message = $builder->getMessage();
+    $config = clone $builder->getBuilderConfig();
     if(
-        ($message->getExchangeType() !== Constants::DELAYED and $headers['x-delay'] ?? 0) or
-        ($message->getExchangeType() === Constants::DELAYED and !($headers['x-delay'] ?? 0))
+        ($config->getExchangeType() !== Constants::DELAYED and $headers['x-delay'] ?? 0) or
+        ($config->getExchangeType() === Constants::DELAYED and !($headers['x-delay'] ?? 0))
     ){
         throw new WebmanRabbitMQException('Invalid publish. ');
     }
-    $message->setBody($body);
-    if($headers !== null){
-        $message->setHeaders(array_merge($message->getHeaders(), $headers));
-    }
-    return $builder->connection()->publish($message, $close);
+    $config->setBody($body);
+    $config->setHeaders(array_merge($config->getHeaders(), $headers));
+    $config->setRoutingKey($routingKey ?? $config->getRoutingKey());
+
+    return $builder->getConnection()->asyncPublish($config, $close);
 }
 
 /**

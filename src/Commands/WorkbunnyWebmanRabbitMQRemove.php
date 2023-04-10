@@ -70,7 +70,7 @@ class WorkbunnyWebmanRabbitMQRemove extends AbstractCommand
                 unlink($file);
             }
 
-            $output->writeln("<info>Builder {$name} cleared successfully. </info>");
+            $output->writeln("<info>Builder {$name} removed successfully. </info>");
             return;
         }
         $output->writeln("<error>Builder {$name} failed to clear: plugin/workbunny/webman-rabbitmq/process.php does not exist. </error>");

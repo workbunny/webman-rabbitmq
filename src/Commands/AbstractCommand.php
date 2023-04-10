@@ -4,11 +4,22 @@ declare(strict_types=1);
 namespace Workbunny\WebmanRabbitMQ\Commands;
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Output\OutputInterface;
+use Workbunny\WebmanRabbitMQ\Builders\QueueBuilder;
+use Workbunny\WebmanRabbitMQ\Builders\RpcBuilder;
 
 abstract class AbstractCommand extends Command
 {
     protected string $baseProcessPath = 'process/workbunny/rabbitmq/';
     protected string $baseNamespace = 'process\workbunny\rabbitmq';
+
+    /**
+     * @var string[]
+     */
+    protected array $builderList = [
+        'queue' => QueueBuilder::class,
+        'rpc'   => RpcBuilder::class
+    ];
 
     /**
      * @param string $name
@@ -21,6 +32,25 @@ abstract class AbstractCommand extends Command
                 return strtoupper($matches[1]);
             }, ucfirst($name)) . 'Builder';
         return $isDelayed ? $class . 'Delayed' : $class;
+    }
+
+    /**
+     * @param string $name
+     * @return string|null
+     */
+    protected function getBuilder(string $name): ?string
+    {
+        return $this->builderList[$name] ?? null;
+    }
+
+    public function error(OutputInterface $output, string $message): void
+    {
+        $output->writeln("❌  $message");
+    }
+
+    public function success(OutputInterface $output, string $message): void
+    {
+        $output->writeln("✅  $message");
     }
 
     /**

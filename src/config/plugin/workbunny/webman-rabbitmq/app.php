@@ -2,7 +2,7 @@
 return [
     'enable' => true,
 
-    'host'               => '127.0.0.1',
+    'host'               => 'rabbitmq',
     'vhost'              => '/',
     'port'               => 5672,
     'username'           => 'guest',

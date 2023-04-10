@@ -1,457 +1,249 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ;
 
+use Bunny\AbstractClient;
 use Bunny\Async\Client;
 use Bunny\Channel;
 use Bunny\Exception\ClientException;
 use Bunny\Message;
 use Bunny\Protocol\MethodBasicConsumeOkFrame;
-use Closure;
 use React\Promise\PromiseInterface;
 use Throwable;
-use Workbunny\WebmanRabbitMQ\Protocols\AbstractMessage;
+use Workbunny\WebmanRabbitMQ\Clients\AsyncClient;
+use Workbunny\WebmanRabbitMQ\Clients\SyncClient;
 
 class Connection
 {
-    /**
-     * @var AsyncClient|null
-     */
-    protected ?AsyncClient $_client = null;
 
-    /**
-     * @var Channel|null
-     */
-    protected ?Channel $_channel = null;
+    /** @var AsyncClient 异步客户端 */
+    protected AsyncClient $_asyncClient;
 
-    /**
-     * @var array|mixed
-     */
+    /** @var SyncClient 同步客户端 */
+    protected SyncClient $_syncClient;
+
+    /** @var array  */
     protected array $_config = [];
 
-    /** @var Closure|null  */
-    protected ?Closure $_initCallback = null;
-
-    /** @var Closure|null  */
-    protected ?Closure $_errorCallback = null;
-
-    /** @var Closure|null  */
-    protected ?Closure $_finallyCallback = null;
-
-
-    public function __construct(?array $config = null)
+    public function __construct(array $config)
     {
-        $this->_config = ($config !== null) ? $config : config('plugin.workbunny.webman-rabbitmq.app');
-        $this->_errorCallback = $this->_config['error_callback'] ?? null;
-        $this->_client = new AsyncClient($this->_config);
-    }
-
-    /**
-     * @param bool $sync
-     * @param Throwable|null $throwable
-     * @return void
-     */
-    public function close(bool $sync = false, ?Throwable $throwable = null): void
-    {
-        $replyCode = $throwable instanceof ClientException ? $throwable->getCode() : 0;
-        $replyText = $throwable instanceof ClientException ? $throwable->getMessage() : '';
-        try {
-            if($this->_client instanceof AsyncClient){
-                if ($this->_client->isConnected()) {
-                    if(!($this->_client::$sync = $sync)){
-                        $this->_client->disconnect($replyCode, $replyText);
-                    }else{
-                        $this->_client->syncDisconnect($replyCode, $replyText);
-                    }
-                }
-            }
-        }catch (Throwable $throwable){} finally {
-            $this->_client = null;
-        }
+        $this->_config        = $config;
+        $this->_asyncClient   = new AsyncClient($this->_config);
+        $this->_syncClient    = new SyncClient($this->_config);
     }
 
     /**
      * @return AsyncClient
      */
-    public function client(): AsyncClient
+    public function getAsyncClient(): AsyncClient
     {
-        if(!$this->_client instanceof AsyncClient){
-            $this->_client = new AsyncClient($this->_config);
-        }
-        return $this->_client;
+        return $this->_asyncClient;
     }
 
     /**
-     * 消费
-     * @param AbstractMessage $abstractMessage
+     * @return SyncClient
+     */
+    public function getSyncClient(): SyncClient
+    {
+        return $this->_syncClient;
+    }
+
+    /**
+     * @return callable|null
+     */
+    public function getErrorCallback(): ?callable
+    {
+        $errorCallback = $this->_config['error_callback'] ?? null;
+        if(!is_callable($errorCallback) and !is_null($errorCallback)){
+            $errorCallback = null;
+        }
+        return $errorCallback;
+    }
+
+    /**
+     * @param AbstractClient $client
+     * @param Throwable|null $throwable
      * @return void
      */
-    public function consume(AbstractMessage $abstractMessage) : void
+    public function close(AbstractClient $client, ?Throwable $throwable = null): void
     {
-        if($this->_initCallback){
-            call_user_func($this->_initCallback, null, $this);
-        }
-        $this->client()->connect()->then(
-            function (AsyncClient $client){
-                return $client->channel()->then(function (Channel $channel){
-                    return $channel;
-                },function (Throwable $throwable){
-                    if($this->_errorCallback){
-                        call_user_func($this->_errorCallback, $throwable, $this);
-                    }
-                    $this->close(true, $throwable);
-                });
-            },
-            function (Throwable $throwable){
-                if($this->_errorCallback){
-                    call_user_func($this->_errorCallback, $throwable, $this);
-                }
-                $this->close(true, $throwable);
+        $replyCode = $throwable instanceof ClientException ? $throwable->getCode() : 0;
+        $replyText = $throwable instanceof ClientException ? $throwable->getMessage() : '';
+        try {
+            if($client instanceof AsyncClient and $client->isConnected()) {
+                $client->syncDisconnect($replyCode, $replyText);
+            }elseif ($client instanceof SyncClient and $client->isConnected()) {
+                $client->disconnect($replyCode, $replyText);
             }
-        )->then(function (Channel $channel) use ($abstractMessage) {
-            return $channel->exchangeDeclare(
-                $abstractMessage->getExchange(),
-                $abstractMessage->getExchangeType(),
-                $abstractMessage->isPassive(),
-                $abstractMessage->isDurable(),
-                $abstractMessage->isAutoDelete(),
-                $abstractMessage->isInternal(),
-                $abstractMessage->isNowait(),
-                $abstractMessage->getArguments()
-            )->then(
-                function () use ($channel) {
-                    return $channel;
-                },
-                function (Throwable $throwable){
-                    if($this->_errorCallback){
-                        call_user_func($this->_errorCallback, $throwable, $this);
-                    }
-                    $this->close(true, $throwable);
-                }
-            );
-        })->then(function (Channel $channel) use ($abstractMessage) {
-            return $channel->queueDeclare(
-                $abstractMessage->getQueue(),
-                $abstractMessage->isPassive(),
-                $abstractMessage->isDurable(),
-                $abstractMessage->isExclusive(),
-                $abstractMessage->isAutoDelete(),
-                $abstractMessage->isNowait(),
-                $abstractMessage->getArguments()
-            )->then(
-                function () use ($channel) {
-                    return $channel;
-                },
-                function (Throwable $throwable){
-                    if($this->_errorCallback){
-                        call_user_func($this->_errorCallback, $throwable, $this);
-                    }
-                    $this->close(true, $throwable);
-                }
-            );
-        })->then(function (Channel $channel) use ($abstractMessage) {
-            return $channel->queueBind(
-                $abstractMessage->getQueue(),
-                $abstractMessage->getExchange(),
-                $abstractMessage->getRoutingKey(),
-                $abstractMessage->isNowait(),
-                $abstractMessage->getArguments()
-            )->then(
-                function () use ($channel) {
-                    return $channel;
-                },
-                function (Throwable $throwable){
-                    if($this->_errorCallback){
-                        call_user_func($this->_errorCallback, $throwable, $this);
-                    }
-                    $this->close(true, $throwable);
-                }
-            );
-        })->then(function (Channel $channel) use ($abstractMessage) {
-            return $channel->qos(
-                $abstractMessage->getPrefetchSize(),
-                $abstractMessage->getPrefetchCount(),
-                $abstractMessage->isGlobal()
-            )->then(
-                function () use ($channel) {
-                    return $channel;
-                },
-                function (Throwable $throwable){
-                    if($this->_errorCallback){
-                        call_user_func($this->_errorCallback, $throwable, $this);
-                    }
-                    $this->close(true, $throwable);
-                }
-            );
-        })->then(function (Channel $channel) use ($abstractMessage) {
-            //Waiting for messages
-            $channel->consume(
-                function (Message $message, Channel $channel, Client $client) use ($abstractMessage) {
-                    try {
-                        $tag = ($abstractMessage->getCallback())($message, $channel, $client);
-                    }catch (Throwable $throwable){
-                        $tag = null;
-                    }
-                    switch (true) {
-                        case $tag === Constants::ACK:
-                            $res = $channel->ack($message);
-                            break;
-                        case $tag === Constants::NACK:
-                            $res = $channel->nack($message);
-                            break;
-                        case $tag === Constants::REQUEUE:
-                        default:
-                            $res = $channel->reject($message);
-                            break;
-                    }
-                    $res->then(
-                        function (){},
-                        function (Throwable $throwable){
-                            if($this->_errorCallback){
-                                call_user_func($this->_errorCallback, $throwable, $this);
-                            }
-                            $this->close(true, $throwable);
-                        }
-                    );
-            },
-                $abstractMessage->getQueue(),
-                $abstractMessage->getConsumerTag(),
-                $abstractMessage->isNoLocal(),
-                $abstractMessage->isNoAck(),
-                $abstractMessage->isExclusive(),
-                $abstractMessage->isNowait(),
-                $abstractMessage->getArguments()
-            )->then(
-                function (MethodBasicConsumeOkFrame $ok){
 
-                },
-                function (Throwable $throwable){
-                    if($this->_errorCallback){
-                        call_user_func($this->_errorCallback, $throwable, $this);
+        }catch (Throwable $throwable){}
+    }
+
+    /**
+     * @param BuilderConfig $config
+     * @return void
+     */
+    public function consume(BuilderConfig $config): void
+    {
+        // 创建连接
+        $promise = $this->getAsyncClient()->connect()->then(function (AsyncClient $client){
+            return $client->channel();
+        }, function($reason) {
+            if ($reason instanceof Throwable){
+                if($this->getErrorCallback()){\call_user_func($this->getErrorCallback(), $reason, $this);}
+                $this->close($this->getAsyncClient(), $reason);
+            }
+            if (is_string($reason)) {
+                echo "Rejected: $reason\n";
+            }
+        });
+        // 通道预备
+        $promise = $this->_channelInit($promise, $config);
+        // 消费
+        $promise->then(function (Channel $channel) use ($config) {
+            echo "Consume Start: {$config->getExchange()} | {$config->getQueue()}\n";
+            $channel->consume(function (Message $message, Channel $channel, Client $client) use ($config) {
+                    try {
+                        $tag = \call_user_func($config->getCallback(), $message, $channel, $client);
+                    }catch (Throwable $throwable){
+                        $tag = Constants::REQUEUE;
+                        echo "Consume Throwable: {$throwable->getMessage()}\n";
                     }
-                    $this->close(true, $throwable);
+                    if($tag === Constants::ACK) {
+                        $res = $channel->ack($message);
+                    }elseif ($tag === Constants::NACK) {
+                        $res = $channel->nack($message);
+                    }else {
+                        $res = $channel->reject($message);
+                    }
+                    $res->then(function (){}, function (Throwable $throwable){
+                        if($this->getErrorCallback()) {\call_user_func($this->getErrorCallback(), $throwable, $this);}
+                        $this->close($this->getAsyncClient(), $throwable);
+                    })->done();
+                }, $config->getQueue(), $config->getConsumerTag(), $config->isNoLocal(), $config->isNoAck(),
+                $config->isExclusive(), $config->isNowait(), $config->getArguments()
+            )->then(function (MethodBasicConsumeOkFrame $ok){}, function (Throwable $throwable) {
+                if($this->getErrorCallback()) {\call_user_func($this->getErrorCallback(), $throwable, $this);}
+                $this->close($this->getAsyncClient(), $throwable);
+            })->done();
+        })->done();
+    }
+
+
+    /**
+     * 异步发布
+     * @param BuilderConfig $config
+     * @param bool $close
+     * @return PromiseInterface
+     */
+    public function asyncPublish(BuilderConfig $config, bool $close = false) : PromiseInterface
+    {
+        if($this->getAsyncClient()->isConnected()){
+            $promise = $this->getAsyncClient()->channel();
+        }else{
+            $promise = $this->getAsyncClient()->connect()->then(function (AsyncClient $client) {
+                return $client->channel();
+            }, function($reason) {
+                if ($reason instanceof Throwable){
+                    if($this->getErrorCallback()){\call_user_func($this->getErrorCallback(), $reason, $this);}
+                    $this->close($this->getAsyncClient(), $reason);
                 }
-            );
+                if (is_string($reason)) {
+                    echo "Rejected: $reason\n";
+                }
+            });
+            $promise = $this->_channelInit($promise, $config);
+        }
+        return $promise->then(function (Channel $channel) use ($config, $close) {
+            return $channel->publish(
+                $config->getBody(),$config->getHeaders(), $config->getExchange(), $config->getRoutingKey(),
+                $config->isMandatory(), $config->isImmediate()
+            )->then(function () use ($close) {
+                if($close) {$this->close($this->getAsyncClient());}
+            }, function (Throwable $throwable) {
+                if($this->getErrorCallback()){\call_user_func($this->getErrorCallback(), $throwable, $this);}
+                $this->close($this->getAsyncClient(), $throwable);
+            })->done();
         });
     }
 
     /**
-     * 发布
-     * @param AbstractMessage $abstractMessage
+     * @param BuilderConfig $config
      * @param bool $close
-     * @return bool|PromiseInterface
+     * @return bool
      */
-    public function publish(AbstractMessage $abstractMessage, bool $close = false) : PromiseInterface
+    public function syncPublish(BuilderConfig $config, bool $close = false): bool
     {
-        // 如果存在连接
-        if($channel = $this->_getChannel()){
-            return $channel->publish(
-                $abstractMessage->getBody(),
-                $abstractMessage->getHeaders(),
-                $abstractMessage->getExchange(),
-                $abstractMessage->getRoutingKey(),
-                $abstractMessage->isMandatory(),
-                $abstractMessage->isImmediate()
-            )->then(
-                function () use ($close){
-                    if($close){
-                        $this->_setChannel();
-                        $this->close(true);
-                    }
-                    return true;
-                },
-                function (Throwable $throwable){
-                    $this->_setChannel();
-                    if($this->_errorCallback){
-                        call_user_func($this->_errorCallback, $throwable, $this);
-                    }
-                    $this->close(true, $throwable);
-                    return false;
-                }
-            );
+        if($this->getSyncClient()->isConnected()){
+            $channel = $this->getSyncClient()->channel();
+        }else{
+            try {
+                $channel = $this->getSyncClient()->connect()->channel();
+                $channel->exchangeDeclare(
+                    $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
+                    $config->isAutoDelete(), $config->isInternal(), $config->isNowait(), $config->getArguments()
+                );
+                $channel->queueDeclare(
+                    $config->getQueue(), $config->isPassive(), $config->isDurable(), $config->isExclusive(),
+                    $config->isAutoDelete(), $config->isNowait(), $config->getArguments()
+                );
+                $channel->queueBind(
+                    $config->getQueue(), $config->getExchange(), $config->getRoutingKey(), $config->isNowait(),
+                    $config->getArguments()
+                );
+            }catch (Throwable $throwable){
+                if($this->getErrorCallback()){\call_user_func($this->getErrorCallback(), $throwable, $this);}
+                $this->close($this->getSyncClient(), $throwable);
+                return false;
+            }
         }
-        // 如果不存在连接
-        else {
-            return $this->client()->connect()->then(
-                function (AsyncClient $client){
-                    return $client->channel()->then(function (Channel $channel){
-                        $this->_setChannel($channel);
-                        return $channel;
-                    },function (Throwable $throwable){
-                        $this->_setChannel();
-                        if($this->_errorCallback){
-                            call_user_func($this->_errorCallback, $throwable, $this);
-                        }
-                        $this->close(true, $throwable);
-                    });
-                },
-                function (Throwable $throwable){
-                    $this->_setChannel();
-                    if($this->_errorCallback){
-                        call_user_func($this->_errorCallback, $throwable, $this);
-                    }
-                    $this->close(true, $throwable);
-                }
-            )->then(function (Channel $channel) use ($abstractMessage) {
-                return $channel->exchangeDeclare(
-                    $abstractMessage->getExchange(),
-                    $abstractMessage->getExchangeType(),
-                    $abstractMessage->isPassive(),
-                    $abstractMessage->isDurable(),
-                    $abstractMessage->isAutoDelete(),
-                    $abstractMessage->isInternal(),
-                    $abstractMessage->isNowait(),
-                    $abstractMessage->getArguments()
-                )->then(
-                    function () use ($channel) {
-                        $this->_setChannel($channel);
-                        return $channel;
-                    },
-                    function (Throwable $throwable){
-                        $this->_setChannel();
-                        if($this->_errorCallback){
-                            call_user_func($this->_errorCallback, $throwable, $this);
-                        }
-                        $this->close(true, $throwable);
-                    }
-                );
-            })->then(function (Channel $channel) use ($abstractMessage) {
-                return $channel->queueDeclare(
-                    $abstractMessage->getQueue(),
-                    $abstractMessage->isPassive(),
-                    $abstractMessage->isDurable(),
-                    $abstractMessage->isExclusive(),
-                    $abstractMessage->isAutoDelete(),
-                    $abstractMessage->isNowait(),
-                    $abstractMessage->getArguments()
-                )->then(
-                    function () use ($channel) {
-                        $this->_setChannel($channel);
-                        return $channel;
-                    },
-                    function (Throwable $throwable){
-                        $this->_setChannel();
-                        if($this->_errorCallback){
-                            call_user_func($this->_errorCallback, $throwable, $this);
-                        }
-                        $this->close(true, $throwable);
-                    }
-                );
-            })->then(function (Channel $channel) use ($abstractMessage) {
-                return $channel->queueBind(
-                    $abstractMessage->getQueue(),
-                    $abstractMessage->getExchange(),
-                    $abstractMessage->getRoutingKey(),
-                    $abstractMessage->isNowait(),
-                    $abstractMessage->getArguments()
-                )->then(
-                    function () use ($channel) {
-                        $this->_setChannel($channel);
-                        return $channel;
-                    },
-                    function (Throwable $throwable){
-                        $this->_setChannel();
-                        if($this->_errorCallback){
-                            call_user_func($this->_errorCallback, $throwable, $this);
-                        }
-                        $this->close(true, $throwable);
-                    }
-                );
-            })->then(function (Channel $channel) use ($abstractMessage, $close) {
-                return $channel->publish(
-                    $abstractMessage->getBody(),
-                    $abstractMessage->getHeaders(),
-                    $abstractMessage->getExchange(),
-                    $abstractMessage->getRoutingKey(),
-                    $abstractMessage->isMandatory(),
-                    $abstractMessage->isImmediate()
-                )->then(
-                    function () use ($close){
-                        if($close){
-                            $this->_setChannel();
-                            $this->close(true);
-                        }
-                        return true;
-                    },
-                    function (Throwable $throwable){
-                        $this->_setChannel();
-                        if($this->_errorCallback){
-                            call_user_func($this->_errorCallback, $throwable, $this);
-                        }
-                        $this->close(true, $throwable);
-                        return false;
-                    }
-                );
+
+        return $channel->publish(
+            $config->getBody(), $config->getHeaders(), $config->getExchange(), $config->getRoutingKey(),
+            $config->isMandatory(), $config->isImmediate()
+        )->then(function () use ($close) {
+            if($close) {$this->close($this->getAsyncClient());}
+        }, function (Throwable $throwable) {
+            if($this->getErrorCallback()){\call_user_func($this->getErrorCallback(), $throwable, $this);}
+            $this->close($this->getSyncClient(), $throwable);
+        })->done();
+    }
+
+    /**
+     * 通道预备
+     * @param PromiseInterface $promise
+     * @param BuilderConfig $config
+     * @return PromiseInterface
+     */
+    protected function _channelInit(PromiseInterface $promise, BuilderConfig $config): PromiseInterface
+    {
+        return $promise->then(function (Channel $channel) use ($config) {
+            return $channel->exchangeDeclare(
+                $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
+                $config->isAutoDelete(), $config->isInternal(), $config->isNowait(), $config->getArguments()
+            )->then(function () use ($channel) {
+                return $channel;
             });
-        }
-    }
-
-    /**
-     * @return Channel|null
-     */
-    public function _getChannel() : ?Channel
-    {
-        return $this->_channel;
-    }
-
-    /**
-     * @param Channel|null $channel
-     * @return void
-     */
-    public function _setChannel(?Channel $channel = null){
-        $this->_channel = $channel;
-    }
-
-
-    /**
-     * @param Closure $callback
-     * @return void
-     */
-    public function _setErrorCallback(Closure $callback)
-    {
-        $this->_errorCallback = $callback;
-    }
-
-    /**
-     * @return Closure
-     */
-    public function _getErrorCallback(): Closure
-    {
-        return $this->_errorCallback;
-    }
-
-    /**
-     * @param Closure $callback
-     * @return void
-     */
-    public function _setFinallyCallback(Closure $callback)
-    {
-        $this->_finallyCallback = $callback;
-    }
-
-    /**
-     * @return Closure
-     */
-    public function _getFinallyCallback(): Closure
-    {
-        return $this->_finallyCallback;
-    }
-
-    /**
-     * @param Closure $callback
-     * @return void
-     */
-    public function _setInitCallback(Closure $callback)
-    {
-        $this->_initCallback = $callback;
-    }
-
-    /**
-     * @return Closure
-     */
-    public function _getInitCallback(): Closure
-    {
-        return $this->_initCallback;
+        })->then(function (Channel $channel) use ($config) {
+            return $channel->queueDeclare(
+                $config->getQueue(), $config->isPassive(), $config->isDurable(), $config->isExclusive(),
+                $config->isAutoDelete(), $config->isNowait(), $config->getArguments()
+            )->then(function () use ($channel) {
+                return $channel;
+            });
+        })->then(function (Channel $channel) use ($config) {
+            return $channel->queueBind(
+                $config->getQueue(), $config->getExchange(), $config->getRoutingKey(), $config->isNowait(),
+                $config->getArguments()
+            )->then(function () use ($channel) {
+                return $channel;
+            });
+        })->then(function (Channel $channel) use ($config) {
+            return $channel->qos(
+                $config->getPrefetchSize(), $config->getPrefetchCount(), $config->isGlobal()
+            )->then(function () use ($channel) {
+                return $channel;
+            });
+        });
     }
 }
