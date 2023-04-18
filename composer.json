@@ -6,7 +6,7 @@
   "authors": [
     {
       "name": "chaz6chez",
-      "email": "250220719@qq.com",
+      "email": "chaz6chez1993@outlook.com",
       "homepage": "https://chaz6chez.cn"
     }
   ],
@@ -15,14 +15,15 @@
     "source": "https://github.com/workbunny/webman-rabbitmq"
   },
   "require": {
-    "php": ">=7.4",
+    "php": "^7.4 | ^8.0",
     "workerman/rabbitmq": "^1.0",
     "webman/console": "^1.0"
   },
   "require-dev": {
     "workerman/webman-framework": "^1.3.0",
-    "phpunit/phpunit": "^9.0",
-    "symfony/var-dumper": "^5.4"
+    "phpunit/phpunit": "^9.0 | ^10.0",
+    "symfony/var-dumper": "^5.4 | ^6.0",
+    "friendsofphp/php-cs-fixer": "^3.0"
   },
   "autoload": {
     "psr-4": {
@@ -34,7 +35,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Tests\\": "tests"
+      "Tests\\": "tests",
+      "process\\": "process"
     }
   }
 }

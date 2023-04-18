@@ -10,6 +10,7 @@ use SplFileInfo;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use function Workbunny\WebmanRabbitMQ\config;
 
 class WorkbunnyWebmanRabbitMQList extends AbstractCommand
 {
@@ -25,7 +26,7 @@ class WorkbunnyWebmanRabbitMQList extends AbstractCommand
     {
         $headers = ['name', 'file', 'handler', 'count', 'mode'];
         $rows = [];
-        $files = $this->files(base_path() . '/' . $this->baseProcessPath);
+        $files = $this->files(base_path() . '/' . self::$baseProcessPath);
         $configs = config('plugin.workbunny.webman-rabbitmq.process', []);
 
         /** @var SplFileInfo $file */
@@ -35,7 +36,7 @@ class WorkbunnyWebmanRabbitMQList extends AbstractCommand
                 '.',
                 str_replace(base_path() . '/' , '', $fileName = $file->getPath() . '/' . $file->getBasename('.php'))
             );
-            $name = str_replace(base_path() . '/' . $this->baseProcessPath , '', $fileName);
+            $name = str_replace(base_path() . '/' . self::$baseProcessPath . '/', '', $fileName);
             $rows[] = [
                 strtolower(
                     strpos($name, 'BuilderDelayed') ?

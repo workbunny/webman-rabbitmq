@@ -1,0 +1,28 @@
+version: "3"
+services:
+  webman-rabbitmq-php:
+    restart: always
+    container_name: webman-rabbitmq-php
+    build:
+      context: ./
+    image: webman-rabbitmq-php
+    volumes:
+      - ./../:/var/www
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "10"
+    tty: true
+
+  rabbitmq:
+    restart: always
+    container_name: rabbitmq
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5671:5671"
+      - "5672:5672"
+      - "15671:15671"
+      - "15672:15672"
+    volumes:
+      - ./../temp/:/var/log/rabbitmq/

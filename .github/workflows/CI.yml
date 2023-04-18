@@ -32,7 +32,6 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: event
           tools: phpunit:9.5, composer:v2
           coverage: none
       - run: composer install

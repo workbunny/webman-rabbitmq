@@ -3,6 +3,7 @@
 namespace Workbunny\WebmanRabbitMQ;
 
 use React\Promise\PromiseInterface;
+use SplFileInfo;
 use Webman\Config;
 use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
@@ -62,8 +63,54 @@ function async_publish(AbstractBuilder $builder, string $body, ?string $routingK
  * @param $default
  * @return array|mixed|null
  */
-function debug_config(string $key = null, $default = null)
+function config(string $key = null, $default = null)
 {
-    Config::load(__DIR__ . '/config');
-    return Config::get($key, $default);
+    if(AbstractBuilder::$debug) {
+        Config::load(config_path());
+        return Config::get($key, $default);
+    }else{
+        return \config($key, $default);
+    }
+}
+
+/**
+ * @return string
+ */
+function config_path(): string
+{
+    return AbstractBuilder::$debug ? __DIR__ . '/config' : \config_path();
+}
+
+/**
+ * @return string
+ */
+function base_path(): string
+{
+    return AbstractBuilder::$debug ? dirname(__DIR__) : \base_path();
+}
+
+/**
+ * @param string $path
+ * @param bool $remove
+ * @return bool
+ */
+function is_empty_dir(string $path, bool $remove = false): bool
+{
+    $dirIterator = new \RecursiveDirectoryIterator($path, \FilesystemIterator::FOLLOW_SYMLINKS);
+    $iterator = new \RecursiveIteratorIterator($dirIterator);
+
+    /** @var SplFileInfo $file */
+    foreach ($iterator as $file) {
+        if($file->getFilename() !== '.' and $file->getFilename() !== '..'){
+            if($file->isDir()){
+                is_empty_dir($file->getPath());
+            }else{
+                return false;
+            }
+        }
+    }
+    if($remove){
+        rmdir($path);
+    }
+    return true;
 }

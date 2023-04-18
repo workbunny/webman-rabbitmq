@@ -7,6 +7,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
+use function Workbunny\WebmanRabbitMQ\config;
+use function Workbunny\WebmanRabbitMQ\config_path;
+use function Workbunny\WebmanRabbitMQ\is_empty_dir;
 
 class WorkbunnyWebmanRabbitMQBuilder extends AbstractCommand
 {
@@ -18,10 +21,10 @@ class WorkbunnyWebmanRabbitMQBuilder extends AbstractCommand
      */
     protected function configure()
     {
-        $this->addArgument('name', InputArgument::REQUIRED, 'builder name');
-        $this->addArgument('count', InputArgument::REQUIRED, 'builder count');
-        $this->addArgument('mode', InputArgument::REQUIRED, 'builder mode : queue, rpc');
-        $this->addOption('delayed', 'd', InputOption::VALUE_NONE, 'Delayed mode');
+        $this->addArgument('name', InputArgument::REQUIRED, 'Builder name. ');
+        $this->addArgument('count', InputArgument::OPTIONAL, 'Number of processes started by builder. ', 1);
+        $this->addOption('mode', 'm', InputOption::VALUE_REQUIRED, 'Builder mode: queue, rpc', 'queue');
+        $this->addOption('delayed', 'd', InputOption::VALUE_NONE, 'Delay mode builder. ');
     }
 
     /**
@@ -33,49 +36,41 @@ class WorkbunnyWebmanRabbitMQBuilder extends AbstractCommand
     {
         $name    = $input->getArgument('name');
         $count   = $input->getArgument('count');
-        $mode    = $input->getArgument('mode');
         $delayed = $input->getOption('delayed');
+        $mode    = $input->getOption('mode');
         list($name, $namespace, $file) = $this->getFileInfo($name, $delayed);
-
-        if(file_exists($process = config_path() . '/plugin/workbunny/webman-rabbitmq/process.php')){
-            $processConfig = file_get_contents($process);
-            $config = config('plugin.workbunny.webman-rabbitmq.process', []);
-            $processName = str_replace('\\', '.', $className = "$namespace\\$name");
-
-            if(!isset($config[$processName])){
-                file_put_contents($process, preg_replace_callback('/(];)(?!.*\1)/',
-                    function () use ($processName, $className, $count, $mode){
-                        return <<<EOF
+        if(!file_exists($process = config_path() . '/plugin/workbunny/webman-rabbitmq/process.php')) {
+            return $this->error($output, "Builder {$name} failed to create: plugin/workbunny/webman-rabbitmq/process.php does not exist.");
+        }
+        $processConfig = file_get_contents($process);
+        $config = config('plugin.workbunny.webman-rabbitmq.process', []);
+        $processName = str_replace('\\', '.', $className = "$namespace\\$name");
+        if(isset($config[$processName])){
+            return $this->error($output, "Builder {$name} failed to create: Config already exists.");
+        }
+        /** @var AbstractBuilder $builderClass */
+        $builderClass = $this->getBuilder($mode);
+        if($builderClass !== null){
+            file_put_contents($process, preg_replace_callback('/(];)(?!.*\1)/',
+                function () use ($processName, $className, $count, $mode) {
+                    return <<<EOF
     '$processName' => [
         'handler' => \\$className::class,
-        'count'   => $count
-        'mode'    => $mode
+        'count'   => {$count},
+        'mode'    => '$mode',
     ],
 ];
 EOF;
-                    }, $processConfig,1));
-                /** @var AbstractBuilder $builderClass */
-                $builderClass = $this->getBuilder($mode);
-                if($builderClass !== null){
-                    if (!is_dir($path = pathinfo($file, PATHINFO_DIRNAME))) {
-                        mkdir($path, 0777, true);
-                    }
-                    if(!file_exists($file)){
-                        file_put_contents($file, $builderClass::classContent($namespace, $name, (substr($name, -strlen('Delayed')) === 'Delayed')));
-                    }
-                    $this->success($output, "Builder {$name} created successfully.");
-
-                }else{
-                    $this->error($output, "Builder {$name} created successfully.");
-                }
-
-            }else{
-                $this->error($output, "Builder {$name} failed to create: Config already exists.");
+                }, $processConfig,1));
+            $this->info($output, "Config updated. $process");
+            if (!is_dir($path = pathinfo($file, PATHINFO_DIRNAME))) {
+                mkdir($path, 0777, true);
             }
-
-        }else{
-            $this->error($output, "Builder {$name} failed to create: plugin/workbunny/webman-rabbitmq/process.php does not exist.");
+            if(!file_exists($file)){
+                file_put_contents($file, $builderClass::classContent($namespace, $name, (substr($name, -strlen('Delayed')) === 'Delayed')));
+                $this->info($output, "Builder created. $file");
+            }
         }
-        return self::SUCCESS;
+        return $this->success($output, "Builder {$name} created successfully.");
     }
 }

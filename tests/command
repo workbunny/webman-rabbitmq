@@ -1,0 +1,27 @@
+#!/usr/bin/env php
+<?php declare(strict_types=1);
+
+use Webman\Console\Command;
+use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
+use function Workbunny\WebmanRabbitMQ\config;
+
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+
+AbstractBuilder::$debug = true;
+echo "ℹ️ Run in debug mode!\n";
+
+$cli = new Command();
+$cli->setName('webman-rabbitmq-test cli');
+foreach (config('plugin', []) as $projects) {
+    foreach ($projects as $project) {
+        foreach ($project['command'] ?? [] as $command) {
+            $cli->add(new $command);
+        }
+    }
+}
+
+try {
+    $cli->run();
+} catch (Exception $e) {
+    exit($e->getMessage());
+}

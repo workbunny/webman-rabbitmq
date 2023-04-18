@@ -17,7 +17,6 @@ class QueueBuilder extends AbstractBuilder
      *  'prefetch_size'  => 0,
      *  'is_global'      => false,
      *  'routing_key'    => '',
-     *  'callback'       => callback function,
      * ]
      */
     protected array $_queueConfig = [];
@@ -42,7 +41,7 @@ class QueueBuilder extends AbstractBuilder
         $this->getBuilderConfig()->setPrefetchCount($this->_queueConfig['prefetch_count'] ?? 0);
         $this->getBuilderConfig()->setPrefetchSize($this->_queueConfig['prefetch_size'] ?? 0);
         $this->getBuilderConfig()->setGlobal($this->_queueConfig['is_global'] ?? false);
-        $this->getBuilderConfig()->setCallback($this->_queueConfig['callback']);
+        $this->getBuilderConfig()->setCallback([$this, 'handler']);
         if($config['delayed'] ?? false){
             $this->getBuilderConfig()->setArguments([
                 'x-delayed-type' => $this->getBuilderConfig()->getExchangeType()
@@ -85,9 +84,9 @@ use Bunny\Channel as BunnyChannel;
 use Bunny\Async\Client as BunnyClient;
 use Bunny\Message as BunnyMessage;
 use Workbunny\WebmanRabbitMQ\Constants;
-use Workbunny\WebmanRabbitMQ\Builders\RpcBuilder;
+use Workbunny\WebmanRabbitMQ\Builders\QueueBuilder;
 
-class $className extends WorkQueuesBuilder
+class $className extends QueueBuilder
 {
     /**
      * @var array = [
@@ -97,7 +96,6 @@ class $className extends WorkQueuesBuilder
      *   'prefetch_size'  => 0,
      *   'is_global'      => false,
      *   'routing_key'    => '',
-     *   'callback'       => callback function,
      * ]
      */
     protected array \$_queueConfigs = [
@@ -107,7 +105,6 @@ class $className extends WorkQueuesBuilder
         'prefetch_size'  => 0,                  // TODO QOS size 
         'is_global'      => false,              // TODO QOS 全局
         'routing_key'    => '',                 // TODO 路由键
-        'callback'       => [\$this, 'handler'],// TODO 消费回调函数
     ];
     
     /** @var string 交换机类型 */
@@ -117,16 +114,16 @@ class $className extends WorkQueuesBuilder
     protected ?string \$_exchangeName = null; // TODO 交换机名称，默认由类名自动生成
     
     /**
-    * 默认的的缺省值回调【请勿使用】
-    * 
-    * @param BunnyMessage $\$message
-    * @param BunnyChannel $\$channel
-    * @param BunnyClient $\$client
-    * @return string
-    */
-    final public function default(BunnyMessage \$message, BunnyChannel \$channel, BunnyClient \$client): string
+     * 【请勿移除该方法】
+     * @param BunnyMessage \$message
+     * @param BunnyChannel \$channel
+     * @param BunnyClient \$client
+     * @return void
+     */
+    public function handler(BunnyMessage \$message, BunnyChannel \$channel, BunnyClient \$client): string 
     {
-        echo "您未正确设置消费回调！$className" . PHP_EOL;
+        // TODO 请重写消费逻辑
+        echo "请重写 $className::handler\\n";
         return Constants::ACK;
     }
 }
