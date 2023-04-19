@@ -51,7 +51,7 @@ class QueueBuilder extends AbstractBuilder
     }
 
     /** @inheritDoc */
-    public function onWorkerStart(Worker $worker)
+    public function onWorkerStart(Worker $worker): void
     {
         if($this->getConnection()){
             $this->getConnection()->consume($this->getBuilderConfig());
@@ -59,7 +59,7 @@ class QueueBuilder extends AbstractBuilder
     }
 
     /** @inheritDoc */
-    public function onWorkerStop(Worker $worker)
+    public function onWorkerStop(Worker $worker): void
     {
         if($this->getConnection()){
             $this->getConnection()->close($this->getConnection()->getAsyncClient());
@@ -68,7 +68,7 @@ class QueueBuilder extends AbstractBuilder
     }
 
     /** @inheritDoc */
-    public function onWorkerReload(Worker $worker)
+    public function onWorkerReload(Worker $worker): void
     {}
 
     /** @inheritDoc */
@@ -118,7 +118,7 @@ class $className extends QueueBuilder
      * @param BunnyMessage \$message
      * @param BunnyChannel \$channel
      * @param BunnyClient \$client
-     * @return void
+     * @return string
      */
     public function handler(BunnyMessage \$message, BunnyChannel \$channel, BunnyClient \$client): string 
     {

@@ -5,7 +5,7 @@ namespace Workbunny\WebmanRabbitMQ\Builders;
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
 use Workbunny\WebmanRabbitMQ\Connection;
 use Workerman\Worker;
-use function Workbunny\WebmanRabbitMQ\debug_config;
+use function Workbunny\WebmanRabbitMQ\config;
 
 abstract class AbstractBuilder
 {
@@ -27,8 +27,7 @@ abstract class AbstractBuilder
 
     public function __construct()
     {
-        $config = self::$debug ? debug_config('plugin.workbunny.webman-rabbitmq.app') : config('plugin.workbunny.webman-rabbitmq.app');
-        $this->setConnection(new Connection($config));
+        $this->setConnection(new Connection(config('plugin.workbunny.webman-rabbitmq.app')));
         $this->setBuilderConfig(new BuilderConfig());
     }
 
@@ -88,25 +87,25 @@ abstract class AbstractBuilder
      * Builder 启动时
      *
      * @param Worker $worker
-     * @return mixed
+     * @return void
      */
-    abstract public function onWorkerStart(Worker $worker);
+    abstract public function onWorkerStart(Worker $worker): void;
 
     /**
      * Builder 停止时
      *
      * @param Worker $worker
-     * @return mixed
+     * @return void
      */
-    abstract public function onWorkerStop(Worker $worker);
+    abstract public function onWorkerStop(Worker $worker): void;
 
     /**
      * Builder 重加载时
      *
      * @param Worker $worker
-     * @return mixed
+     * @return void
      */
-    abstract public function onWorkerReload(Worker $worker);
+    abstract public function onWorkerReload(Worker $worker): void;
 
     /**
      * Command 获取需要创建的类文件内容

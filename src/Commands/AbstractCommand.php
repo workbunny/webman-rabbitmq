@@ -70,7 +70,7 @@ abstract class AbstractCommand extends Command
     {
         if (!($pos = strrpos($name, '/'))) {
             $name = self::getClassName($name, $delayed);
-            $file = base_path() . self::$baseProcessPath . "/$name.php";
+            $file = base_path() . DIRECTORY_SEPARATOR . self::$baseProcessPath . "/$name.php";
             $namespace = self::$baseNamespace;
         } else {
             $path = self::$baseProcessPath . '/' . substr($name, 0, $pos);

@@ -4,3 +4,4 @@
 /vendor
 /temp
 composer.lock
+.phpunit.result.cache

@@ -6,6 +6,7 @@ namespace Tests;
 use PHPUnit\Framework\TestCase;
 use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
 use Workbunny\WebmanRabbitMQ\Commands\AbstractCommand;
+use function Workbunny\WebmanRabbitMQ\config;
 
 abstract class BaseTest extends TestCase
 {
@@ -18,6 +19,12 @@ abstract class BaseTest extends TestCase
     protected function exec(string $command): array
     {
         exec($command, $output, $resultCode);
+        return [$output, $resultCode];
+    }
+
+    protected function passthru(string $command): array
+    {
+        $output = passthru($command, $resultCode);
         return [$output, $resultCode];
     }
 

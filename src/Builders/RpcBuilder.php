@@ -8,17 +8,17 @@ use Workerman\Worker;
 class RpcBuilder extends AbstractBuilder
 {
 
-    public function onWorkerStart(Worker $worker)
+    public function onWorkerStart(Worker $worker): void
     {
         // TODO: Implement onWorkerStart() method.
     }
 
-    public function onWorkerStop(Worker $worker)
+    public function onWorkerStop(Worker $worker): void
     {
         // TODO: Implement onWorkerStop() method.
     }
 
-    public function onWorkerReload(Worker $worker)
+    public function onWorkerReload(Worker $worker): void
     {
         // TODO: Implement onWorkerReload() method.
     }

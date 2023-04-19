@@ -9,7 +9,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
 use function Workbunny\WebmanRabbitMQ\config;
 use function Workbunny\WebmanRabbitMQ\config_path;
-use function Workbunny\WebmanRabbitMQ\is_empty_dir;
 
 class WorkbunnyWebmanRabbitMQBuilder extends AbstractCommand
 {
@@ -19,7 +18,7 @@ class WorkbunnyWebmanRabbitMQBuilder extends AbstractCommand
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument('name', InputArgument::REQUIRED, 'Builder name. ');
         $this->addArgument('count', InputArgument::OPTIONAL, 'Number of processes started by builder. ', 1);
@@ -67,7 +66,7 @@ EOF;
                 mkdir($path, 0777, true);
             }
             if(!file_exists($file)){
-                file_put_contents($file, $builderClass::classContent($namespace, $name, (substr($name, -strlen('Delayed')) === 'Delayed')));
+                file_put_contents($file, $builderClass::classContent($namespace, $name, (str_ends_with($name, 'Delayed'))));
                 $this->info($output, "Builder created. $file");
             }
         }

@@ -63,7 +63,7 @@ class WorkbunnyWebmanRabbitMQRemove extends AbstractCommand
                             return '';
                         }, $processConfig,1)
                 );
-                $this->info($output, "Config updated. $file");
+                $this->info($output, "Config updated. $process");
             }
             // 清理文件
             if(file_exists($file)){
