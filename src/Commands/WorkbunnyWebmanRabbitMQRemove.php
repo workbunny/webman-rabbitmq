@@ -20,11 +20,11 @@ class WorkbunnyWebmanRabbitMQRemove extends AbstractCommand
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
-        $this->addArgument('name', InputArgument::REQUIRED, 'builder name');
-        $this->addOption('delayed', 'd', InputOption::VALUE_NONE, 'Delayed mode');
-        $this->addOption('close', 'c', InputOption::VALUE_NONE, 'Close only mode');
+        $this->addArgument('name', InputArgument::REQUIRED, 'builder name.');
+        $this->addOption('delayed', 'd', InputOption::VALUE_NONE, 'Delayed mode.');
+        $this->addOption('close', 'c', InputOption::VALUE_NONE, 'Close only mode.');
     }
 
     /**

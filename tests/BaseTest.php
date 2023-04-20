@@ -22,20 +22,6 @@ abstract class BaseTest extends TestCase
         return [$output, $resultCode];
     }
 
-    protected function passthru(string $command): array
-    {
-        $output = passthru($command, $resultCode);
-        return [$output, $resultCode];
-    }
-
-    protected function configIsset(string $name, bool $delayed): bool
-    {
-        list($name, $namespace) = AbstractCommand::getFileInfo($name, $delayed);
-        $config = config('plugin.workbunny.webman-rabbitmq.process', []);
-        $processName = str_replace('\\', '.', "$namespace\\$name");
-        return isset($config[$processName]);
-    }
-
     protected function fileIsset(string $name, bool $delayed): bool
     {
         list(, , $file) = AbstractCommand::getFileInfo($name, $delayed);
