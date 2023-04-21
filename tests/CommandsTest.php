@@ -20,8 +20,8 @@ class CommandsTest extends BaseTest
         $this->assertEquals(0, $status);
         $this->assertEquals([
             "ℹ️ Run in debug mode!" ,
-            "ℹ️ Config updated. /var/www/src/config/plugin/workbunny/webman-rabbitmq/process.php" ,
-            "ℹ️ Builder created. /var/www/process/workbunny/rabbitmq/TestBuilder.php" ,
+            "ℹ️ Config updated." ,
+            "ℹ️ Builder created." ,
             "✅ Builder TestBuilder created successfully."
         ], $result);
         $this->assertTrue($this->fileIsset($name, false));
@@ -31,8 +31,8 @@ class CommandsTest extends BaseTest
         $this->assertEquals(0, $status);
         $this->assertEquals([
             "ℹ️ Run in debug mode!" ,
-            "ℹ️ Config updated. /var/www/src/config/plugin/workbunny/webman-rabbitmq/process.php" ,
-            "ℹ️ Builder removed. /var/www/process/workbunny/rabbitmq/TestBuilder.php" ,
+            "ℹ️ Config updated." ,
+            "ℹ️ Builder removed." ,
             "✅ Builder TestBuilder removed successfully."
         ], $result);
         $this->assertFalse($this->fileIsset($name, false));
@@ -50,8 +50,8 @@ class CommandsTest extends BaseTest
         $this->assertEquals(0, $status);
         $this->assertEquals([
             "ℹ️ Run in debug mode!" ,
-            "ℹ️ Config updated. /var/www/src/config/plugin/workbunny/webman-rabbitmq/process.php" ,
-            "ℹ️ Builder created. /var/www/process/workbunny/rabbitmq/test/TestBuilder.php" ,
+            "ℹ️ Config updated." ,
+            "ℹ️ Builder created." ,
             "✅ Builder TestBuilder created successfully."
         ], $result);
         $this->assertTrue($this->fileIsset($name, false));
@@ -61,9 +61,9 @@ class CommandsTest extends BaseTest
         $this->assertEquals(0, $status);
         $this->assertEquals([
             "ℹ️ Run in debug mode!" ,
-            "ℹ️ Config updated. /var/www/src/config/plugin/workbunny/webman-rabbitmq/process.php" ,
-            "ℹ️ Builder removed. /var/www/process/workbunny/rabbitmq/test/TestBuilder.php" ,
-            "ℹ️ Empty dir removed. /var/www/process/workbunny/rabbitmq/test",
+            "ℹ️ Config updated." ,
+            "ℹ️ Builder removed." ,
+            "ℹ️ Empty dir removed.",
             "✅ Builder TestBuilder removed successfully."
         ], $result);
         $this->assertFalse($this->fileIsset($name, false));
@@ -81,8 +81,8 @@ class CommandsTest extends BaseTest
         $this->assertEquals(0, $status);
         $this->assertEquals([
             "ℹ️ Run in debug mode!" ,
-            "ℹ️ Config updated. /var/www/src/config/plugin/workbunny/webman-rabbitmq/process.php" ,
-            "ℹ️ Builder created. /var/www/process/workbunny/rabbitmq/TestBuilderDelayed.php" ,
+            "ℹ️ Config updated." ,
+            "ℹ️ Builder created." ,
             "✅ Builder TestBuilderDelayed created successfully."
         ], $result);
         $this->assertTrue($this->fileIsset($name, true));
@@ -92,8 +92,8 @@ class CommandsTest extends BaseTest
         $this->assertEquals(0, $status);
         $this->assertEquals([
             "ℹ️ Run in debug mode!" ,
-            "ℹ️ Config updated. /var/www/src/config/plugin/workbunny/webman-rabbitmq/process.php" ,
-            "ℹ️ Builder removed. /var/www/process/workbunny/rabbitmq/TestBuilderDelayed.php" ,
+            "ℹ️ Config updated." ,
+            "ℹ️ Builder removed." ,
             "✅ Builder TestBuilderDelayed removed successfully."
         ], $result);
         $this->assertFalse($this->fileIsset($name, true));
@@ -111,8 +111,8 @@ class CommandsTest extends BaseTest
         $this->assertEquals(0, $status);
         $this->assertEquals([
             "ℹ️ Run in debug mode!" ,
-            "ℹ️ Config updated. /var/www/src/config/plugin/workbunny/webman-rabbitmq/process.php" ,
-            "ℹ️ Builder created. /var/www/process/workbunny/rabbitmq/test/TestBuilderDelayed.php" ,
+            "ℹ️ Config updated." ,
+            "ℹ️ Builder created." ,
             "✅ Builder TestBuilderDelayed created successfully."
         ], $result);
         $this->assertTrue($this->fileIsset($name, true));
@@ -122,9 +122,9 @@ class CommandsTest extends BaseTest
         $this->assertEquals(0, $status);
         $this->assertEquals([
             "ℹ️ Run in debug mode!" ,
-            "ℹ️ Config updated. /var/www/src/config/plugin/workbunny/webman-rabbitmq/process.php" ,
-            "ℹ️ Builder removed. /var/www/process/workbunny/rabbitmq/test/TestBuilderDelayed.php" ,
-            "ℹ️ Empty dir removed. /var/www/process/workbunny/rabbitmq/test",
+            "ℹ️ Config updated." ,
+            "ℹ️ Builder removed." ,
+            "ℹ️ Empty dir removed.",
             "✅ Builder TestBuilderDelayed removed successfully."
         ], $result);
         $this->assertFalse($this->fileIsset($name, true));
