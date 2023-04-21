@@ -6,7 +6,7 @@ namespace Tests;
 /**
  * @runTestsInSeparateProcesses
  */
-class CommandsTest extends BaseTest
+class CommandsTest extends BaseTestCase
 {
     /**
      * @return void

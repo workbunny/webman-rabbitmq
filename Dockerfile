@@ -10,7 +10,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     composer &&  \
     composer self-update && \
     curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s  \
-    sockets pcntl zip event ev ffi xdebug opcache
+    sockets pcntl zip event ev ffi xdebug opcache amqp
 
 VOLUME /var/www
 WORKDIR /var/www

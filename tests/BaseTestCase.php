@@ -6,9 +6,8 @@ namespace Tests;
 use PHPUnit\Framework\TestCase;
 use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
 use Workbunny\WebmanRabbitMQ\Commands\AbstractCommand;
-use function Workbunny\WebmanRabbitMQ\config;
 
-abstract class BaseTest extends TestCase
+abstract class BaseTestCase extends TestCase
 {
     protected function setUp(): void
     {
