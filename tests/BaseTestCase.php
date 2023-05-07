@@ -1,20 +1,12 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
-namespace Tests;
+namespace Workbunny\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
 use Workbunny\WebmanRabbitMQ\Commands\AbstractCommand;
 
-abstract class BaseTestCase extends TestCase
+class BaseTestCase extends TestCase
 {
-    protected function setUp(): void
-    {
-        AbstractBuilder::$debug = true;
-        parent::setUp();
-    }
-
     protected function exec(string $command): array
     {
         exec($command, $output, $resultCode);

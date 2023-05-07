@@ -6,6 +6,7 @@
          beStrictAboutOutputDuringTests="true"
          defaultTimeLimit="10"
          colors="true"
+         testdox="true"
          stopOnWarning="true">
     <testsuites>
         <testsuite name="default">
