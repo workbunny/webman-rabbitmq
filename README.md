@@ -34,12 +34,9 @@
 
 RabbitMQ的webman客户端插件；
 
-异步无阻塞消费、异步无阻塞生产、同步阻塞生产；
-
-简单易用高效，可以轻易的实现master/worker的队列模式（一个队列多个消费者）；
-
-支持延迟队列；
-
+1. 支持5种消费模式：简单队列、workQueue、routing、pub/sub、exchange；
+2. 支持延迟队列（rabbitMQ须安装插件）；
+3. 异步无阻塞消费、异步无阻塞生产、同步阻塞生产；
 
 ## 安装
 ```
@@ -69,116 +66,77 @@ return [
 
 ## 使用
 
-### 创建Builder
+- 2.x与1.x在Builder结构有着较大的变化，[1.x文档](https://github.com/workbunny/webman-rabbitmq/blob/1.x/README.md)
+- 2.x目前在beta阶段，后续会完善CI及单元测试
+- **生产环境请暂时使用1.x**
 
-- **创建一个消费者进程数量为1的普通队列：（在项目根目录执行）**
-```shell
-./webman workbunny:rabbitmq-builder test 1
-```
+### QueueBuilder
 
-- **创建一个消费者进程数量为1的延迟队列：（在项目根目录执行）**
-```shell
-./webman workbunny:rabbitmq-builder test 1 -d
-	
-# 或
-	
-./webman workbunny:rabbitmq-builder test 1 --delayed
-```
+- 可实现官网的5种消费模式
 
-- **命令支持二级菜单**
+#### 命令行
+
+- 创建
 ```shell
+# 创建一个拥有单进程消费者的QueueBuilder
+./webman workbunny:rabbitmq-builder test --mode=queue
+# 创建一个拥有4进程消费者的QueueBuilder
+./webman workbunny:rabbitmq-builder test 4 --mode=queue
+
+# 创建一个拥有单进程消费者的延迟QueueBuilder
+./webman workbunny:rabbitmq-builder test --delayed--mode=queue
+# 创建一个拥有4进程消费者的延迟QueueBuilder
+./webman workbunny:rabbitmq-builder test 4 --delayed--mode=queue
+
+
+# 在 process/workbunny/rabbitmq 目录下创建 TestBuilder.php
+./webman workbunny:rabbitmq-builder test --mode=queue
 # 在 process/workbunny/rabbitmq/project 目录下创建 TestBuilder.php
-./webman workbunny:rabbitmq-builder project/test 1
-
+./webman workbunny:rabbitmq-builder project/test --mode=queue
+# 在 process/workbunny/rabbitmq/project 目录下创建 TestAllBuilder.php
+./webman workbunny:rabbitmq-builder project/testAll --mode=queue
 # 延迟同理
 ```
 
-**注：延迟队列需要为 rabbitMQ 安装 rabbitmq_delayed_message_exchange 插件**
+- 移除
 
-1. 进入 rabbitMQ 的 plugins 目录下执行命令下载插件（以rabbitMQ 3.8.x举例）：
-```shell
-wget https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/download/3.8.17/rabbitmq_delayed_message_exchange-3.8.17.8f537ac.ez
-```
-
-2. 执行安装命令
-```shell
-rabbitmq-plugins enable rabbitmq_delayed_message_exchange
-```
-
-#### 说明：
-
-- **Builder** 可以理解为类似 **ORM** 的 **Model**，创建一个 **Builder** 就对应了一个队列；使用该 **Builder** 对象进行 **publish()** 时，会向该队列投放消息；创建多少个 **Builder** 就相当于创建了多少条队列；
-
-- **命令结构：**
-```shell
-workbunny:rabbitmq-builder [-d|--delayed] [--] <name> <count>
-
-# 【必填】 name：Builder名称
-# 【必填】count：启动的消费者进程数量
-# 【选填】-d/--delayed：是否是延迟队列
-```
-
-- 在项目根目录下命令会在 **process/workbunny/rabbitmq** 路径下创建一个Builder，并且将该Builder自动加入 **config/plugin/workbunny/webman-rabbitmq/process.php** 配置中作为自定义进程启动；**（如不需要自动加载消费者进程，请自行注释该配置）**；
-
-- 消费是异步的，不会阻塞当前进程，不会影响 **webman/workerman** 的 **status**；
-
-
-- **Builder文件结构入下，可自行调整类属性：**
-```php
-<?php
-declare(strict_types=1);
-
-namespace process\workbunny\rabbitmq;
-
-use Bunny\Channel as BunnyChannel;
-use Bunny\Async\Client as BunnyClient;
-use Bunny\Message as BunnyMessage;
-use Workbunny\WebmanRabbitMQ\Constants;
-use Workbunny\WebmanRabbitMQ\FastBuilder;
-
-class TestBuilder extends FastBuilder
-{
-   	// QOS 大小
-   	protected int $prefetch_size = 0;
-   	// QOS 数量
-   	protected int $prefetch_count = 0;
-   	// QOS 是否全局
-   	protected bool $is_global = false;
-   	// 是否延迟队列
-   	protected bool $delayed = false;
-   	// 消费回调
-   	public function handler(BunnyMessage $message, BunnyChannel $channel, BunnyClient $client): string
-   	{
-       	// TODO 消费需要的回调逻辑
-       	var_dump('请重写 TestBuilderDelayed::handler() ');
-       	return Constants::ACK;
-       	# Constants::NACK
-       	# Constants::REQUEUE
-   	}
-}
-```
-
-### 移除Builder
-
-- **移除名为 test 的普通队列：（在项目根目录执行）**
+移除包含了类文件的移除和配置的移除
 
 ```shell
-./webman workbunny:rabbitmq-remove test
+# 移除Builder
+./webman workbunny:rabbitmq-remove test --mode=queue
+# 移除延迟Builder
+./webman workbunny:rabbitmq-remove test --delayed--mode=queue
+
+# 二级菜单同理
 ```
 
-- **移除名为 test 的延迟队列：（在项目根目录执行）**
+- 关闭
+
+关闭仅对配置进行移除
+
 ```shell
-./webman workbunny:rabbitmq-remove test -d
-# 或
-./webman workbunny:rabbitmq-remove test --delayed
+# 关闭Builder
+./webman workbunny:rabbitmq-remove test --close--mode=queue
+# 关闭延迟Builder
+./webman workbunny:rabbitmq-remove test --close--delayed--mode=queue
+
+# 二级菜单同理
 ```
 
-- **仅关闭名为 test 的普通队列：（在项目根目录执行）**
-```shell
-./webman workbunny:rabbitmq-remove test -c
-# 或
-./webman workbunny:rabbitmq-remove test --close
-```
+### 注意
+
+- **创建的Builder类可以手动修改调整**
+- **为Builder添加进process.php的配置可以手动修改**
+- **延迟队列需要为 rabbitMQ 安装 rabbitmq_delayed_message_exchange 插件**
+  1. 进入 rabbitMQ 的 plugins 目录下执行命令下载插件（以rabbitMQ 3.8.x举例）：
+    ```shell
+    wget https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/download/3.8.17/rabbitmq_delayed_message_exchange-3.8.17.8f537ac.ez
+    ```
+  2. 执行安装命令
+    ```shell
+    rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+    ```
 
 ### 查看Builder
 
@@ -189,20 +147,18 @@ class TestBuilder extends FastBuilder
 **注：当 Builder 未启动时，handler 与 count 显示为 --**
 
 ```shell
-+----------+---------------------------------------------------------------------------+-------------------------------------------------+-------+
-| name     | file                                                                      | handler                                         | count |
-+----------+---------------------------------------------------------------------------+-------------------------------------------------+-------+
-| test     | /var/www/your-project/process/workbunny/rabbitmq/TestBuilder.php          | process\workbunny\rabbitmq\TestBuilder          | 1     |
-| test -d  | /var/www/your-project/process/workbunny/rabbitmq/TestBuilderDelayed.php   | process\workbunny\rabbitmq\TestBuilderDelayed   | 1     |
-+----------+---------------------------------------------------------------------------+-------------------------------------------------+-------+
++----------+-------------------------------------------------------------------------+-------------------------------------------------+-------+-------+
+| name     | file                                                                    | handler                                         | count | mode  |
++----------+-------------------------------------------------------------------------+-------------------------------------------------+-------+-------+
+| test     | /var/www/your-project/process/workbunny/rabbitmq/TestBuilder.php        | process\workbunny\rabbitmq\TestBuilder          | 1     | queue |
+| test -d  | /var/www/your-project/process/workbunny/rabbitmq/TestBuilderDelayed.php | process\workbunny\rabbitmq\TestBuilderDelayed   | 1     | group |
++----------+-------------------------------------------------------------------------+-------------------------------------------------+-------+-------+
 ```
 
 ### 生产
 
 - 每个builder各包含一个连接，使用多个builder会创建多个连接
-
 - 生产消息默认不关闭当前连接
-
 - 异步生产的连接与消费者共用
 
 #### 1. 同步发布消息
