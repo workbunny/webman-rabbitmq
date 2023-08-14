@@ -18,8 +18,8 @@ class BuilderConfig
 
     protected string $_body = '';
     protected array $_headers = [
-        'content_type' => 'text/plain',
-        'delivery_mode' => Constants::DELIVERY_MODE_PERSISTENT
+        'content-type'  => 'text/plain',
+        'delivery-mode' => Constants::DELIVERY_MODE_PERSISTENT
     ];
     protected string $_exchange = '';
     protected string $_exchangeType = Constants::DIRECT;
