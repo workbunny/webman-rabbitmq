@@ -42,8 +42,8 @@ class PublishTest extends BaseTest
             $this->assertEquals('test', $test->getMessage()->getBody());
             $this->assertEquals([], $test->getMessage()->getArguments());
             $this->assertEquals([
-                "content_type" => "text/plain",
-                "delivery_mode" => 2
+                "content-type" => "text/plain",
+                "delivery-mode" => 2
             ], $test->getMessage()->getHeaders());
         });
         $test->syncConnection()->_setErrorCallback(function (\Throwable $throwable, SyncConnection $connection) use($test){
@@ -71,8 +71,8 @@ class PublishTest extends BaseTest
             $this->assertEquals('test', $test->getMessage()->getBody());
             $this->assertEquals([], $test->getMessage()->getArguments());
             $this->assertEquals([
-                "content_type" => "text/plain",
-                "delivery_mode" => 2
+                "content-type" => "text/plain",
+                "delivery-mode" => 2
             ], $test->getMessage()->getHeaders());
         });
         $test->syncConnection()->_setFinallyCallback(function (?\Throwable $throwable, SyncConnection $connection){
@@ -111,8 +111,8 @@ class PublishTest extends BaseTest
             $this->assertEquals('test', $test->getMessage()->getBody());
             $this->assertEquals([], $test->getMessage()->getArguments());
             $this->assertEquals([
-                "content_type" => "text/plain",
-                "delivery_mode" => 2
+                "content-type" => "text/plain",
+                "delivery-mode" => 2
             ], $test->getMessage()->getHeaders());
         });
 
