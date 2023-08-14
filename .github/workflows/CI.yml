@@ -1,14 +1,14 @@
 name: CI
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "1.x" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "1.x" ]
 
 jobs:
   PHPUnit:
     name: PHPUnit (PHP ${{ matrix.php }})
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         php:
