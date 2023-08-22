@@ -30,18 +30,18 @@ class AsyncClient extends Client
         }
 
         if($mechanism === 'PLAIN'){
-            return $this->connectionStartOk([], $mechanism, sprintf("\0%s\0%s", $this->options["user"], $this->options["password"]), "en_US");
+            return $this->connectionStartOk([], $mechanism, sprintf("\0%s\0%s", $this->options['user'], $this->options['password']), 'en_US');
         }elseif($mechanism === 'AMQPLAIN'){
 
             $responseBuffer = new Buffer();
             $this->writer->appendTable([
-                "LOGIN" => $this->options["user"],
-                "PASSWORD" => $this->options["password"],
+                'LOGIN' => $this->options['user'],
+                'PASSWORD' => $this->options['password'],
             ], $responseBuffer);
 
             $responseBuffer->discard(4);
 
-            return $this->connectionStartOk([], $mechanism, $responseBuffer->read($responseBuffer->getLength()), "en_US");
+            return $this->connectionStartOk([], $mechanism, $responseBuffer->read($responseBuffer->getLength()), 'en_US');
         }else{
 
             throw new ClientException("Client does not support {$mechanism} mechanism. ");
@@ -64,7 +64,7 @@ class AsyncClient extends Client
      * @param int|string $replyText
      * @return void
      */
-    public function syncDisconnect($replyCode = 0, $replyText = ""): void
+    public function syncDisconnect($replyCode = 0, $replyText = ''): void
     {
         if ($this->state !== ClientStateEnum::CONNECTED) {
             throw new ClientException("Client is not connected.");
