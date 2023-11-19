@@ -191,22 +191,24 @@ class Connection
                     $config->getQueue(), $config->getExchange(), $config->getRoutingKey(), $config->isNowait(),
                     $config->getArguments()
                 );
-            }catch (Throwable $throwable){
+            } catch (Throwable $throwable){
                 if($this->getErrorCallback()){\call_user_func($this->getErrorCallback(), $throwable, $this);}
                 $this->close($this->getSyncClient(), $throwable);
                 return false;
             }
         }
-
-        return $channel->publish(
-            $config->getBody(), $config->getHeaders(), $config->getExchange(), $config->getRoutingKey(),
-            $config->isMandatory(), $config->isImmediate()
-        )->then(function () use ($close) {
-            if($close) {$this->close($this->getAsyncClient());}
-        }, function (Throwable $throwable) {
+        try {
+            $res = (bool)$channel->publish(
+                $config->getBody(), $config->getHeaders(), $config->getExchange(), $config->getRoutingKey(),
+                $config->isMandatory(), $config->isImmediate()
+            );
+            if($close) {$this->close($this->getSyncClient());}
+            return $res;
+        } catch (Throwable $throwable){
             if($this->getErrorCallback()){\call_user_func($this->getErrorCallback(), $throwable, $this);}
             $this->close($this->getSyncClient(), $throwable);
-        })->done();
+            return false;
+        }
     }
 
     /**
