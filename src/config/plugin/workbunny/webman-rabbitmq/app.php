@@ -9,6 +9,7 @@ return [
     'password'           => 'guest',
     'mechanisms'         => 'AMQPLAIN',
     'timeout'            => 10,
+    "restart_interval"   => 0,
     'heartbeat'          => 50,
     'heartbeat_callback' => function(){
     },
