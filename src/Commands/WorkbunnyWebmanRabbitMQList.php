@@ -17,6 +17,12 @@ class WorkbunnyWebmanRabbitMQList extends AbstractCommand
     protected static $defaultName        = 'workbunny:rabbitmq-list';
     protected static $defaultDescription = 'Show workbunny/webman-rabbitmq Builders list. ';
 
+    protected function configure()
+    {
+        $this->setName('workbunny:rabbitmq-list')
+            ->setDescription('Show workbunny/webman-rabbitmq Builders list. ');
+    }
+
     /**
      * @param InputInterface $input
      * @param OutputInterface $output

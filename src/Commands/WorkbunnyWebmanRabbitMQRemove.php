@@ -22,6 +22,8 @@ class WorkbunnyWebmanRabbitMQRemove extends AbstractCommand
      */
     protected function configure(): void
     {
+        $this->setName('workbunny:rabbitmq-remove')
+            ->setDescription('Remove a workbunny/webman-rabbitmq Builder. ');
         $this->addArgument('name', InputArgument::REQUIRED, 'builder name.');
         $this->addOption('delayed', 'd', InputOption::VALUE_NONE, 'Delayed mode.');
         $this->addOption('close', 'c', InputOption::VALUE_NONE, 'Close only mode.');

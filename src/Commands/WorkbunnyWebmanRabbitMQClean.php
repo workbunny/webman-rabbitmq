@@ -17,6 +17,8 @@ class WorkbunnyWebmanRabbitMQClean extends AbstractCommand
      */
     protected function configure(): void
     {
+        $this->setName('workbunny:rabbitmq-clean')
+            ->setDescription('Remove all workbunny/webman-rabbitmq Builders. ');
         $this->addOption('close', 'c', InputOption::VALUE_NONE, 'Only close mode.');
     }
 
