@@ -105,9 +105,10 @@ class Connection
             echo "Consume Start: {$config->getExchange()} | {$config->getQueue()}\n";
             $channel->consume(function (Message $message, Channel $channel, Client $client) use ($config) {
                     // 如果事件循环开始重启或停止时停止消费
-                    if (in_array(Worker::getStatus(), [
+                    if (in_array($status = Worker::getStatus(), [
                         Worker::STATUS_SHUTDOWN, Worker::STATUS_RELOADING
                     ])) {
+                        echo "Consumer not running [worker status $status]\n";
                         return;
                     }
                     try {
