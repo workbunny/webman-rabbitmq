@@ -25,13 +25,13 @@ class AsyncClient extends Client
      */
     protected function authResponse(MethodConnectionStartFrame $start)
     {
-        if (strpos($start->mechanisms, ($mechanism = $this->options['mechanism'] ?? 'AMQPLAIN')) === false) {
+        if (!str_contains($start->mechanisms, ($mechanism = $this->options['mechanism'] ?? 'AMQPLAIN'))) {
             throw new ClientException("Server does not support {$this->options['mechanism']} mechanism (supported: {$start->mechanisms}).");
         }
 
-        if($mechanism === 'PLAIN'){
+        if ($mechanism === 'PLAIN') {
             return $this->connectionStartOk([], $mechanism, sprintf("\0%s\0%s", $this->options["user"], $this->options["password"]), "en_US");
-        }elseif($mechanism === 'AMQPLAIN'){
+        } elseif ($mechanism === 'AMQPLAIN') {
 
             $responseBuffer = new Buffer();
             $this->writer->appendTable([
@@ -42,8 +42,7 @@ class AsyncClient extends Client
             $responseBuffer->discard(4);
 
             return $this->connectionStartOk([], $mechanism, $responseBuffer->read($responseBuffer->getLength()), "en_US");
-        }else{
-
+        } else {
             throw new ClientException("Client does not support {$mechanism} mechanism. ");
         }
     }

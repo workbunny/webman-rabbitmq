@@ -12,6 +12,7 @@ use React\Promise\PromiseInterface;
 use Throwable;
 use Workbunny\WebmanRabbitMQ\Clients\AsyncClient;
 use Workbunny\WebmanRabbitMQ\Clients\SyncClient;
+use Workerman\Worker;
 
 class Connection
 {
@@ -103,17 +104,23 @@ class Connection
         $promise->then(function (Channel $channel) use ($config) {
             echo "Consume Start: {$config->getExchange()} | {$config->getQueue()}\n";
             $channel->consume(function (Message $message, Channel $channel, Client $client) use ($config) {
+                    // 如果事件循环开始重启或停止时停止消费
+                    if (in_array(Worker::getStatus(), [
+                        Worker::STATUS_SHUTDOWN, Worker::STATUS_RELOADING
+                    ])) {
+                        return;
+                    }
                     try {
                         $tag = \call_user_func($config->getCallback(), $message, $channel, $client);
-                    }catch (Throwable $throwable){
+                    } catch (Throwable $throwable) {
                         $tag = Constants::REQUEUE;
                         echo "Consume Throwable: {$throwable->getMessage()}\n";
                     }
                     if($tag === Constants::ACK) {
                         $res = $channel->ack($message);
-                    }elseif ($tag === Constants::NACK) {
+                    } elseif ($tag === Constants::NACK) {
                         $res = $channel->nack($message);
-                    }else {
+                    } else {
                         $res = $channel->reject($message);
                     }
                     $res->then(function (){}, function (Throwable $throwable){
