@@ -80,8 +80,7 @@ return [
 ## 使用
 
 - 2.x与1.x在Builder结构有着较大的变化，[1.x文档](https://github.com/workbunny/webman-rabbitmq/blob/1.x/README.md)
-- 2.x目前在beta阶段，后续会完善CI及单元测试
-- **生产环境请暂时使用1.x**
+- 2.x已生产可用
 
 ### QueueBuilder
 
