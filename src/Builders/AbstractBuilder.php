@@ -10,24 +10,40 @@ use function Workbunny\WebmanRabbitMQ\config;
 abstract class AbstractBuilder
 {
     public static bool $debug = false;
+
+    /**
+     * @var bool
+     */
+    private static bool $reuse = false;
+
     /**
      * @var AbstractBuilder[]
      */
     private static array $_builders = [];
 
     /**
+     * @var Connection|null
+     */
+    private static ?Connection $_connection = null;
+
+    /**
      * @var BuilderConfig
      */
     private BuilderConfig $_builderConfig;
 
-    /**
-     * @var Connection
-     */
-    private Connection $_connection;
-
     public function __construct()
     {
-        $this->setConnection(new Connection(config('plugin.workbunny.webman-rabbitmq.app')));
+        $config = config('plugin.workbunny.webman-rabbitmq.app');
+        // 复用连接
+        if (self::$reuse = $config['reuse_connection'] ?? false) {
+            if (!$this->getConnection()) {
+                $this->setConnection(new Connection($config));
+            }
+        }
+        // 非复用连接
+        else {
+            $this->setConnection(new Connection($config));
+        }
         $this->setBuilderConfig(new BuilderConfig());
     }
 
@@ -68,11 +84,11 @@ abstract class AbstractBuilder
     }
 
     /**
-     * @return Connection
+     * @return Connection|null
      */
-    public function getConnection(): Connection
+    public function getConnection(): ?Connection
     {
-        return $this->_connection;
+        return self::$_connection;
     }
 
     /**
@@ -80,7 +96,15 @@ abstract class AbstractBuilder
      */
     public function setConnection(Connection $connection): void
     {
-        $this->_connection = $connection;
+        self::$_connection = $connection;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isReuse(): bool
+    {
+        return self::$reuse;
     }
 
     /**

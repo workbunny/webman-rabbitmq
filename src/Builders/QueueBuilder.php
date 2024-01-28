@@ -4,8 +4,11 @@ namespace Workbunny\WebmanRabbitMQ\Builders;
 
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workerman\Worker;
+use Bunny\Channel as BunnyChannel;
+use Bunny\Async\Client as BunnyClient;
+use Bunny\Message as BunnyMessage;
 
-class QueueBuilder extends AbstractBuilder
+abstract class QueueBuilder extends AbstractBuilder
 {
     /**
      * 队列配置
@@ -67,7 +70,18 @@ class QueueBuilder extends AbstractBuilder
 
     /** @inheritDoc */
     public function onWorkerReload(Worker $worker): void
-    {}
+    {
+        $queue = $this->getBuilderConfig()->getQueue();
+        echo "Consumer $worker->id [queue: $queue] reload. " . PHP_EOL;
+    }
+
+    /**
+     * @param BunnyMessage $message
+     * @param BunnyChannel $channel
+     * @param BunnyClient $client
+     * @return string
+     */
+    abstract public function handler(BunnyMessage $message, BunnyChannel $channel, BunnyClient $client): string;
 
     /** @inheritDoc */
     public static function classContent(string $namespace, string $className, bool $isDelay): string
@@ -111,13 +125,7 @@ class $className extends QueueBuilder
     /** @var string|null 交换机名称 */
     protected ?string \$exchangeName = null; // TODO 交换机名称，默认由类名自动生成
     
-    /**
-     * 【请勿移除该方法】
-     * @param BunnyMessage \$message
-     * @param BunnyChannel \$channel
-     * @param BunnyClient \$client
-     * @return string
-     */
+    /** @inheritDoc */
     public function handler(BunnyMessage \$message, BunnyChannel \$channel, BunnyClient \$client): string 
     {
         // TODO 请重写消费逻辑

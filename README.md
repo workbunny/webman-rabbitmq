@@ -217,6 +217,56 @@ async_publish(TestBuilder::instance(), 'abc', [
 	'x-delay' => 10000, # 延迟10秒
 ]); # return PromiseInterface|bool
 ```
+### 自定义Builder
+
+- 创建自定义Builder需继承实现AbstractBuilder；
+  - onWorkerStart 消费进程启动时会触发，一般用于实现基础消费逻辑；
+  - onWorkerStop 消费进程结束时会触发，一般用于回收资源；
+  - onWorkerReload 消费进程重载，一般可置空；
+  - classContent 用于配合命令行自动生成BuilderClass；
+
+```php
+    /**
+     * Builder 启动时
+     *
+     * @param Worker $worker
+     * @return void
+     */
+    abstract public function onWorkerStart(Worker $worker): void;
+
+    /**
+     * Builder 停止时
+     *
+     * @param Worker $worker
+     * @return void
+     */
+    abstract public function onWorkerStop(Worker $worker): void;
+
+    /**
+     * Builder 重加载时
+     *
+     * @param Worker $worker
+     * @return void
+     */
+    abstract public function onWorkerReload(Worker $worker): void;
+
+    /**
+     * Command 获取需要创建的类文件内容
+     *
+     * @param string $namespace
+     * @param string $className
+     * @param bool $isDelay
+     * @return string
+     */
+    abstract public static function classContent(string $namespace, string $className, bool $isDelay): string;
+```
+
+- Builder会创建Connection，每个Connection会分别创建一个同步RabbitMQ客户端连接和一个异步客户端RabbitMQ连接；
+
+- 不同的Builder默认不复用Connection，配置选项reuse_connection可开启复用Connection；
+  - 复用Connection可以减少创建的RabbitMQ-Client连接数，但一定程度上会降低并发能力
+  - 复用不影响消费者，不影响跨进程的生产者
+  - 复用仅影响当前进程内的不同Builder的生产者
 
 ## 说明
 - **生产可用，欢迎 [issue](https://github.com/workbunny/webman-rabbitmq/issues) 和 PR**；
