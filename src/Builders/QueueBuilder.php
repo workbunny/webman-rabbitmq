@@ -87,6 +87,7 @@ abstract class QueueBuilder extends AbstractBuilder
     public static function classContent(string $namespace, string $className, bool $isDelay): string
     {
         $isDelay = $isDelay ? 'true' : 'false';
+        $name = str_replace('\\', '.', "$namespace.$className");
         return <<<doc
 <?php declare(strict_types=1);
 
@@ -111,19 +112,25 @@ class $className extends QueueBuilder
      * ]
      */
     protected array \$queueConfigs = [
-        'name'           => 'example',          // TODO 队列名称 ，默认由类名自动生成
-        'delayed'        => $isDelay,           // TODO 是否延迟
-        'prefetch_count' => 0,                  // TODO QOS 数量
-        'prefetch_size'  => 0,                  // TODO QOS size 
-        'is_global'      => false,              // TODO QOS 全局
-        'routing_key'    => '',                 // TODO 路由键
+        // 队列名称 ，默认由类名自动生成
+        'name'           => '$name',
+        // 是否延迟          
+        'delayed'        => $isDelay,
+        // QOS 数量
+        'prefetch_count' => 0,
+        // QOS size 
+        'prefetch_size'  => 0,
+        // QOS 全局
+        'is_global'      => false,
+        // 路由键
+        'routing_key'    => '',
     ];
     
     /** @var string 交换机类型 */
-    protected string \$exchangeType = Constants::DIRECT; // TODO 交换机类型
+    protected string \$exchangeType = Constants::DIRECT;
     
-    /** @var string|null 交换机名称 */
-    protected ?string \$exchangeName = null; // TODO 交换机名称，默认由类名自动生成
+    /** @var string|null 交换机名称,默认由类名自动生成 */
+    protected ?string \$exchangeName = '$name';
     
     /** @inheritDoc */
     public function handler(BunnyMessage \$message, BunnyChannel \$channel, BunnyClient \$client): string 

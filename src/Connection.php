@@ -8,10 +8,14 @@ use Bunny\Channel;
 use Bunny\Exception\ClientException;
 use Bunny\Message;
 use Bunny\Protocol\MethodBasicConsumeOkFrame;
+use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use Throwable;
 use Workbunny\WebmanRabbitMQ\Clients\AsyncClient;
 use Workbunny\WebmanRabbitMQ\Clients\SyncClient;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQAsyncPublishException;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
+use Workerman\Worker;
 
 class Connection
 {
@@ -103,17 +107,24 @@ class Connection
         $promise->then(function (Channel $channel) use ($config) {
             echo "Consume Start: {$config->getExchange()} | {$config->getQueue()}\n";
             $channel->consume(function (Message $message, Channel $channel, Client $client) use ($config) {
+                    // 如果事件循环开始重启或停止时停止消费
+                    if (in_array($status = Worker::getStatus(), [
+                        Worker::STATUS_SHUTDOWN, Worker::STATUS_RELOADING
+                    ])) {
+                        echo "Consumer not running [worker status $status]\n";
+                        return;
+                    }
                     try {
                         $tag = \call_user_func($config->getCallback(), $message, $channel, $client);
-                    }catch (Throwable $throwable){
+                    } catch (Throwable $throwable) {
                         $tag = Constants::REQUEUE;
                         echo "Consume Throwable: {$throwable->getMessage()}\n";
                     }
                     if($tag === Constants::ACK) {
                         $res = $channel->ack($message);
-                    }elseif ($tag === Constants::NACK) {
+                    } elseif ($tag === Constants::NACK) {
                         $res = $channel->nack($message);
-                    }else {
+                    } else {
                         $res = $channel->reject($message);
                     }
                     $res->then(function (){}, function (Throwable $throwable){
@@ -138,9 +149,9 @@ class Connection
      */
     public function asyncPublish(BuilderConfig $config, bool $close = false) : PromiseInterface
     {
-        if($this->getAsyncClient()->isConnected()){
+        if ($this->getAsyncClient()->isConnected()) {
             $promise = $this->getAsyncClient()->channel();
-        }else{
+        } else {
             $promise = $this->getAsyncClient()->connect()->then(function (AsyncClient $client) {
                 return $client->channel();
             }, function($reason) {
@@ -155,13 +166,27 @@ class Connection
             $promise = $this->_channelInit($promise, $config);
         }
         return $promise->then(function (Channel $channel) use ($config, $close) {
+            // 如果事件循环开始重启或停止时停止停止发布
+            if (in_array($status = Worker::getStatus(), [
+                Worker::STATUS_SHUTDOWN, Worker::STATUS_RELOADING
+            ])) {
+                echo "Publisher not running [worker status $status]\n";
+                $deferred = new Deferred();
+                $deferred->reject(new WebmanRabbitMQAsyncPublishException(
+                    "Publisher not running [worker status $status]. ",
+                    -1,
+                    $config
+                ));
+                return $deferred->promise();
+            }
+            // 发布
             return $channel->publish(
                 $config->getBody(),$config->getHeaders(), $config->getExchange(), $config->getRoutingKey(),
                 $config->isMandatory(), $config->isImmediate()
             )->then(function () use ($close) {
-                if($close) {$this->close($this->getAsyncClient());}
+                if ($close) {$this->close($this->getAsyncClient());}
             }, function (Throwable $throwable) {
-                if($this->getErrorCallback()){\call_user_func($this->getErrorCallback(), $throwable, $this);}
+                if ($this->getErrorCallback()) {\call_user_func($this->getErrorCallback(), $throwable, $this);}
                 $this->close($this->getAsyncClient(), $throwable);
             })->done();
         });
@@ -192,7 +217,7 @@ class Connection
                     $config->getArguments()
                 );
             } catch (Throwable $throwable){
-                if($this->getErrorCallback()){\call_user_func($this->getErrorCallback(), $throwable, $this);}
+                if ($this->getErrorCallback()) {\call_user_func($this->getErrorCallback(), $throwable, $this);}
                 $this->close($this->getSyncClient(), $throwable);
                 return false;
             }
@@ -202,10 +227,10 @@ class Connection
                 $config->getBody(), $config->getHeaders(), $config->getExchange(), $config->getRoutingKey(),
                 $config->isMandatory(), $config->isImmediate()
             );
-            if($close) {$this->close($this->getSyncClient());}
+            if ($close) {$this->close($this->getSyncClient());}
             return $res;
         } catch (Throwable $throwable){
-            if($this->getErrorCallback()){\call_user_func($this->getErrorCallback(), $throwable, $this);}
+            if ($this->getErrorCallback()) {\call_user_func($this->getErrorCallback(), $throwable, $this);}
             $this->close($this->getSyncClient(), $throwable);
             return false;
         }

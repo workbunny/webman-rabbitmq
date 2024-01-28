@@ -16,9 +16,9 @@ jobs:
           - "8.2"
           - "8.1"
         rabbitmq:
+          - "3.12-management"
           - "3.11-management"
           - "3.10-management"
-          - "3.9-management"
     steps:
       - uses: actions/checkout@v3
       - uses: namoshek/rabbitmq-github-action@v1
