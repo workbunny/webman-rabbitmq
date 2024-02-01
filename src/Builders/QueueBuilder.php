@@ -111,7 +111,7 @@ class $className extends QueueBuilder
      *   'routing_key'    => '',
      * ]
      */
-    protected array \$queueConfigs = [
+    protected array \$queueConfig = [
         // 队列名称 ，默认由类名自动生成
         'name'           => '$name',
         // 是否延迟          

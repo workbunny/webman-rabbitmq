@@ -20,7 +20,7 @@ class TestBuilderDelayed extends QueueBuilder
      *   'routing_key'    => '',
      * ]
      */
-    protected array $queueConfigs = [
+    protected array $queueConfig = [
         // 队列名称 ，默认由类名自动生成
         'name'           => 'process.workbunny.rabbitmq.TestBuilderDelayed',
         // 是否延迟
