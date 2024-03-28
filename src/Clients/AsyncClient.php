@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Clients;
 
+use Bunny\Channel;
 use Bunny\ClientStateEnum;
 use Bunny\Exception\ClientException;
 use Bunny\Protocol\Buffer;
@@ -17,6 +18,14 @@ use Workerman\Worker;
 class AsyncClient extends Client
 {
     public static ?bool $sync = false;
+
+    /**
+     * @return Channel[]
+     */
+    public function getChannels(): array
+    {
+        return $this->channels;
+    }
 
     /**
      * 重写authResponse方法以支持PLAIN及AMQPLAIN两种机制

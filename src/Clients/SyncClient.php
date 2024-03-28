@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Clients;
 
+use Bunny\Channel;
 use Bunny\Client;
 use Bunny\Exception\ClientException;
 use Bunny\Protocol\Buffer;
@@ -16,6 +17,14 @@ use Workerman\Timer;
 class SyncClient extends Client {
 
     protected ?int $heartbeatTimer = null;
+
+    /**
+     * @return Channel[]
+     */
+    public function getChannels(): array
+    {
+        return $this->channels;
+    }
 
     /**
      * 重写authResponse方法以支持PLAIN及AMQPLAIN两种机制
