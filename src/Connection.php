@@ -199,41 +199,51 @@ class Connection
      */
     public function syncPublish(BuilderConfig $config, bool $close = false): bool
     {
-        if($this->getSyncClient()->isConnected()){
-            $channel = $this->getSyncClient()->channel();
-        }else{
-            try {
-                $channel = $this->getSyncClient()->connect()->channel();
-                $channel->exchangeDeclare(
-                    $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
-                    $config->isAutoDelete(), $config->isInternal(), $config->isNowait(), $config->getArguments()
-                );
-                $channel->queueDeclare(
-                    $config->getQueue(), $config->isPassive(), $config->isDurable(), $config->isExclusive(),
-                    $config->isAutoDelete(), $config->isNowait(), $config->getArguments()
-                );
-                $channel->queueBind(
-                    $config->getQueue(), $config->getExchange(), $config->getRoutingKey(), $config->isNowait(),
-                    $config->getArguments()
-                );
-            } catch (Throwable $throwable){
-                if ($this->getErrorCallback()) {\call_user_func($this->getErrorCallback(), $throwable, $this);}
-                $this->close($this->getSyncClient(), $throwable);
-                return false;
-            }
-        }
         try {
-            $res = (bool)$channel->publish(
-                $config->getBody(), $config->getHeaders(), $config->getExchange(), $config->getRoutingKey(),
-                $config->isMandatory(), $config->isImmediate()
-            );
-            if ($close) {$this->close($this->getSyncClient());}
-            return $res;
+            if ($this->getSyncClient()->isConnected()) {
+                $channel = $this->getSyncClient()->channel();
+            } else {
+                try {
+                    $channel = $this->getSyncClient()->connect()->channel();
+                    $channel->exchangeDeclare(
+                        $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
+                        $config->isAutoDelete(), $config->isInternal(), $config->isNowait(), $config->getArguments()
+                    );
+                    $channel->queueDeclare(
+                        $config->getQueue(), $config->isPassive(), $config->isDurable(), $config->isExclusive(),
+                        $config->isAutoDelete(), $config->isNowait(), $config->getArguments()
+                    );
+                    $channel->queueBind(
+                        $config->getQueue(), $config->getExchange(), $config->getRoutingKey(), $config->isNowait(),
+                        $config->getArguments()
+                    );
+                } catch (Throwable $throwable) {
+                    if ($throwable instanceof ClientException) {
+                        throw $throwable;
+                    }
+                    if ($this->getErrorCallback()) {\call_user_func($this->getErrorCallback(), $throwable, $this);}
+                    $this->close($this->getSyncClient(), $throwable);
+                    return false;
+                }
+            }
+        } catch (ClientException $exception) {
+            // 随机一个通道
+            if ($exception->getMessage() === 'No available channels') {
+                $channel = array_rand($this->getSyncClient()->getChannels());
+            } else {
+                throw $exception;
+            }
         } catch (Throwable $throwable){
             if ($this->getErrorCallback()) {\call_user_func($this->getErrorCallback(), $throwable, $this);}
             $this->close($this->getSyncClient(), $throwable);
             return false;
         }
+        $res = (bool)$channel->publish(
+            $config->getBody(), $config->getHeaders(), $config->getExchange(), $config->getRoutingKey(),
+            $config->isMandatory(), $config->isImmediate()
+        );
+        if ($close) {$this->close($this->getSyncClient());}
+        return $res;
     }
 
     /**
