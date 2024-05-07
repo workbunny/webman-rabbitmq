@@ -2,6 +2,7 @@
 
 namespace Workbunny\WebmanRabbitMQ\Builders;
 
+use Bunny\Exception\ClientException;
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workerman\Worker;
 use Bunny\Channel as BunnyChannel;
@@ -30,6 +31,9 @@ abstract class QueueBuilder extends AbstractBuilder
     /** @var string|null 交换机名称 */
     protected ?string $exchangeName = null;
 
+    /** @var int|null 重启间隔 */
+    protected ?int $restartInterval = 5;
+
     public function __construct()
     {
         parent::__construct();
@@ -56,7 +60,13 @@ abstract class QueueBuilder extends AbstractBuilder
     /** @inheritDoc */
     public function onWorkerStart(Worker $worker): void
     {
-        $this->getConnection()?->consume($this->getBuilderConfig());
+        try {
+            $this->getConnection()?->consume($this->getBuilderConfig());
+        } catch (ClientException $exception) {
+            $worker::log("Queue $worker->id exception: [{$exception->getCode()}] {$exception->getMessage()}, \n");
+            sleep($this->restartInterval);
+            $worker::stopAll();
+        }
     }
 
     /** @inheritDoc */
