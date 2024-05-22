@@ -42,7 +42,7 @@ class WorkbunnyWebmanRabbitMQRemove extends AbstractCommand
         list($name, $namespace, $file) = $this->getFileInfo($name, $delayed);
         $file = $close ? '' : $file;
         if(!file_exists($process = config_path() . '/plugin/workbunny/webman-rabbitmq/process.php')) {
-            return $this->error($output, "Builder {$name} failed to clear: plugin/workbunny/webman-rabbitmq/process.php does not exist.");
+            return $this->error($output, "Builder {$name} failed to remove: plugin/workbunny/webman-rabbitmq/process.php does not exist.");
         }
         // remove config
         $config = config('plugin.workbunny.webman-rabbitmq.process', []);

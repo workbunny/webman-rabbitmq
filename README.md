@@ -96,9 +96,9 @@ return [
 ./webman workbunny:rabbitmq-builder test 4 --mode=queue
 
 # 创建一个拥有单进程消费者的延迟QueueBuilder
-./webman workbunny:rabbitmq-builder test --delayed--mode=queue
+./webman workbunny:rabbitmq-builder test --delayed --mode=queue
 # 创建一个拥有4进程消费者的延迟QueueBuilder
-./webman workbunny:rabbitmq-builder test 4 --delayed--mode=queue
+./webman workbunny:rabbitmq-builder test 4 --delayed --mode=queue
 
 
 # 在 process/workbunny/rabbitmq 目录下创建 TestBuilder.php
@@ -116,9 +116,9 @@ return [
 
 ```shell
 # 移除Builder
-./webman workbunny:rabbitmq-remove test --mode=queue
+./webman workbunny:rabbitmq-remove test
 # 移除延迟Builder
-./webman workbunny:rabbitmq-remove test --delayed--mode=queue
+./webman workbunny:rabbitmq-remove test --delayed
 
 # 二级菜单同理
 ```
@@ -129,9 +129,9 @@ return [
 
 ```shell
 # 关闭Builder
-./webman workbunny:rabbitmq-remove test --close--mode=queue
+./webman workbunny:rabbitmq-remove test --close
 # 关闭延迟Builder
-./webman workbunny:rabbitmq-remove test --close--delayed--mode=queue
+./webman workbunny:rabbitmq-remove test --close --delayed
 
 # 二级菜单同理
 ```
