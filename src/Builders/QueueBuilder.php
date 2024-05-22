@@ -49,7 +49,7 @@ abstract class QueueBuilder extends AbstractBuilder
         $this->getBuilderConfig()->setPrefetchSize($this->queueConfig['prefetch_size'] ?? 0);
         $this->getBuilderConfig()->setGlobal($this->queueConfig['is_global'] ?? false);
         $this->getBuilderConfig()->setCallback([$this, 'handler']);
-        if($config['delayed'] ?? false){
+        if($this->queueConfig['delayed'] ?? false){
             $this->getBuilderConfig()->setArguments([
                 'x-delayed-type' => $this->getBuilderConfig()->getExchangeType()
             ]);
