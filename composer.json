@@ -1,5 +1,5 @@
 {
-  "name": "workbunny/webman-rabbitmq",
+  "name": "websocket/webman-rabbitmq",
   "type": "library",
   "license": "MIT",
   "description": "Webman plugin workbunny/webman-rabbitmq",
