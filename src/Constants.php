@@ -15,6 +15,7 @@ class Constants
     const NACK = 'nack';
     const REQUEUE = 'requeue';
 
+    const NACK_NO_REQUEUE = 'nack_no_requeue';
     const DELIVERY_MODE_NON_PERSISTENT = 1;
     const DELIVERY_MODE_PERSISTENT = 2;
 }

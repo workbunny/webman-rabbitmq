@@ -124,7 +124,9 @@ class Connection
                         $res = $channel->ack($message);
                     } elseif ($tag === Constants::NACK) {
                         $res = $channel->nack($message);
-                    } else {
+                    } elseif ($tag === Constants::NACK_NO_REQUEUE){
+                        $res = $channel->nack($message,false,false);
+                    }else {
                         $res = $channel->reject($message);
                     }
                     $res->then(function (){}, function (Throwable $throwable){
