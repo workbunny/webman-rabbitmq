@@ -278,6 +278,11 @@ class Connection
                 return $channel;
             });
         })->then(function (Channel $channel) use ($config) {
+            try{
+                \call_user_func($config->getInit(), $channel);
+            }catch (Throwable $e){
+                echo "init error: {$e->getMessage()}\n";
+            }
             return $channel->qos(
                 $config->getPrefetchSize(), $config->getPrefetchCount(), $config->isGlobal()
             )->then(function () use ($channel) {

@@ -49,12 +49,29 @@ abstract class QueueBuilder extends AbstractBuilder
         $this->getBuilderConfig()->setPrefetchSize($this->queueConfig['prefetch_size'] ?? 0);
         $this->getBuilderConfig()->setGlobal($this->queueConfig['is_global'] ?? false);
         $this->getBuilderConfig()->setCallback([$this, 'handler']);
+        $this->getBuilderConfig()->setInit([$this, 'init']);
         if($this->queueConfig['delayed'] ?? false){
-            $this->getBuilderConfig()->setArguments([
+            $this->appendArguments([
                 'x-delayed-type' => $this->getBuilderConfig()->getExchangeType()
             ]);
             $this->getBuilderConfig()->setExchangeType(Constants::DELAYED);
         }
+        if($this->queueConfig['dead_letter'] ?? false){
+            $this->appendArguments([
+                'x-dead-letter-exchange' => $this->queueConfig['dead_letter']['exchange_name'],
+                'x-dead-letter-routing-key'=>''
+            ]);
+        }
+    }
+
+    /**
+     * @param array $arguments
+     * @return void
+     */
+    public function appendArguments(array $arguments):void{
+        $args = $this->getBuilderConfig()->getArguments();
+        $args = array_merge($args,$arguments);
+        $this->getBuilderConfig()->setArguments($args);
     }
 
     /** @inheritDoc */
@@ -93,6 +110,13 @@ abstract class QueueBuilder extends AbstractBuilder
      */
     abstract public function handler(BunnyMessage $message, BunnyChannel $channel, BunnyClient $client): string;
 
+    /**
+     * 初始化队列
+     * @param BunnyChannel $channel
+     * @return void
+     */
+    abstract public function init(BunnyChannel $channel): void;
+    
     /** @inheritDoc */
     public static function classContent(string $namespace, string $className, bool $isDelay): string
     {
@@ -119,6 +143,9 @@ class $className extends QueueBuilder
      *   'prefetch_size'  => 0,
      *   'is_global'      => false,
      *   'routing_key'    => '',
+     *   'dead_letter'=>[
+     *       'exchange_name'=>'dlx.example'
+     *    ],
      * ]
      */
     protected array \$queueConfig = [
@@ -134,6 +161,9 @@ class $className extends QueueBuilder
         'is_global'      => false,
         // 路由键
         'routing_key'    => '',
+        // 死信队列
+        'dead_letter'=>[
+        ],
     ];
     
     /** @var string 交换机类型 */

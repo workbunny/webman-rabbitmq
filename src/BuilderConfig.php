@@ -34,6 +34,8 @@ class BuilderConfig
 
     protected $_callback;
 
+    protected $_init;
+
     public function getExchangeType(): string
     {
         return $this->_exchangeType;
@@ -252,5 +254,15 @@ class BuilderConfig
     public function getCallback() : callable
     {
         return $this->_callback;
+    }
+
+    public function setInit(callable $init) : void
+    {
+        $this->_init = $init;
+    }
+
+    public function getInit() : callable
+    {
+        return $this->_init;
     }
 }
