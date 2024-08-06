@@ -196,7 +196,7 @@ sync_publish(TestBuilder::instance(), 'abc'); # return bool
 use function Workbunny\WebmanRabbitMQ\sync_publish;
 use process\workbunny\rabbitmq\TestBuilder;
 
-sync_publish(TestBuilder::instance(), 'abc', [
+sync_publish(TestBuilder::instance(), 'abc', headers: [
 	'x-delay' => 10000, # 延迟10秒
 ]); # return bool
 ```
@@ -225,7 +225,7 @@ async_publish(TestBuilder::instance(), 'abc'); # return PromiseInterface|bool
 use function Workbunny\WebmanRabbitMQ\async_publish;
 use process\workbunny\rabbitmq\TestBuilder;
 
-async_publish(TestBuilder::instance(), 'abc', [
+async_publish(TestBuilder::instance(), 'abc', headers: [
 	'x-delay' => 10000, # 延迟10秒
 ]); # return PromiseInterface|bool
 ```

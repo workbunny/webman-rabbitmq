@@ -33,7 +33,7 @@ class SyncClient extends Client {
      */
     protected function authResponse(MethodConnectionStartFrame $start)
     {
-        if (strpos($start->mechanisms, ($mechanism = $this->options['mechanism'] ?? 'AMQPLAIN')) === false) {
+        if (!str_contains($start->mechanisms, ($mechanism = $this->options['mechanism'] ?? 'AMQPLAIN'))) {
             throw new ClientException("Server does not support {$this->options['mechanism']} mechanism (supported: {$start->mechanisms}).");
         }
 
