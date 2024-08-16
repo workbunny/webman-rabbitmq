@@ -17,22 +17,13 @@ use Workerman\Worker;
 
 class AsyncClient extends Client
 {
+    use ClientMethods;
+
     public static ?bool $sync = false;
 
-    /**
-     * @return Channel[]
-     */
-    public function getChannels(): array
-    {
-        return $this->channels;
-    }
 
-    /**
-     * 重写authResponse方法以支持PLAIN及AMQPLAIN两种机制
-     * @param MethodConnectionStartFrame $start
-     * @return bool|PromiseInterface
-     */
-    protected function authResponse(MethodConnectionStartFrame $start)
+    /** @inheritDoc */
+    protected function authResponse(MethodConnectionStartFrame $start): PromiseInterface|bool
     {
         if (!str_contains($start->mechanisms, ($mechanism = $this->options['mechanism'] ?? 'AMQPLAIN'))) {
             throw new ClientException("Server does not support {$this->options['mechanism']} mechanism (supported: {$start->mechanisms}).");
@@ -56,13 +47,14 @@ class AsyncClient extends Client
         }
     }
 
+    /** @inheritDoc */
     public function __destruct()
     {
-        if(self::$sync){
+        if (self::$sync) {
             if($this->isConnected()){
                 $this->syncDisconnect();
             }
-        }else{
+        } else {
             parent::__destruct();
         }
     }

@@ -16,31 +16,24 @@ use Workerman\Timer;
 
 class SyncClient extends Client {
 
+    use ClientMethods;
+
+    /**
+     * @var int|null 心跳定时器
+     */
     protected ?int $heartbeatTimer = null;
 
-    /**
-     * @return Channel[]
-     */
-    public function getChannels(): array
-    {
-        return $this->channels;
-    }
 
-    /**
-     * 重写authResponse方法以支持PLAIN及AMQPLAIN两种机制
-     * @param MethodConnectionStartFrame $start
-     * @return bool|PromiseInterface
-     */
-    protected function authResponse(MethodConnectionStartFrame $start)
+    /** @inheritDoc */
+    protected function authResponse(MethodConnectionStartFrame $start): PromiseInterface|bool
     {
         if (!str_contains($start->mechanisms, ($mechanism = $this->options['mechanism'] ?? 'AMQPLAIN'))) {
             throw new ClientException("Server does not support {$this->options['mechanism']} mechanism (supported: {$start->mechanisms}).");
         }
 
-        if($mechanism === 'PLAIN'){
+        if ($mechanism === 'PLAIN') {
             return $this->connectionStartOk([], $mechanism, sprintf("\0%s\0%s", $this->options["user"], $this->options["password"]), "en_US");
-        }elseif($mechanism === 'AMQPLAIN'){
-
+        } elseif($mechanism === 'AMQPLAIN') {
             $responseBuffer = new Buffer();
             $this->writer->appendTable([
                 "LOGIN" => $this->options["user"],
@@ -50,10 +43,20 @@ class SyncClient extends Client {
             $responseBuffer->discard(4);
 
             return $this->connectionStartOk([], $mechanism, $responseBuffer->read($responseBuffer->getLength()), "en_US");
-        }else{
-
+        } else {
             throw new ClientException("Client does not support {$mechanism} mechanism. ");
         }
+    }
+
+    /** @inheritDoc */
+    public function __destruct()
+    {
+        try {
+            if($this->heartbeatTimer){
+                Timer::del($this->heartbeatTimer);
+            }
+            parent::__destruct();
+        } catch (Throwable) {}
     }
 
     /**
@@ -65,16 +68,6 @@ class SyncClient extends Client {
         $result = parent::connect();
         $this->heartbeatTimer = Timer::add($this->options['heartbeat'] ?? 60, [$this, 'onHeartbeat']);
         return $result;
-    }
-
-    public function __destruct()
-    {
-        try {
-            if($this->heartbeatTimer){
-                Timer::del($this->heartbeatTimer);
-            }
-            parent::__destruct();
-        }catch (Throwable $throwable){}
     }
 
     /**

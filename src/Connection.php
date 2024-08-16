@@ -65,6 +65,8 @@ class Connection
     }
 
     /**
+     * 兼容旧版
+     *
      * @param AbstractClient $client
      * @param Throwable|null $throwable
      * @return void
@@ -89,14 +91,16 @@ class Connection
         try {
             if ($client instanceof AsyncClient and $client->isConnected()) {
                 $channels = $client->getChannels();
-                foreach ($channels as $channel) {
+                foreach ($channels as $id => $channel) {
                     $channel->close($replyCode, $replyText);
+                    $client->removeChannel($id);
                 }
                 $client->syncDisconnect($replyCode, $replyText);
             } elseif ($client instanceof SyncClient and $client->isConnected()) {
                 $channels = $client->getChannels();
-                foreach ($channels as $channel) {
+                foreach ($channels as $id => $channel) {
                     $channel->close($replyCode, $replyText);
+                    $client->removeChannel($id);
                 }
                 $client->disconnect($replyCode, $replyText);
             }
@@ -176,11 +180,11 @@ class Connection
     public function asyncPublish(BuilderConfig $config, bool $close = false) : PromiseInterface
     {
         if ($this->getAsyncClient()->isConnected()) {
-            $promise = $this->getAsyncClient()->channel();
+            $promise = $this->getAsyncClient()->catchChannel();
         } else {
             $promise = $this->getAsyncClient()->connect()->then(function (AsyncClient $client) {
-                return $client->channel();
-            }, function($reason) {
+                return $client->catchChannel();
+            }, function ($reason) {
                 if ($reason instanceof Throwable){
                     if ($callback = $this->getErrorCallback()) {
                         \call_user_func($callback, $reason, $this);
@@ -188,7 +192,7 @@ class Connection
                     $this->disconnect($this->getAsyncClient(), $reason);
                 }
                 if (is_string($reason)) {
-                    echo "Rejected: $reason\n";
+                    echo "Publisher rejected: $reason\n";
                 }
             });
             $promise = $this->_channelInit($promise, $config);
@@ -221,6 +225,16 @@ class Connection
                 }
                 $this->disconnect($this->getAsyncClient(), $throwable);
             })->done();
+        }, function ($reason) {
+            if ($reason instanceof Throwable){
+                if ($callback = $this->getErrorCallback()) {
+                    \call_user_func($callback, $reason, $this);
+                }
+                $this->disconnect($this->getAsyncClient(), $reason);
+            }
+            if (is_string($reason)) {
+                echo "Publisher rejected: $reason\n";
+            }
         });
     }
 
@@ -233,10 +247,10 @@ class Connection
     {
         try {
             if ($this->getSyncClient()->isConnected()) {
-                $channel = $this->getSyncClient()->channel();
+                $channel = $this->getSyncClient()->catchChannel();
             } else {
                 try {
-                    $channel = $this->getSyncClient()->connect()->channel();
+                    $channel = $this->getSyncClient()->connect()->catchChannel();
                     $channel->exchangeDeclare(
                         $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
                         $config->isAutoDelete(), $config->isInternal(), $config->isNowait(), $config->getArguments()
@@ -259,13 +273,6 @@ class Connection
                     $this->disconnect($this->getSyncClient(), $throwable);
                     return false;
                 }
-            }
-        } catch (ClientException $exception) {
-            // 随机一个通道
-            if ($exception->getMessage() === 'No available channels') {
-                $channel = array_rand($this->getSyncClient()->getChannels());
-            } else {
-                throw $exception;
             }
         } catch (Throwable $throwable){
             if ($callback = $this->getErrorCallback()) {
