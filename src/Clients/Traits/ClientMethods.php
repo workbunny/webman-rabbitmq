@@ -4,9 +4,8 @@
  * @email chaz6chez1993@outlook.com
  */
 
-namespace Workbunny\WebmanRabbitMQ\Clients;
+namespace Workbunny\WebmanRabbitMQ\Clients\Traits;
 
-use Bunny\Channel;
 use Bunny\Channel as OriginalChannel;
 use Bunny\ChannelStateEnum;
 use Bunny\ClientStateEnum;
@@ -15,7 +14,8 @@ use Bunny\Protocol\MethodChannelOpenOkFrame;
 use Bunny\Protocol\MethodConnectionStartFrame;
 use React\Promise\Promise;
 use React\Promise\PromiseInterface;
-use Workbunny\WebmanRabbitMQ\Channels\Channel as CurrentChannel;
+use Workbunny\WebmanRabbitMQ\Clients\Channels\Channel as CurrentChannel;
+use Workbunny\WebmanRabbitMQ\Clients\SyncClient;
 
 trait ClientMethods
 {

@@ -10,6 +10,7 @@ use Bunny\Protocol\MethodConnectionCloseFrame;
 use Bunny\Protocol\MethodConnectionCloseOkFrame;
 use Bunny\Protocol\MethodConnectionStartFrame;
 use React\Promise\PromiseInterface;
+use Workbunny\WebmanRabbitMQ\Clients\Traits\ClientMethods;
 use Workerman\Lib\Timer;
 use Workerman\RabbitMQ\Client;
 use Workerman\Worker;

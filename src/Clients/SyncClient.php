@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Clients;
 
-use Bunny\Channel;
 use Bunny\Client;
 use Bunny\Exception\ClientException;
 use Bunny\Protocol\Buffer;
@@ -12,6 +11,7 @@ use Bunny\Protocol\MethodConnectionStartFrame;
 use Exception;
 use React\Promise\PromiseInterface;
 use Throwable;
+use Workbunny\WebmanRabbitMQ\Clients\Traits\ClientMethods;
 use Workerman\Timer;
 
 class SyncClient extends Client {
