@@ -43,14 +43,11 @@ RabbitMQ的webman客户端插件；
 2. 支持延迟队列（rabbitMQ须安装插件）；
 3. 异步无阻塞消费、异步无阻塞生产、同步阻塞生产；
 
-
-
 ### 概念
 
 #### 1. Builder
 
 - Builder为队列的抽象结构，每个Builder都包含一个BuilderConfig配置结构对象
-- 
 - 当前进程的所有Builder公用一个对象池，对象池可用于减少连接的创建和销毁，提升性能
 - 当前进程的所有Builder公用一个Connection连接对象池：
   - 当reuse_connection=false时，Builder之间使用各自的Connection连接对象
