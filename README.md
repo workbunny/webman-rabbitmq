@@ -30,6 +30,11 @@
 
    注：这里的 **轻量** 指的是 **无须将应用中的队列服务独立化，该队列服务是该应用独享的**
 
+### 说明
+
+- 此文档为2.0，[1.0文档](https://github.com/workbunny/webman-rabbitmq/blob/1.x/README.md)
+- 1.0已停止维护
+
 ## 简介
 
 RabbitMQ的webman客户端插件；
@@ -38,12 +43,49 @@ RabbitMQ的webman客户端插件；
 2. 支持延迟队列（rabbitMQ须安装插件）；
 3. 异步无阻塞消费、异步无阻塞生产、同步阻塞生产；
 
-## 安装
+
+
+### 概念
+
+#### 1. Builder
+
+- Builder为队列的抽象结构，每个Builder都包含一个BuilderConfig配置结构对象
+- 
+- 当前进程的所有Builder公用一个对象池，对象池可用于减少连接的创建和销毁，提升性能
+- 当前进程的所有Builder公用一个Connection连接对象池：
+  - 当reuse_connection=false时，Builder之间使用各自的Connection连接对象
+  - 当reuse_connection=true时，不同Builder复用同一个Connection连接对象
+
+#### 2. Connection
+
+- Connection是抽象的连接对象，每个Connection会创建两个TCP连接：
+  - AsyncClient 异步客户端连接
+  - SyncClient 同步客户端连接
+- 一个Connection对象在RabbitMQ-server中等于两个连接
+- 所有Builder的Connection连接对象在Builder的Connection池中进行统一管理
+- 当reuse_connection=true时，Connection对象在池中的key为空字符串
+
+#### 3. Channel
+
+- Channel是基于RabbitMQ-server的连接对象的子连接
+- Channel的上限默认根据RabbitMQ-server的channel limit配置
+- Channel池中存在闲置Channel时不会新增Channel，反之
+- AsyncClient和SyncClient互相不共用TCP连接，所以Channel池也不公用
+
+## 使用
+
+### 要求
+- php >= 8.0
+- webman-framework >= 1.5
+- rabbitmq-server >= 3.10
+
+### 安装
+
 ```
 composer require workbunny/webman-rabbitmq
 ```
 
-## 配置
+### 配置
 ```php
 <?php
 return [
@@ -77,12 +119,7 @@ return [
 ];
 ```
 
-## 使用
-
-- 2.x与1.x在Builder结构有着较大的变化，[1.x文档](https://github.com/workbunny/webman-rabbitmq/blob/1.x/README.md)
-- 2.x已生产可用
-
-### QueueBuilder
+### QueueBuilder 
 
 - 可实现官网的5种消费模式
 

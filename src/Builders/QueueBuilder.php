@@ -72,9 +72,7 @@ abstract class QueueBuilder extends AbstractBuilder
     /** @inheritDoc */
     public function onWorkerStop(Worker $worker): void
     {
-        if ($this->getConnection()) {
-            $this->getConnection()->disconnect(null);
-        }
+        self::destroy($this->getBuilderName());
     }
 
     /** @inheritDoc */
