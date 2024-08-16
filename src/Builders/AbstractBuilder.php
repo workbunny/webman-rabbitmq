@@ -28,20 +28,15 @@ abstract class AbstractBuilder
     private static ?Connection $_connection = null;
 
     /**
-     * @var array
-     */
-    private array $_config = [];
-
-    /**
      * @var BuilderConfig
      */
     private BuilderConfig $_builderConfig;
 
     public function __construct()
     {
-        $this->_config = config('plugin.workbunny.webman-rabbitmq.app');
-        self::$reuse = $this->_config['reuse_connection'] ?? false;
-        $this->setConnection(new Connection($this->_config));
+        $config = config('plugin.workbunny.webman-rabbitmq.app');
+        self::$reuse = $config['reuse_connection'] ?? false;
+        $this->setConnection(new Connection($config));
         $this->setBuilderConfig(new BuilderConfig());
     }
 

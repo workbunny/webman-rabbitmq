@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Clients;
 
-use Bunny\Channel;
 use Bunny\ClientStateEnum;
 use Bunny\Exception\ClientException;
 use Bunny\Protocol\Buffer;
