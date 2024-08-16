@@ -20,15 +20,20 @@ use Workerman\Worker;
 class Connection
 {
 
-    /** @var AsyncClient 异步客户端 */
+    /** @var AsyncClient 异步客户端连接 */
     protected AsyncClient $_asyncClient;
 
-    /** @var SyncClient 同步客户端 */
+    /** @var SyncClient 同步客户端连接 */
     protected SyncClient $_syncClient;
 
     /** @var array  */
     protected array $_config = [];
 
+    /**
+     * connection类会同时创建两个客户端连接
+     *
+     * @param array $config
+     */
     public function __construct(array $config)
     {
         $this->_config        = $config;
@@ -80,26 +85,35 @@ class Connection
     /**
      * 关闭连接
      *
-     * @param AbstractClient $client
+     * @param null|AbstractClient $client null: 关闭所有连接, 其他:关闭指定连接
      * @param Throwable|null $throwable
      * @return void
      */
-    public function disconnect(AbstractClient $client, ?Throwable $throwable = null): void
+    public function disconnect(?AbstractClient $client, ?Throwable $throwable = null): void
     {
         $replyCode = $throwable instanceof ClientException ? $throwable->getCode() : 0;
         $replyText = $throwable instanceof ClientException ? $throwable->getMessage() : '';
         try {
-            if ($client instanceof AsyncClient and $client->isConnected()) {
+            if (!$client) {
+                $this->disconnect($this->getAsyncClient(), $throwable);
+                $this->disconnect($this->getSyncClient(), $throwable);
+            }
+            if ($client instanceof AsyncClient) {
                 $channels = $client->getChannels();
                 foreach ($channels as $id => $channel) {
-                    $channel->close($replyCode, $replyText);
+                    if ($client->isConnected()) {
+                        $channel->close($replyCode, $replyText);
+                    }
                     $client->removeChannel($id);
                 }
                 $client->syncDisconnect($replyCode, $replyText);
-            } elseif ($client instanceof SyncClient and $client->isConnected()) {
+            }
+            if ($client instanceof SyncClient) {
                 $channels = $client->getChannels();
                 foreach ($channels as $id => $channel) {
-                    $channel->close($replyCode, $replyText);
+                    if ($client->isConnected()) {
+                        $channel->close($replyCode, $replyText);
+                    }
                     $client->removeChannel($id);
                 }
                 $client->disconnect($replyCode, $replyText);
@@ -115,8 +129,8 @@ class Connection
     {
         // 创建连接
         $promise = $this->getAsyncClient()->connect()->then(function (AsyncClient $client){
-            return $client->channel();
-        }, function($reason) {
+            return $client->catchChannel();
+        }, function ($reason) {
             if ($reason instanceof Throwable){
                 if ($callback = $this->getErrorCallback()) {
                     \call_user_func($callback, $reason, $this);
@@ -124,7 +138,7 @@ class Connection
                 $this->disconnect($this->getAsyncClient(), $reason);
             }
             if (is_string($reason)) {
-                echo "Rejected: $reason\n";
+                echo "Consume rejected: $reason\n";
             }
         });
         // 通道预备
@@ -146,7 +160,7 @@ class Connection
                         $tag = Constants::REQUEUE;
                         echo "Consume Throwable: {$throwable->getMessage()}\n";
                     }
-                    if($tag === Constants::ACK) {
+                    if ($tag === Constants::ACK) {
                         $res = $channel->ack($message);
                     } elseif ($tag === Constants::NACK) {
                         $res = $channel->nack($message);

@@ -20,6 +20,18 @@ use Workbunny\WebmanRabbitMQ\Channels\Channel as CurrentChannel;
 trait ClientMethods
 {
     /**
+     * 获取通道数量限制
+     *
+     * @return int
+     */
+    public function getChannelLimit(): int
+    {
+        return $this->channelMax;
+    }
+
+    /**
+     * 获取已创建的通道
+     *
      * @return OriginalChannel[]|CurrentChannel[]
      */
     public function getChannels(): array
@@ -38,7 +50,10 @@ trait ClientMethods
         // 从已创建的频道中获取一个可用的频道
         $channels = $this->getChannels();
         foreach ($channels as $channel) {
-            if ($channel->getState() === ChannelStateEnum::READY) {
+            if (
+                $channel instanceof CurrentChannel and
+                $channel->getState() === ChannelStateEnum::READY
+            ) {
                 $resChannel = $channel;
                 break;
             }

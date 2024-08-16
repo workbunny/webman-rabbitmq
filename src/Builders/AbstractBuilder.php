@@ -13,6 +13,7 @@ abstract class AbstractBuilder
 
     /**
      * @var bool
+     * @deprecated
      */
     private static bool $reuse = false;
 
@@ -27,27 +28,26 @@ abstract class AbstractBuilder
     private static ?Connection $_connection = null;
 
     /**
+     * @var array
+     */
+    private array $_config = [];
+
+    /**
      * @var BuilderConfig
      */
     private BuilderConfig $_builderConfig;
 
     public function __construct()
     {
-        $config = config('plugin.workbunny.webman-rabbitmq.app');
-        // 复用连接
-        if (self::$reuse = $config['reuse_connection'] ?? false) {
-            if (!$this->getConnection()) {
-                $this->setConnection(new Connection($config));
-            }
-        }
-        // 非复用连接
-        else {
-            $this->setConnection(new Connection($config));
-        }
+        $this->_config = config('plugin.workbunny.webman-rabbitmq.app');
+        self::$reuse = $this->_config['reuse_connection'] ?? false;
+        $this->setConnection(new Connection($this->_config));
         $this->setBuilderConfig(new BuilderConfig());
     }
 
     /**
+     * builder单例
+     *
      * @return AbstractBuilder
      */
     public static function instance(): AbstractBuilder
@@ -59,12 +59,24 @@ abstract class AbstractBuilder
     }
 
     /**
+     * 销毁指定builder
+     *
      * @param string $class
      * @return void
      */
     public static function destroy(string $class): void
     {
         unset(self::$_builders[$class]);
+    }
+
+    /**
+     * 获取当前进程所有builders
+     *
+     * @return AbstractBuilder[]
+     */
+    public static function builders(): array
+    {
+        return self::$_builders;
     }
 
     /**
@@ -84,6 +96,8 @@ abstract class AbstractBuilder
     }
 
     /**
+     * 获取连接
+     *
      * @return Connection|null
      */
     public function getConnection(): ?Connection
@@ -92,6 +106,8 @@ abstract class AbstractBuilder
     }
 
     /**
+     * 设置连接
+     *
      * @param Connection $connection
      */
     public function setConnection(Connection $connection): void
@@ -101,6 +117,7 @@ abstract class AbstractBuilder
 
     /**
      * @return bool
+     * @deprecated
      */
     public static function isReuse(): bool
     {

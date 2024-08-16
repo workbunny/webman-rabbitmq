@@ -19,8 +19,6 @@ return [
     // 错误回调
     'error_callback'     => function(Throwable $throwable){
     },
-    // 复用连接
-    'reuse_connection'   => false,
     // AMQPS 如需使用AMQPS请取消注释
 //    'ssl'                => [
 //        'cafile'      => 'ca.pem',
