@@ -42,13 +42,14 @@ trait ClientMethods
     /**
      * 获取一个可用的通道
      *
+     * @param bool $reuse
      * @return CurrentChannel|PromiseInterface
      */
-    public function catchChannel(): CurrentChannel|PromiseInterface
+    public function catchChannel(bool $reuse = false): CurrentChannel|PromiseInterface
     {
         $resChannel = null;
         // 从已创建的频道中获取一个可用的频道
-        $channels = $this->getChannels();
+        $channels = $reuse ? $this->getChannels() : [];
         foreach ($channels as $channel) {
             if (
                 $channel instanceof CurrentChannel and

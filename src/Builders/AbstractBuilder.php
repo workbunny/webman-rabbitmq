@@ -17,6 +17,11 @@ abstract class AbstractBuilder
     private static bool $reuseConnection = false;
 
     /**
+     * @var bool
+     */
+    private static bool $reuseChannel = false;
+
+    /**
      * builder对象池
      *
      * @var AbstractBuilder[]
@@ -47,6 +52,7 @@ abstract class AbstractBuilder
         $this->setBuilderName(get_called_class());
         $config = config('plugin.workbunny.webman-rabbitmq.app');
         self::$reuseConnection = $config['reuse_connection'] ?? false;
+        self::$reuseChannel = $config['reuse_channel'] ?? false;
         $this->setConnection(new Connection($config));
         $this->setBuilderConfig(new BuilderConfig());
     }
@@ -59,6 +65,16 @@ abstract class AbstractBuilder
     public static function isReuseConnection(): bool
     {
         return self::$reuseConnection;
+    }
+
+    /**
+     * 是否复用channel
+     *
+     * @return bool
+     */
+    public static function isReuseChannel(): bool
+    {
+        return self::$reuseChannel;
     }
 
     /**

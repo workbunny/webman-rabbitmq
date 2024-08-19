@@ -21,6 +21,8 @@ return [
     },
     // 复用连接
     'reuse_connection'   => false,
+    // 复用通道
+    'reuse_channel'      => true,
     // AMQPS 如需使用AMQPS请取消注释
 //    'ssl'                => [
 //        'cafile'      => 'ca.pem',

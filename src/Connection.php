@@ -11,6 +11,7 @@ use Bunny\Protocol\MethodBasicConsumeOkFrame;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use Throwable;
+use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
 use Workbunny\WebmanRabbitMQ\Clients\AsyncClient;
 use Workbunny\WebmanRabbitMQ\Clients\SyncClient;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQAsyncPublishException;
@@ -63,7 +64,7 @@ class Connection
     public function getErrorCallback(): ?callable
     {
         $errorCallback = $this->_config['error_callback'] ?? null;
-        if(!is_callable($errorCallback) and !is_null($errorCallback)){
+        if (!is_callable($errorCallback) and !is_null($errorCallback)) {
             $errorCallback = null;
         }
         return $errorCallback;
@@ -94,16 +95,36 @@ class Connection
         $replyCode = $throwable instanceof ClientException ? $throwable->getCode() : 0;
         $replyText = $throwable instanceof ClientException ? $throwable->getMessage() : '';
         try {
-            switch ($client) {
-                case $this->getAsyncClient():
-                    $this->getAsyncClient()->syncDisconnect($replyCode, $replyText);
+            switch (true) {
+                case $client instanceof AsyncClient:
+                    foreach ($client->getChannels() as $channelId => $channel) {
+                        if ($client->isConnected()) {
+                            $client->syncChannelClose($channelId, $replyCode, $replyText, 0, 0);
+                        }
+                        $client->removeChannel($channelId);
+                    }
+                    if ($client->isConnected()) {
+                        $client->syncDisconnect($replyCode, $replyText);
+                    }
                     break;
-                case $this->getSyncClient():
-                    $this->getSyncClient()->disconnect($replyCode, $replyText);
+                case $client instanceof SyncClient:
+                    foreach ($client->getChannels() as $channelId => $channel) {
+                        if ($client->isConnected()) {
+                            $channel->close($replyCode, $replyText);
+                        }
+                        $client->removeChannel($channelId);
+                    }
+                    if ($client->isConnected()) {
+                        $client->disconnect($replyCode, $replyText);
+                    }
                     break;
-                case null:
-                    $this->disconnect($this->getAsyncClient(), $throwable);
-                    $this->disconnect($this->getSyncClient(), $throwable);
+                case $client === null:
+                    if ($this->getAsyncClient()) {
+                        $this->disconnect($this->getAsyncClient(), $throwable);
+                    }
+                    if ($this->getSyncClient()) {
+                        $this->disconnect($this->getSyncClient(), $throwable);
+                    }
                     break;
                 default:
                     return;
@@ -252,7 +273,7 @@ class Connection
     {
         try {
             if ($this->getSyncClient()->isConnected()) {
-                $channel = $this->getSyncClient()->catchChannel();
+                $channel = $this->getSyncClient()->catchChannel(AbstractBuilder::isReuseChannel());
             } else {
                 try {
                     $channel = $this->getSyncClient()->connect()->catchChannel();
