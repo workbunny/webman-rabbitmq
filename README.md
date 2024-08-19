@@ -56,8 +56,8 @@ RabbitMQ的webman客户端插件；
 #### 2. Connection
 
 - Connection是抽象的连接对象，每个Connection会创建两个TCP连接：
-  - AsyncClient 异步客户端连接
-  - SyncClient 同步客户端连接
+  - `getAsyncClient()`获取AsyncClient 异步客户端连接
+  - `getSyncClient()`获取SyncClient 同步客户端连接
 - 一个Connection对象在RabbitMQ-server中等于两个连接
 - 所有Builder的Connection连接对象在Builder的Connection池中进行统一管理
 - 当reuse_connection=true时，Connection对象在池中的key为空字符串
@@ -66,8 +66,12 @@ RabbitMQ的webman客户端插件；
 
 - Channel是基于RabbitMQ-server的连接对象的子连接
 - Channel的上限默认根据RabbitMQ-server的channel limit配置
-- Channel池中存在闲置Channel时不会新增Channel，反之
+- Channel的生命周期与Connection一致，在Connection存续期间，Channel不会被销毁
+- Channel池可以启用/关闭复用模式中：
+  - 当reuse_channel=true时，连接会使用Channel池中闲置通道进行发送，如当前不存在闲置通道，则创建新的通道；
+  - 当reuse_channel=false时，连接每次都会创建新的通道，建议在生产完成后调用连接关闭
 - AsyncClient和SyncClient互相不共用TCP连接，所以Channel池也不公用
+- 可以通过`getChannels`方法获取Channel对象池，自行管理释放
 
 ## 使用
 
@@ -107,6 +111,8 @@ return [
     },
     // 复用连接
     'reuse_connection'   => false,
+    // 复用通道
+    'reuse_channel'      => false,
     // AMQPS 如需使用AMQPS请取消注释
 //    'ssl'                => [
 //        'cafile'      => 'ca.pem',
@@ -263,7 +269,9 @@ async_publish(TestBuilder::instance(), 'abc', headers: [
 	'x-delay' => 10000, # 延迟10秒
 ]); # return PromiseInterface|bool
 ```
-### 自定义Builder
+## 进阶
+
+### 1. 自定义Builder
 
 - 创建自定义Builder需继承实现AbstractBuilder；
   - onWorkerStart 消费进程启动时会触发，一般用于实现基础消费逻辑；
@@ -306,13 +314,6 @@ async_publish(TestBuilder::instance(), 'abc', headers: [
      */
     abstract public static function classContent(string $namespace, string $className, bool $isDelay): string;
 ```
-
-- Builder会创建Connection，每个Connection会分别创建一个同步RabbitMQ客户端连接和一个异步客户端RabbitMQ连接；
-
-- 不同的Builder默认不复用Connection，配置选项reuse_connection可开启复用Connection；
-  - 复用Connection可以减少创建的RabbitMQ-Client连接数，但一定程度上会降低并发能力
-  - 复用不影响消费者，不影响跨进程的生产者
-  - 复用仅影响当前进程内的不同Builder的生产者
 
 ## 说明
 - **生产可用，欢迎 [issue](https://github.com/workbunny/webman-rabbitmq/issues) 和 PR**；
