@@ -44,6 +44,7 @@ abstract class AbstractBuilder
 
     public function __construct()
     {
+        $this->setBuilderName(get_called_class());
         $config = config('plugin.workbunny.webman-rabbitmq.app');
         self::$reuseConnection = $config['reuse_connection'] ?? false;
         $this->setConnection(new Connection($config));
@@ -67,10 +68,9 @@ abstract class AbstractBuilder
      */
     public static function instance(): AbstractBuilder
     {
-        if(!isset(self::$_builders[$class = get_called_class()])){
+        if (!(self::$_builders[$class = get_called_class()] ?? null)) {
             self::$_builders[$class] = new $class();
         }
-        self::$_builders[$class]->setBuilderName($class);
         return self::$_builders[$class];
     }
 
