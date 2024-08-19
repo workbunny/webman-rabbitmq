@@ -96,7 +96,7 @@ class Connection
         try {
             switch ($client) {
                 case $this->getAsyncClient():
-                    $this->getAsyncClient()->disconnect($replyCode, $replyText);
+                    $this->getAsyncClient()->syncDisconnect($replyCode, $replyText);
                     break;
                 case $this->getSyncClient():
                     $this->getSyncClient()->disconnect($replyCode, $replyText);

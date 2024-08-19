@@ -145,7 +145,6 @@ class AsyncClient extends Client
         for (;;) {
             while (($frame = $this->getReader()->consumeFrame($this->getReadBuffer())) === null) {
                 $this->read();
-                return true;
             }
             if ($frame instanceof MethodConnectionCloseOkFrame) {
                 return $frame;
