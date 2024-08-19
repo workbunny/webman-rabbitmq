@@ -64,7 +64,8 @@ abstract class QueueBuilder extends AbstractBuilder
         try {
             $this->getConnection()?->consume($this->getBuilderConfig());
         } catch (ClientException|WebmanRabbitMQException $exception) {
-            $worker::log("Queue $worker->id exception: [{$exception->getCode()}] {$exception->getMessage()}, \n");
+            $worker::log("Queue $worker->id exception: [{$exception->getCode()}] {$exception->getMessage()}. \n");
+            $worker::log("Retry after $this->restartInterval seconds...... \n");
             sleep($this->restartInterval);
             $worker::stopAll();
         }
