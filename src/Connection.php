@@ -94,29 +94,19 @@ class Connection
         $replyCode = $throwable instanceof ClientException ? $throwable->getCode() : 0;
         $replyText = $throwable instanceof ClientException ? $throwable->getMessage() : '';
         try {
-            if (!$client) {
-                $this->disconnect($this->getAsyncClient(), $throwable);
-                $this->disconnect($this->getSyncClient(), $throwable);
-            }
-            if ($client instanceof AsyncClient) {
-                $channels = $client->getChannels();
-                foreach ($channels as $id => $channel) {
-                    if ($client->isConnected()) {
-                        $channel->close($replyCode, $replyText);
-                    }
-                    $client->removeChannel($id);
-                }
-                $client->syncDisconnect($replyCode, $replyText);
-            }
-            if ($client instanceof SyncClient) {
-                $channels = $client->getChannels();
-                foreach ($channels as $id => $channel) {
-                    if ($client->isConnected()) {
-                        $channel->close($replyCode, $replyText);
-                    }
-                    $client->removeChannel($id);
-                }
-                $client->disconnect($replyCode, $replyText);
+            switch ($client) {
+                case $this->getAsyncClient():
+                    $this->getAsyncClient()->disconnect($replyCode, $replyText);
+                    break;
+                case $this->getSyncClient():
+                    $this->getSyncClient()->disconnect($replyCode, $replyText);
+                    break;
+                case null:
+                    $this->disconnect($this->getAsyncClient(), $throwable);
+                    $this->disconnect($this->getSyncClient(), $throwable);
+                    break;
+                default:
+                    return;
             }
         } catch (Throwable) {}
     }

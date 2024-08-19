@@ -128,7 +128,7 @@ class AsyncClient extends Client
      * @param $closeMethodId
      * @return bool|MethodConnectionCloseOkFrame
      */
-    public function syncConnectionClose($replyCode, $replyText, $closeClassId, $closeMethodId)
+    public function syncConnectionClose($replyCode, $replyText, $closeClassId, $closeMethodId): bool|MethodConnectionCloseOkFrame
     {
         $buffer = $this->getWriteBuffer();
         $buffer->appendUint8(1);
@@ -144,7 +144,8 @@ class AsyncClient extends Client
         $this->syncFlushWriteBuffer();
         for (;;) {
             while (($frame = $this->getReader()->consumeFrame($this->getReadBuffer())) === null) {
-                $this->feedReadBuffer();
+                $this->read();
+                return true;
             }
             if ($frame instanceof MethodConnectionCloseOkFrame) {
                 return $frame;
