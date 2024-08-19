@@ -136,6 +136,7 @@ class Connection
                     \call_user_func($callback, $reason, $this);
                 }
                 $this->disconnect($this->getAsyncClient(), $reason);
+                throw new WebmanRabbitMQException($reason->getMessage(), $reason->getCode(), $reason);
             }
             if (is_string($reason)) {
                 echo "Consume rejected: $reason\n";
@@ -313,7 +314,10 @@ class Connection
      */
     protected function _channelInit(PromiseInterface $promise, BuilderConfig $config): PromiseInterface
     {
-        return $promise->then(function (Channel $channel) use ($config) {
+        return $promise->then(function (?Channel $channel) use ($config) {
+            if (!$channel) {
+                throw new WebmanRabbitMQException('Could not connect to rabbitmq. [Channel is null]');
+            }
             return $channel->exchangeDeclare(
                 $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
                 $config->isAutoDelete(), $config->isInternal(), $config->isNowait(), $config->getArguments()
