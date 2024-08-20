@@ -17,4 +17,15 @@ class Channel extends \Bunny\Channel
     {
         return $this->state;
     }
+
+    /**
+     * 设置通道状态
+     *
+     * @param int $state
+     * @return void
+     */
+    public function setState(int $state): void
+    {
+        $this->state = $state;
+    }
 }

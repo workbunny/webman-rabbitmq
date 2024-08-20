@@ -5,6 +5,7 @@ namespace Workbunny\WebmanRabbitMQ;
 use Bunny\AbstractClient;
 use Bunny\Async\Client;
 use Bunny\Channel;
+use Bunny\ChannelStateEnum;
 use Bunny\Exception\ClientException;
 use Bunny\Message;
 use Bunny\Protocol\MethodBasicConsumeOkFrame;
@@ -14,6 +15,7 @@ use Throwable;
 use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
 use Workbunny\WebmanRabbitMQ\Clients\AsyncClient;
 use Workbunny\WebmanRabbitMQ\Clients\SyncClient;
+use Workbunny\WebmanRabbitMQ\Clients\Channels\Channel as CurrentChannel;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQAsyncPublishException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workerman\Worker;
@@ -241,7 +243,10 @@ class Connection
             return $channel->publish(
                 $config->getBody(),$config->getHeaders(), $config->getExchange(), $config->getRoutingKey(),
                 $config->isMandatory(), $config->isImmediate()
-            )->then(function () use ($close) {
+            )->then(function () use ($close, $channel) {
+                if ($channel instanceof CurrentChannel) {
+                    $channel->setState(ChannelStateEnum::READY);
+                }
                 if ($close) {
                     $this->disconnect($this->getAsyncClient());
                 }
