@@ -273,6 +273,7 @@ class Connection
      * @param BuilderConfig $config
      * @param bool $close
      * @return bool
+     * @throws ClientException
      */
     public function syncPublish(BuilderConfig $config, bool $close = false): bool
     {
@@ -295,9 +296,6 @@ class Connection
                         $config->getArguments()
                     );
                 } catch (Throwable $throwable) {
-                    if ($throwable instanceof ClientException) {
-                        throw $throwable;
-                    }
                     if ($callback = $this->getErrorCallback()) {
                         \call_user_func($callback, $throwable, $this);
                     }
@@ -305,6 +303,14 @@ class Connection
                     return false;
                 }
             }
+            $res = (bool)$channel->publish(
+                $config->getBody(), $config->getHeaders(), $config->getExchange(), $config->getRoutingKey(),
+                $config->isMandatory(), $config->isImmediate()
+            );
+            if ($close) {
+                $this->disconnect($this->getSyncClient());
+            }
+            return $res;
         } catch (Throwable $throwable){
             if ($callback = $this->getErrorCallback()) {
                 \call_user_func($callback, $throwable, $this);
@@ -312,14 +318,6 @@ class Connection
             $this->disconnect($this->getSyncClient(), $throwable);
             return false;
         }
-        $res = (bool)$channel->publish(
-            $config->getBody(), $config->getHeaders(), $config->getExchange(), $config->getRoutingKey(),
-            $config->isMandatory(), $config->isImmediate()
-        );
-        if ($close) {
-            $this->disconnect($this->getSyncClient());
-        }
-        return $res;
     }
 
     /**
