@@ -70,16 +70,26 @@ class SyncClient extends Client {
         return $result;
     }
 
+    /** @inheritdoc  */
+    public function disconnect($replyCode = 0, $replyText = ""): PromiseInterface
+    {
+        if ($this->heartbeatTimer) {
+            Timer::del($this->heartbeatTimer);
+            $this->heartbeatTimer = null;
+        }
+        return parent::disconnect($replyCode, $replyText);
+    }
+
     /**
      * Callback when heartbeat timer timed out.
      */
-    public function onHeartbeat()
+    public function onHeartbeat(): void
     {
         $this->writer->appendFrame(new HeartbeatFrame(), $this->writeBuffer);
         $this->flushWriteBuffer();
 
-        if (is_callable($this->options['heartbeat_callback'] ?? null)) {
-            $this->options['heartbeat_callback']->call($this);
+        if (is_callable($callback = $this->options['heartbeat_callback'] ?? null)) {
+            call_user_func($callback, $this);
         }
     }
 }

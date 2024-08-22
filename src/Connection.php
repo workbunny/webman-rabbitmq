@@ -113,12 +113,12 @@ class Connection
                 case $client instanceof SyncClient:
                     foreach ($client->getChannels() as $channelId => $channel) {
                         if ($client->isConnected()) {
-                            $channel->close($replyCode, $replyText);
+                            $channel->close($replyCode, $replyText)->done();
                         }
                         $client->removeChannel($channelId);
                     }
                     if ($client->isConnected()) {
-                        $client->disconnect($replyCode, $replyText);
+                        $client->disconnect($replyCode, $replyText)->done();
                     }
                     break;
                 case $client === null:
@@ -151,8 +151,8 @@ class Connection
                 }
                 if ($reason instanceof BunnyException) {
                     $this->disconnect($this->getAsyncClient(), $reason);
+                    throw new WebmanRabbitMQException($reason->getMessage(), $reason->getCode(), $reason);
                 }
-                throw new WebmanRabbitMQException($reason->getMessage(), $reason->getCode(), $reason);
             }
             if (is_string($reason)) {
                 echo "Consume rejected: $reason\n";
@@ -190,6 +190,7 @@ class Connection
                         }
                         if ($throwable instanceof BunnyException) {
                             $this->disconnect($this->getAsyncClient(), $throwable);
+                            throw new WebmanRabbitMQException($throwable->getMessage(), $throwable->getCode(), $throwable);
                         }
                     })->done();
                 }, $config->getQueue(), $config->getConsumerTag(), $config->isNoLocal(), $config->isNoAck(),
@@ -200,6 +201,7 @@ class Connection
                 }
                 if ($throwable instanceof BunnyException) {
                     $this->disconnect($this->getAsyncClient(), $throwable);
+                    throw new WebmanRabbitMQException($throwable->getMessage(), $throwable->getCode(), $throwable);
                 }
             })->done();
         })->done();

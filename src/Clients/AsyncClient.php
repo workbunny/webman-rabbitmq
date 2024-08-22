@@ -59,12 +59,22 @@ class AsyncClient extends Client
         }
     }
 
+    /** @inheritdoc  */
+    public function disconnect($replyCode = 0, $replyText = ""): PromiseInterface
+    {
+        if ($this->heartbeatTimer) {
+            Timer::del($this->heartbeatTimer);
+            $this->heartbeatTimer = null;
+        }
+        return parent::disconnect($replyCode, $replyText);
+    }
+
     /**
      * @param int|string $replyCode
      * @param int|string $replyText
      * @return void
      */
-    public function syncDisconnect($replyCode = 0, $replyText = ""): void
+    public function syncDisconnect(int|string $replyCode = 0, int|string $replyText = ""): void
     {
         if ($this->state !== ClientStateEnum::CONNECTED) {
             throw new ClientException("Client is not connected.");
@@ -93,7 +103,7 @@ class AsyncClient extends Client
         $this->closeStream();
         $this->init();
         if($replyCode !== 0){
-            Worker::stopAll(0,"RabbitMQ client disconnected: [{$replyCode}] {$replyText}");
+            Worker::stopAll(0,"RabbitMQ client disconnected: [$replyCode] $replyText");
         }
     }
 
