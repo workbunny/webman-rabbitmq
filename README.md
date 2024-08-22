@@ -97,7 +97,7 @@ return [
     'port'               => 5672,
     'username'           => 'guest',
     'password'           => 'guest',
-    'mechanisms'         => 'AMQPLAIN',
+    'mechanism'          => 'AMQPLAIN',
     'timeout'            => 10,
     // 重启间隔
     'restart_interval'   => 0,
