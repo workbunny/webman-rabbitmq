@@ -6,6 +6,7 @@ use Bunny\AbstractClient;
 use Bunny\Async\Client;
 use Bunny\Channel;
 use Bunny\ChannelStateEnum;
+use Bunny\Exception\BunnyException;
 use Bunny\Exception\ClientException;
 use Bunny\Message;
 use Bunny\Protocol\MethodBasicConsumeOkFrame;
@@ -148,7 +149,9 @@ class Connection
                 if ($callback = $this->getErrorCallback()) {
                     \call_user_func($callback, $reason, $this);
                 }
-                $this->disconnect($this->getAsyncClient(), $reason);
+                if ($reason instanceof BunnyException) {
+                    $this->disconnect($this->getAsyncClient(), $reason);
+                }
                 throw new WebmanRabbitMQException($reason->getMessage(), $reason->getCode(), $reason);
             }
             if (is_string($reason)) {
@@ -185,7 +188,9 @@ class Connection
                         if ($callback = $this->getErrorCallback()) {
                             \call_user_func($callback, $throwable, $this);
                         }
-                        $this->disconnect($this->getAsyncClient(), $throwable);
+                        if ($throwable instanceof BunnyException) {
+                            $this->disconnect($this->getAsyncClient(), $throwable);
+                        }
                     })->done();
                 }, $config->getQueue(), $config->getConsumerTag(), $config->isNoLocal(), $config->isNoAck(),
                 $config->isExclusive(), $config->isNowait(), $config->getArguments()
@@ -193,7 +198,9 @@ class Connection
                 if ($callback = $this->getErrorCallback()) {
                     \call_user_func($callback, $throwable, $this);
                 }
-                $this->disconnect($this->getAsyncClient(), $throwable);
+                if ($throwable instanceof BunnyException) {
+                    $this->disconnect($this->getAsyncClient(), $throwable);
+                }
             })->done();
         })->done();
     }
@@ -217,7 +224,9 @@ class Connection
                     if ($callback = $this->getErrorCallback()) {
                         \call_user_func($callback, $reason, $this);
                     }
-                    $this->disconnect($this->getAsyncClient(), $reason);
+                    if ($reason instanceof BunnyException) {
+                        $this->disconnect($this->getAsyncClient(), $reason);
+                    }
                 }
                 if (is_string($reason)) {
                     echo "Publisher rejected: $reason\n";
@@ -254,14 +263,18 @@ class Connection
                 if ($callback = $this->getErrorCallback()) {
                     \call_user_func($callback, $throwable, $this);
                 }
-                $this->disconnect($this->getAsyncClient(), $throwable);
+                if ($throwable instanceof BunnyException) {
+                    $this->disconnect($this->getAsyncClient(), $throwable);
+                }
             })->done();
         }, function ($reason) {
             if ($reason instanceof Throwable){
                 if ($callback = $this->getErrorCallback()) {
                     \call_user_func($callback, $reason, $this);
                 }
-                $this->disconnect($this->getAsyncClient(), $reason);
+                if ($reason instanceof BunnyException) {
+                    $this->disconnect($this->getAsyncClient(), $reason);
+                }
             }
             if (is_string($reason)) {
                 echo "Publisher rejected: $reason\n";
@@ -281,42 +294,36 @@ class Connection
             if ($this->getSyncClient()->isConnected()) {
                 $channel = $this->getSyncClient()->catchChannel(AbstractBuilder::isReuseChannel());
             } else {
-                try {
-                    $channel = $this->getSyncClient()->connect()->catchChannel();
-                    $channel->exchangeDeclare(
-                        $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
-                        $config->isAutoDelete(), $config->isInternal(), $config->isNowait(), $config->getArguments()
-                    );
-                    $channel->queueDeclare(
-                        $config->getQueue(), $config->isPassive(), $config->isDurable(), $config->isExclusive(),
-                        $config->isAutoDelete(), $config->isNowait(), $config->getArguments()
-                    );
-                    $channel->queueBind(
-                        $config->getQueue(), $config->getExchange(), $config->getRoutingKey(), $config->isNowait(),
-                        $config->getArguments()
-                    );
-                } catch (Throwable $throwable) {
-                    if ($callback = $this->getErrorCallback()) {
-                        \call_user_func($callback, $throwable, $this);
-                    }
-                    $this->disconnect($this->getSyncClient(), $throwable);
-                    return false;
-                }
+                $channel = $this->getSyncClient()->connect()->catchChannel();
+                $channel->exchangeDeclare(
+                    $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
+                    $config->isAutoDelete(), $config->isInternal(), $config->isNowait(), $config->getArguments()
+                );
+                $channel->queueDeclare(
+                    $config->getQueue(), $config->isPassive(), $config->isDurable(), $config->isExclusive(),
+                    $config->isAutoDelete(), $config->isNowait(), $config->getArguments()
+                );
+                $channel->queueBind(
+                    $config->getQueue(), $config->getExchange(), $config->getRoutingKey(), $config->isNowait(),
+                    $config->getArguments()
+                );
             }
-            $res = (bool)$channel->publish(
+            return (bool)$channel->publish(
                 $config->getBody(), $config->getHeaders(), $config->getExchange(), $config->getRoutingKey(),
                 $config->isMandatory(), $config->isImmediate()
             );
-            if ($close) {
-                $this->disconnect($this->getSyncClient());
-            }
-            return $res;
         } catch (Throwable $throwable){
             if ($callback = $this->getErrorCallback()) {
                 \call_user_func($callback, $throwable, $this);
             }
-            $this->disconnect($this->getSyncClient(), $throwable);
+            if ($throwable instanceof BunnyException) {
+                $this->disconnect($this->getSyncClient(), $throwable);
+            }
             return false;
+        } finally {
+            if ($close) {
+                $this->disconnect($this->getSyncClient());
+            }
         }
     }
 
