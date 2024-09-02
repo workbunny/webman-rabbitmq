@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Clients;
 
-use Bunny\Channel;
 use Bunny\ClientStateEnum;
 use Bunny\Exception\ClientException;
 use Bunny\Protocol\Buffer;
@@ -11,28 +10,20 @@ use Bunny\Protocol\MethodConnectionCloseFrame;
 use Bunny\Protocol\MethodConnectionCloseOkFrame;
 use Bunny\Protocol\MethodConnectionStartFrame;
 use React\Promise\PromiseInterface;
+use Workbunny\WebmanRabbitMQ\Clients\Traits\ClientMethods;
 use Workerman\Lib\Timer;
 use Workerman\RabbitMQ\Client;
 use Workerman\Worker;
 
 class AsyncClient extends Client
 {
+    use ClientMethods;
+
     public static ?bool $sync = false;
 
-    /**
-     * @return Channel[]
-     */
-    public function getChannels(): array
-    {
-        return $this->channels;
-    }
 
-    /**
-     * 重写authResponse方法以支持PLAIN及AMQPLAIN两种机制
-     * @param MethodConnectionStartFrame $start
-     * @return bool|PromiseInterface
-     */
-    protected function authResponse(MethodConnectionStartFrame $start)
+    /** @inheritDoc */
+    protected function authResponse(MethodConnectionStartFrame $start): PromiseInterface|bool
     {
         if (!str_contains($start->mechanisms, ($mechanism = $this->options['mechanism'] ?? 'AMQPLAIN'))) {
             throw new ClientException("Server does not support {$this->options['mechanism']} mechanism (supported: {$start->mechanisms}).");
@@ -56,15 +47,26 @@ class AsyncClient extends Client
         }
     }
 
+    /** @inheritDoc */
     public function __destruct()
     {
-        if(self::$sync){
+        if (self::$sync) {
             if($this->isConnected()){
                 $this->syncDisconnect();
             }
-        }else{
+        } else {
             parent::__destruct();
         }
+    }
+
+    /** @inheritdoc  */
+    public function disconnect($replyCode = 0, $replyText = ""): PromiseInterface
+    {
+        if ($this->heartbeatTimer) {
+            Timer::del($this->heartbeatTimer);
+            $this->heartbeatTimer = null;
+        }
+        return parent::disconnect($replyCode, $replyText);
     }
 
     /**
@@ -72,7 +74,7 @@ class AsyncClient extends Client
      * @param int|string $replyText
      * @return void
      */
-    public function syncDisconnect($replyCode = 0, $replyText = ""): void
+    public function syncDisconnect(int|string $replyCode = 0, int|string $replyText = ""): void
     {
         if ($this->state !== ClientStateEnum::CONNECTED) {
             throw new ClientException("Client is not connected.");
@@ -101,7 +103,7 @@ class AsyncClient extends Client
         $this->closeStream();
         $this->init();
         if($replyCode !== 0){
-            Worker::stopAll(0,"RabbitMQ client disconnected: [{$replyCode}] {$replyText}");
+            Worker::stopAll(0,"RabbitMQ client disconnected: [$replyCode] $replyText");
         }
     }
 
@@ -136,7 +138,7 @@ class AsyncClient extends Client
      * @param $closeMethodId
      * @return bool|MethodConnectionCloseOkFrame
      */
-    public function syncConnectionClose($replyCode, $replyText, $closeClassId, $closeMethodId)
+    public function syncConnectionClose($replyCode, $replyText, $closeClassId, $closeMethodId): bool|MethodConnectionCloseOkFrame
     {
         $buffer = $this->getWriteBuffer();
         $buffer->appendUint8(1);
@@ -152,7 +154,7 @@ class AsyncClient extends Client
         $this->syncFlushWriteBuffer();
         for (;;) {
             while (($frame = $this->getReader()->consumeFrame($this->getReadBuffer())) === null) {
-                $this->feedReadBuffer();
+                $this->read();
             }
             if ($frame instanceof MethodConnectionCloseOkFrame) {
                 return $frame;

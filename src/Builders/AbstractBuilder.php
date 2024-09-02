@@ -14,17 +14,33 @@ abstract class AbstractBuilder
     /**
      * @var bool
      */
-    private static bool $reuse = false;
+    private static bool $reuseConnection = false;
 
     /**
+     * @var bool
+     */
+    private static bool $reuseChannel = false;
+
+    /**
+     * builder对象池
+     *
      * @var AbstractBuilder[]
      */
     private static array $_builders = [];
 
     /**
-     * @var Connection|null
+     * connection对象池
+     *
+     * @var Connection[]
      */
-    private static ?Connection $_connection = null;
+    private static array $_connections = [];
+
+    /**
+     * builder 名称
+     *
+     * @var string|null
+     */
+    private ?string $_builderName = null;
 
     /**
      * @var BuilderConfig
@@ -33,38 +49,107 @@ abstract class AbstractBuilder
 
     public function __construct()
     {
+        $this->setBuilderName(get_called_class());
         $config = config('plugin.workbunny.webman-rabbitmq.app');
-        // 复用连接
-        if (self::$reuse = $config['reuse_connection'] ?? false) {
-            if (!$this->getConnection()) {
-                $this->setConnection(new Connection($config));
-            }
-        }
-        // 非复用连接
-        else {
-            $this->setConnection(new Connection($config));
-        }
+        self::$reuseConnection = $config['reuse_connection'] ?? false;
+        self::$reuseChannel = $config['reuse_channel'] ?? false;
+        $this->setConnection(new Connection($config));
         $this->setBuilderConfig(new BuilderConfig());
     }
 
     /**
+     * 是否复用连接
+     *
+     * @return bool
+     */
+    public static function isReuseConnection(): bool
+    {
+        return self::$reuseConnection;
+    }
+
+    /**
+     * 是否复用channel
+     *
+     * @return bool
+     */
+    public static function isReuseChannel(): bool
+    {
+        return self::$reuseChannel;
+    }
+
+    /**
+     * builder单例
+     *
      * @return AbstractBuilder
      */
     public static function instance(): AbstractBuilder
     {
-        if(!isset(self::$_builders[$class = get_called_class()])){
+        if (!(self::$_builders[$class = get_called_class()] ?? null)) {
             self::$_builders[$class] = new $class();
         }
         return self::$_builders[$class];
     }
 
     /**
-     * @param string $class
+     * 获取builder对象池
+     *
+     * @return AbstractBuilder[]
+     */
+    public static function builders(): array
+    {
+        return self::$_builders;
+    }
+
+    /**
+     * 销毁指定builder
+     *
+     * @param string $builderName
      * @return void
      */
-    public static function destroy(string $class): void
+    public static function destroy(string $builderName): void
     {
-        unset(self::$_builders[$class]);
+        self::connectionDestroy($builderName);
+        unset(self::$_builders[$builderName]);
+    }
+
+    /**
+     * 获取connections对象池
+     *
+     * @return Connection[]
+     */
+    public static function connections(): array
+    {
+        return self::$_connections;
+    }
+
+    /**
+     * connection对象销毁
+     *
+     * @param string $builderName
+     * @return void
+     */
+    public static function connectionDestroy(string $builderName): void
+    {
+        if (self::$_connections[$builderName] ?? null) {
+            self::$_connections[$builderName]->disconnect(null);
+        }
+        unset(self::$_connections[$builderName]);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getBuilderName(): ?string
+    {
+        return $this->_builderName;
+    }
+
+    /**
+     * @param string|null $builderName
+     */
+    public function setBuilderName(?string $builderName): void
+    {
+        $this->_builderName = $builderName;
     }
 
     /**
@@ -84,27 +169,23 @@ abstract class AbstractBuilder
     }
 
     /**
+     * 获取连接
+     *
      * @return Connection|null
      */
     public function getConnection(): ?Connection
     {
-        return self::$_connection;
+        return self::$_connections[self::isReuseConnection() ? '' : $this->getBuilderName()] ?? null;
     }
 
     /**
+     * 设置连接
+     *
      * @param Connection $connection
      */
     public function setConnection(Connection $connection): void
     {
-        self::$_connection = $connection;
-    }
-
-    /**
-     * @return bool
-     */
-    public static function isReuse(): bool
-    {
-        return self::$reuse;
+        self::$_connections[self::isReuseConnection() ? '' : $this->getBuilderName()] = $connection;
     }
 
     /**

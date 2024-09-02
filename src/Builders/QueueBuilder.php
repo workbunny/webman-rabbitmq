@@ -4,6 +4,7 @@ namespace Workbunny\WebmanRabbitMQ\Builders;
 
 use Bunny\Exception\ClientException;
 use Workbunny\WebmanRabbitMQ\Constants;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workerman\Worker;
 use Bunny\Channel as BunnyChannel;
 use Bunny\Async\Client as BunnyClient;
@@ -62,8 +63,9 @@ abstract class QueueBuilder extends AbstractBuilder
     {
         try {
             $this->getConnection()?->consume($this->getBuilderConfig());
-        } catch (ClientException $exception) {
-            $worker::log("Queue $worker->id exception: [{$exception->getCode()}] {$exception->getMessage()}, \n");
+        } catch (ClientException|WebmanRabbitMQException $exception) {
+            $worker::log("Queue $worker->id exception: [{$exception->getCode()}] {$exception->getMessage()}. \n");
+            $worker::log("Retry after $this->restartInterval seconds...... \n");
             sleep($this->restartInterval);
             $worker::stopAll();
         }
@@ -72,10 +74,7 @@ abstract class QueueBuilder extends AbstractBuilder
     /** @inheritDoc */
     public function onWorkerStop(Worker $worker): void
     {
-        if($this->getConnection()){
-            $this->getConnection()->close($this->getConnection()->getAsyncClient());
-            $this->getConnection()->close($this->getConnection()->getSyncClient());
-        }
+        self::destroy($this->getBuilderName());
     }
 
     /** @inheritDoc */

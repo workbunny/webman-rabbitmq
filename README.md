@@ -30,6 +30,11 @@
 
    注：这里的 **轻量** 指的是 **无须将应用中的队列服务独立化，该队列服务是该应用独享的**
 
+### 说明
+
+- 此文档为2.0，[1.0文档](https://github.com/workbunny/webman-rabbitmq/blob/1.x/README.md)
+- 1.0已停止维护
+
 ## 简介
 
 RabbitMQ的webman客户端插件；
@@ -38,12 +43,50 @@ RabbitMQ的webman客户端插件；
 2. 支持延迟队列（rabbitMQ须安装插件）；
 3. 异步无阻塞消费、异步无阻塞生产、同步阻塞生产；
 
-## 安装
+### 概念
+
+#### 1. Builder
+
+- Builder为队列的抽象结构，每个Builder都包含一个BuilderConfig配置结构对象
+- 当前进程的所有Builder公用一个对象池，对象池可用于减少连接的创建和销毁，提升性能
+- 当前进程的所有Builder公用一个Connection连接对象池：
+  - 当reuse_connection=false时，Builder之间使用各自的Connection连接对象
+  - 当reuse_connection=true时，不同Builder复用同一个Connection连接对象
+
+#### 2. Connection
+
+- Connection是抽象的连接对象，每个Connection会创建两个TCP连接：
+  - `getAsyncClient()`获取AsyncClient 异步客户端连接
+  - `getSyncClient()`获取SyncClient 同步客户端连接
+- 一个Connection对象在RabbitMQ-server中等于两个连接
+- 所有Builder的Connection连接对象在Builder的Connection池中进行统一管理
+- 当reuse_connection=true时，Connection对象在池中的key为空字符串
+
+#### 3. Channel
+
+- Channel是基于RabbitMQ-server的连接对象的子连接
+- Channel的上限默认根据RabbitMQ-server的channel limit配置
+- Channel的生命周期与Connection一致，在Connection存续期间，Channel不会被销毁
+- Channel池可以启用/关闭复用模式中：
+  - 当reuse_channel=true时，连接会使用Channel池中闲置通道进行发送，如当前不存在闲置通道，则创建新的通道；
+  - 当reuse_channel=false时，连接每次都会创建新的通道，建议在生产完成后调用连接关闭
+- AsyncClient和SyncClient互相不共用TCP连接，所以Channel池也不公用
+- 可以通过`getChannels`方法获取Channel对象池，自行管理释放
+
+## 使用
+
+### 要求
+- php >= 8.0
+- webman-framework >= 1.5
+- rabbitmq-server >= 3.10
+
+### 安装
+
 ```
 composer require workbunny/webman-rabbitmq
 ```
 
-## 配置
+### 配置
 ```php
 <?php
 return [
@@ -54,7 +97,7 @@ return [
     'port'               => 5672,
     'username'           => 'guest',
     'password'           => 'guest',
-    'mechanisms'         => 'AMQPLAIN',
+    'mechanism'          => 'AMQPLAIN',
     'timeout'            => 10,
     // 重启间隔
     'restart_interval'   => 0,
@@ -68,6 +111,8 @@ return [
     },
     // 复用连接
     'reuse_connection'   => false,
+    // 复用通道
+    'reuse_channel'      => false,
     // AMQPS 如需使用AMQPS请取消注释
 //    'ssl'                => [
 //        'cafile'      => 'ca.pem',
@@ -77,12 +122,7 @@ return [
 ];
 ```
 
-## 使用
-
-- 2.x与1.x在Builder结构有着较大的变化，[1.x文档](https://github.com/workbunny/webman-rabbitmq/blob/1.x/README.md)
-- 2.x已生产可用
-
-### QueueBuilder
+### QueueBuilder 
 
 - 可实现官网的5种消费模式
 
@@ -196,7 +236,7 @@ sync_publish(TestBuilder::instance(), 'abc'); # return bool
 use function Workbunny\WebmanRabbitMQ\sync_publish;
 use process\workbunny\rabbitmq\TestBuilder;
 
-sync_publish(TestBuilder::instance(), 'abc', [
+sync_publish(TestBuilder::instance(), 'abc', headers: [
 	'x-delay' => 10000, # 延迟10秒
 ]); # return bool
 ```
@@ -225,11 +265,13 @@ async_publish(TestBuilder::instance(), 'abc'); # return PromiseInterface|bool
 use function Workbunny\WebmanRabbitMQ\async_publish;
 use process\workbunny\rabbitmq\TestBuilder;
 
-async_publish(TestBuilder::instance(), 'abc', [
+async_publish(TestBuilder::instance(), 'abc', headers: [
 	'x-delay' => 10000, # 延迟10秒
 ]); # return PromiseInterface|bool
 ```
-### 自定义Builder
+## 进阶
+
+### 1. 自定义Builder
 
 - 创建自定义Builder需继承实现AbstractBuilder；
   - onWorkerStart 消费进程启动时会触发，一般用于实现基础消费逻辑；
@@ -272,13 +314,6 @@ async_publish(TestBuilder::instance(), 'abc', [
      */
     abstract public static function classContent(string $namespace, string $className, bool $isDelay): string;
 ```
-
-- Builder会创建Connection，每个Connection会分别创建一个同步RabbitMQ客户端连接和一个异步客户端RabbitMQ连接；
-
-- 不同的Builder默认不复用Connection，配置选项reuse_connection可开启复用Connection；
-  - 复用Connection可以减少创建的RabbitMQ-Client连接数，但一定程度上会降低并发能力
-  - 复用不影响消费者，不影响跨进程的生产者
-  - 复用仅影响当前进程内的不同Builder的生产者
 
 ## 说明
 - **生产可用，欢迎 [issue](https://github.com/workbunny/webman-rabbitmq/issues) 和 PR**；
