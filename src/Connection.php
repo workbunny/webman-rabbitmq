@@ -5,14 +5,18 @@ namespace Workbunny\WebmanRabbitMQ;
 use Bunny\AbstractClient;
 use Bunny\Async\Client;
 use Bunny\Channel;
+use Bunny\ChannelStateEnum;
+use Bunny\Exception\BunnyException;
 use Bunny\Exception\ClientException;
 use Bunny\Message;
 use Bunny\Protocol\MethodBasicConsumeOkFrame;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use Throwable;
+use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
 use Workbunny\WebmanRabbitMQ\Clients\AsyncClient;
 use Workbunny\WebmanRabbitMQ\Clients\SyncClient;
+use Workbunny\WebmanRabbitMQ\Clients\Channels\Channel as CurrentChannel;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQAsyncPublishException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workerman\Worker;
@@ -20,15 +24,20 @@ use Workerman\Worker;
 class Connection
 {
 
-    /** @var AsyncClient 异步客户端 */
+    /** @var AsyncClient 异步客户端连接 */
     protected AsyncClient $_asyncClient;
 
-    /** @var SyncClient 同步客户端 */
+    /** @var SyncClient 同步客户端连接 */
     protected SyncClient $_syncClient;
 
     /** @var array  */
     protected array $_config = [];
 
+    /**
+     * connection类会同时创建两个客户端连接
+     *
+     * @param array $config
+     */
     public function __construct(array $config)
     {
         $this->_config        = $config;
@@ -58,29 +67,72 @@ class Connection
     public function getErrorCallback(): ?callable
     {
         $errorCallback = $this->_config['error_callback'] ?? null;
-        if(!is_callable($errorCallback) and !is_null($errorCallback)){
+        if (!is_callable($errorCallback) and !is_null($errorCallback)) {
             $errorCallback = null;
         }
         return $errorCallback;
     }
 
     /**
+     * 兼容旧版
+     *
      * @param AbstractClient $client
      * @param Throwable|null $throwable
      * @return void
+     * @deprecated
      */
     public function close(AbstractClient $client, ?Throwable $throwable = null): void
+    {
+        $this->disconnect($client, $throwable);
+    }
+
+    /**
+     * 关闭连接
+     *
+     * @param null|AbstractClient $client null: 关闭所有连接, 其他:关闭指定连接
+     * @param Throwable|null $throwable
+     * @return void
+     */
+    public function disconnect(?AbstractClient $client, ?Throwable $throwable = null): void
     {
         $replyCode = $throwable instanceof ClientException ? $throwable->getCode() : 0;
         $replyText = $throwable instanceof ClientException ? $throwable->getMessage() : '';
         try {
-            if($client instanceof AsyncClient and $client->isConnected()) {
-                $client->syncDisconnect($replyCode, $replyText);
-            }elseif ($client instanceof SyncClient and $client->isConnected()) {
-                $client->disconnect($replyCode, $replyText);
+            switch (true) {
+                case $client instanceof AsyncClient:
+                    foreach ($client->getChannels() as $channelId => $channel) {
+                        if ($client->isConnected()) {
+                            $client->syncChannelClose($channelId, $replyCode, $replyText, 0, 0);
+                        }
+                        $client->removeChannel($channelId);
+                    }
+                    if ($client->isConnected()) {
+                        $client->syncDisconnect($replyCode, $replyText);
+                    }
+                    break;
+                case $client instanceof SyncClient:
+                    foreach ($client->getChannels() as $channelId => $channel) {
+                        if ($client->isConnected()) {
+                            $channel->close($replyCode, $replyText)->done();
+                        }
+                        $client->removeChannel($channelId);
+                    }
+                    if ($client->isConnected()) {
+                        $client->disconnect($replyCode, $replyText)->done();
+                    }
+                    break;
+                case $client === null:
+                    if ($this->getAsyncClient()) {
+                        $this->disconnect($this->getAsyncClient(), $throwable);
+                    }
+                    if ($this->getSyncClient()) {
+                        $this->disconnect($this->getSyncClient(), $throwable);
+                    }
+                    break;
+                default:
+                    return;
             }
-
-        }catch (Throwable $throwable){}
+        } catch (Throwable) {}
     }
 
     /**
@@ -91,14 +143,19 @@ class Connection
     {
         // 创建连接
         $promise = $this->getAsyncClient()->connect()->then(function (AsyncClient $client){
-            return $client->channel();
-        }, function($reason) {
+            return $client->catchChannel();
+        }, function ($reason) {
             if ($reason instanceof Throwable){
-                if($this->getErrorCallback()){\call_user_func($this->getErrorCallback(), $reason, $this);}
-                $this->close($this->getAsyncClient(), $reason);
+                if ($callback = $this->getErrorCallback()) {
+                    \call_user_func($callback, $reason, $this);
+                }
+                if ($reason instanceof BunnyException) {
+                    $this->disconnect($this->getAsyncClient(), $reason);
+                    throw new WebmanRabbitMQException($reason->getMessage(), $reason->getCode(), $reason);
+                }
             }
             if (is_string($reason)) {
-                echo "Rejected: $reason\n";
+                echo "Consume rejected: $reason\n";
             }
         });
         // 通道预备
@@ -120,7 +177,7 @@ class Connection
                         $tag = Constants::REQUEUE;
                         echo "Consume Throwable: {$throwable->getMessage()}\n";
                     }
-                    if($tag === Constants::ACK) {
+                    if ($tag === Constants::ACK) {
                         $res = $channel->ack($message);
                     } elseif ($tag === Constants::NACK) {
                         $res = $channel->nack($message);
@@ -130,14 +187,24 @@ class Connection
                         $res = $channel->reject($message);
                     }
                     $res->then(function (){}, function (Throwable $throwable){
-                        if($this->getErrorCallback()) {\call_user_func($this->getErrorCallback(), $throwable, $this);}
-                        $this->close($this->getAsyncClient(), $throwable);
+                        if ($callback = $this->getErrorCallback()) {
+                            \call_user_func($callback, $throwable, $this);
+                        }
+                        if ($throwable instanceof BunnyException) {
+                            $this->disconnect($this->getAsyncClient(), $throwable);
+                            throw new WebmanRabbitMQException($throwable->getMessage(), $throwable->getCode(), $throwable);
+                        }
                     })->done();
                 }, $config->getQueue(), $config->getConsumerTag(), $config->isNoLocal(), $config->isNoAck(),
                 $config->isExclusive(), $config->isNowait(), $config->getArguments()
             )->then(function (MethodBasicConsumeOkFrame $ok){}, function (Throwable $throwable) {
-                if($this->getErrorCallback()) {\call_user_func($this->getErrorCallback(), $throwable, $this);}
-                $this->close($this->getAsyncClient(), $throwable);
+                if ($callback = $this->getErrorCallback()) {
+                    \call_user_func($callback, $throwable, $this);
+                }
+                if ($throwable instanceof BunnyException) {
+                    $this->disconnect($this->getAsyncClient(), $throwable);
+                    throw new WebmanRabbitMQException($throwable->getMessage(), $throwable->getCode(), $throwable);
+                }
             })->done();
         })->done();
     }
@@ -152,17 +219,21 @@ class Connection
     public function asyncPublish(BuilderConfig $config, bool $close = false) : PromiseInterface
     {
         if ($this->getAsyncClient()->isConnected()) {
-            $promise = $this->getAsyncClient()->channel();
+            $promise = $this->getAsyncClient()->catchChannel();
         } else {
             $promise = $this->getAsyncClient()->connect()->then(function (AsyncClient $client) {
-                return $client->channel();
-            }, function($reason) {
+                return $client->catchChannel();
+            }, function ($reason) {
                 if ($reason instanceof Throwable){
-                    if($this->getErrorCallback()){\call_user_func($this->getErrorCallback(), $reason, $this);}
-                    $this->close($this->getAsyncClient(), $reason);
+                    if ($callback = $this->getErrorCallback()) {
+                        \call_user_func($callback, $reason, $this);
+                    }
+                    if ($reason instanceof BunnyException) {
+                        $this->disconnect($this->getAsyncClient(), $reason);
+                    }
                 }
                 if (is_string($reason)) {
-                    echo "Rejected: $reason\n";
+                    echo "Publisher rejected: $reason\n";
                 }
             });
             $promise = $this->_channelInit($promise, $config);
@@ -185,12 +256,33 @@ class Connection
             return $channel->publish(
                 $config->getBody(),$config->getHeaders(), $config->getExchange(), $config->getRoutingKey(),
                 $config->isMandatory(), $config->isImmediate()
-            )->then(function () use ($close) {
-                if ($close) {$this->close($this->getAsyncClient());}
+            )->then(function () use ($close, $channel) {
+                if ($channel instanceof CurrentChannel) {
+                    $channel->setState(ChannelStateEnum::READY);
+                }
+                if ($close) {
+                    $this->disconnect($this->getAsyncClient());
+                }
             }, function (Throwable $throwable) {
-                if ($this->getErrorCallback()) {\call_user_func($this->getErrorCallback(), $throwable, $this);}
-                $this->close($this->getAsyncClient(), $throwable);
+                if ($callback = $this->getErrorCallback()) {
+                    \call_user_func($callback, $throwable, $this);
+                }
+                if ($throwable instanceof BunnyException) {
+                    $this->disconnect($this->getAsyncClient(), $throwable);
+                }
             })->done();
+        }, function ($reason) {
+            if ($reason instanceof Throwable){
+                if ($callback = $this->getErrorCallback()) {
+                    \call_user_func($callback, $reason, $this);
+                }
+                if ($reason instanceof BunnyException) {
+                    $this->disconnect($this->getAsyncClient(), $reason);
+                }
+            }
+            if (is_string($reason)) {
+                echo "Publisher rejected: $reason\n";
+            }
         });
     }
 
@@ -198,54 +290,45 @@ class Connection
      * @param BuilderConfig $config
      * @param bool $close
      * @return bool
+     * @throws ClientException
      */
     public function syncPublish(BuilderConfig $config, bool $close = false): bool
     {
         try {
             if ($this->getSyncClient()->isConnected()) {
-                $channel = $this->getSyncClient()->channel();
+                $channel = $this->getSyncClient()->catchChannel(AbstractBuilder::isReuseChannel());
             } else {
-                try {
-                    $channel = $this->getSyncClient()->connect()->channel();
-                    $channel->exchangeDeclare(
-                        $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
-                        $config->isAutoDelete(), $config->isInternal(), $config->isNowait(), $config->getArguments()
-                    );
-                    $channel->queueDeclare(
-                        $config->getQueue(), $config->isPassive(), $config->isDurable(), $config->isExclusive(),
-                        $config->isAutoDelete(), $config->isNowait(), $config->getArguments()
-                    );
-                    $channel->queueBind(
-                        $config->getQueue(), $config->getExchange(), $config->getRoutingKey(), $config->isNowait(),
-                        $config->getArguments()
-                    );
-                } catch (Throwable $throwable) {
-                    if ($throwable instanceof ClientException) {
-                        throw $throwable;
-                    }
-                    if ($this->getErrorCallback()) {\call_user_func($this->getErrorCallback(), $throwable, $this);}
-                    $this->close($this->getSyncClient(), $throwable);
-                    return false;
-                }
+                $channel = $this->getSyncClient()->connect()->catchChannel();
+                $channel->exchangeDeclare(
+                    $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
+                    $config->isAutoDelete(), $config->isInternal(), $config->isNowait(), $config->getArguments()
+                );
+                $channel->queueDeclare(
+                    $config->getQueue(), $config->isPassive(), $config->isDurable(), $config->isExclusive(),
+                    $config->isAutoDelete(), $config->isNowait(), $config->getArguments()
+                );
+                $channel->queueBind(
+                    $config->getQueue(), $config->getExchange(), $config->getRoutingKey(), $config->isNowait(),
+                    $config->getArguments()
+                );
             }
-        } catch (ClientException $exception) {
-            // 随机一个通道
-            if ($exception->getMessage() === 'No available channels') {
-                $channel = array_rand($this->getSyncClient()->getChannels());
-            } else {
-                throw $exception;
-            }
+            return (bool)$channel->publish(
+                $config->getBody(), $config->getHeaders(), $config->getExchange(), $config->getRoutingKey(),
+                $config->isMandatory(), $config->isImmediate()
+            );
         } catch (Throwable $throwable){
-            if ($this->getErrorCallback()) {\call_user_func($this->getErrorCallback(), $throwable, $this);}
-            $this->close($this->getSyncClient(), $throwable);
+            if ($callback = $this->getErrorCallback()) {
+                \call_user_func($callback, $throwable, $this);
+            }
+            if ($throwable instanceof BunnyException) {
+                $this->disconnect($this->getSyncClient(), $throwable);
+            }
             return false;
+        } finally {
+            if ($close) {
+                $this->disconnect($this->getSyncClient());
+            }
         }
-        $res = (bool)$channel->publish(
-            $config->getBody(), $config->getHeaders(), $config->getExchange(), $config->getRoutingKey(),
-            $config->isMandatory(), $config->isImmediate()
-        );
-        if ($close) {$this->close($this->getSyncClient());}
-        return $res;
     }
 
     /**
@@ -256,7 +339,10 @@ class Connection
      */
     protected function _channelInit(PromiseInterface $promise, BuilderConfig $config): PromiseInterface
     {
-        return $promise->then(function (Channel $channel) use ($config) {
+        return $promise->then(function (?Channel $channel) use ($config) {
+            if (!$channel) {
+                throw new WebmanRabbitMQException('Could not connect to rabbitmq. [Channel is null]');
+            }
             return $channel->exchangeDeclare(
                 $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
                 $config->isAutoDelete(), $config->isInternal(), $config->isNowait(), $config->getArguments()

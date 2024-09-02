@@ -17,6 +17,7 @@ jobs:
           - "8.1"
           - "8.0"
         rabbitmq:
+          - "3.13-management"
           - "3.12-management"
           - "3.11-management"
           - "3.10-management"
