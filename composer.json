@@ -5,14 +5,14 @@
   "description": "Webman plugin workbunny/webman-rabbitmq",
   "authors": [
     {
-      "name": "chaz6chez",
-      "email": "chaz6chez1993@outlook.com",
-      "homepage": "https://chaz6chez.cn"
+      "name": "huang",
+      "email": "466927746@qq.com",
+      "homepage": "https://test"
     }
   ],
   "support": {
-    "issues": "https://github.com/workbunny/webman-rabbitmq/issues",
-    "source": "https://github.com/workbunny/webman-rabbitmq"
+    "issues": "https://github.com/websocketh/webman-rabbitmq/issues",
+    "source": "https://github.com/websocketh/webman-rabbitmq"
   },
   "require": {
     "php": "^8.0",
