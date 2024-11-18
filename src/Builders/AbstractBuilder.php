@@ -4,6 +4,7 @@ namespace Workbunny\WebmanRabbitMQ\Builders;
 
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
 use Workbunny\WebmanRabbitMQ\Connection;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workerman\Worker;
 use function Workbunny\WebmanRabbitMQ\config;
 
@@ -47,12 +48,24 @@ abstract class AbstractBuilder
      */
     private BuilderConfig $_builderConfig;
 
+    /**
+     * 默认连接名
+     *
+     * @var string|null
+     */
+    protected ?string $connection = null;
+
     public function __construct()
     {
         $this->setBuilderName(get_called_class());
-        $config = config('plugin.workbunny.webman-rabbitmq.app');
-        self::$reuseConnection = $config['reuse_connection'] ?? false;
-        self::$reuseChannel = $config['reuse_channel'] ?? false;
+        self::$reuseConnection = config('plugin.workbunny.webman-rabbitmq.app.reuse_connection', false);
+        self::$reuseChannel =config('plugin.workbunny.webman-rabbitmq.app.reuse_channel', false);
+        $config = $this->connection
+            ? config("plugin.workbunny.webman-rabbitmq.rabbitmq.connections.$this->connection", []) // 通过rabbitmq 配置文件配置
+            : config('plugin.workbunny.webman-rabbitmq.app', []); // 兼容旧版配置
+        if (!$config) {
+            throw new WebmanRabbitMQException('RabbitMQ config not found. ');
+        }
         $this->setConnection(new Connection($config));
         $this->setBuilderConfig(new BuilderConfig());
     }

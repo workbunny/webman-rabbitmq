@@ -110,6 +110,9 @@ use Workbunny\WebmanRabbitMQ\Builders\QueueBuilder;
 
 class $className extends QueueBuilder
 {
+    /** @inheritdoc  */
+    protected ?string \$connection = 'rabbitmq';
+    
     /**
      * @var array = [
      *   'name'           => 'example',
