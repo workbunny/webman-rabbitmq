@@ -87,11 +87,19 @@ composer require workbunny/webman-rabbitmq
 ```
 
 ### 配置
+
+#### app.php
+
 ```php
 <?php
 return [
     'enable' => true,
-
+    // 复用连接
+    'reuse_connection'   => false,
+    // 复用通道
+    'reuse_channel'      => false,
+    
+    // 以下内容2.2开始已弃用，请使用config/rabbitmq.php配置
     'host'               => 'rabbitmq',
     'vhost'              => '/',
     'port'               => 5672,
@@ -109,16 +117,50 @@ return [
     // 错误回调
     'error_callback'     => function(Throwable $throwable){
     },
-    // 复用连接
-    'reuse_connection'   => false,
-    // 复用通道
-    'reuse_channel'      => false,
+    
     // AMQPS 如需使用AMQPS请取消注释
 //    'ssl'                => [
 //        'cafile'      => 'ca.pem',
 //        'local_cert'  => 'client.cert',
 //        'local_pk'    => 'client.key',
 //    ],
+];
+```
+
+#### rabbitmq.php
+
+**`Builder`中增加了`protected ?string $connection = null;`属性，用于指定使用`config/rabbitmq.php`中定义的连接**
+
+```php
+<?php
+return [
+    'connections' => [
+        'rabbitmq' => [
+            'host'               => 'rabbitmq',
+            'vhost'              => '/',
+            'port'               => 5672,
+            'username'           => 'guest',
+            'password'           => 'guest',
+            'mechanism'          => 'AMQPLAIN',
+            'timeout'            => 10,
+            // 重启间隔
+            'restart_interval'   => 0,
+            // 心跳间隔
+            'heartbeat'          => 50,
+            // 心跳回调
+            'heartbeat_callback' => function(){
+            },
+            // 错误回调
+            'error_callback'     => function(Throwable $throwable){
+            },
+//            // AMQPS 如需使用AMQPS请取消注释
+//            'ssl' => [
+//                'cafile' => 'ca.pem',
+//                'local_cert' => 'client.cert',
+//                'local_pk' => 'client.key',
+//            ],
+        ]
+    ]
 ];
 ```
 
