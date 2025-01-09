@@ -16,7 +16,7 @@
   },
   "require": {
     "php": "^8.0",
-    "workerman/rabbitmq": "^1.0",
+    "workerman/rabbitmq": "^1.0 | ^2.0",
     "webman/console": "^1.0"
   },
   "require-dev": {
