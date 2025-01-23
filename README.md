@@ -164,9 +164,11 @@ return [
 ];
 ```
 
-### QueueBuilder 
+### QueueBuilder / CoQueueBuilder
 
-- 可实现官网的5种消费模式
+- QueueBuilder: 原队列Builder，采用event-loop实现异步消费
+- CoQueueBuilder: 协程队列Builder，采用协程实现异步消费，需要`workerman/rabbitmq 2.0`
+- 两种Builder均可实现官网的5种消费模式，使用方式一致，可平滑切换
 
 #### 命令行
 
@@ -191,6 +193,8 @@ return [
 ./webman workbunny:rabbitmq-builder project/testAll --mode=queue
 # 延迟同理
 ```
+
+**注：`CoQueueBuilder`请使用`--mode=co-queue`**
 
 - 移除
 
@@ -291,6 +295,8 @@ sync_publish(TestBuilder::instance(), 'abc', headers: [
 - 发布普通消息
 
 **注：向延迟队列发布普通消息会抛出一个 WebmanRabbitMQException 异常**
+
+**注：`CoQueueBuilder`不会返回`Promise`**
 
 ```php
 use function Workbunny\WebmanRabbitMQ\async_publish;
