@@ -17,6 +17,31 @@ use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
  * @param bool $close
  * @return bool
  */
+function publish(AbstractBuilder $builder, string $body, ?string $routingKey = null, array $headers = [], bool $close = false) : bool
+{
+    $config = clone $builder->getBuilderConfig();
+    if(
+        ($config->getExchangeType() !== Constants::DELAYED and $headers['x-delay'] ?? 0) or
+        ($config->getExchangeType() === Constants::DELAYED and !($headers['x-delay'] ?? 0))
+    ){
+        throw new WebmanRabbitMQException('Invalid publish. ');
+    }
+    $config->setBody($body);
+    $config->setHeaders(array_merge($config->getHeaders(), $headers));
+    $config->setRoutingKey($routingKey ?? $config->getRoutingKey());
+
+    return $builder->getConnection()->publish($config, $close);
+}
+
+/**
+ * 同步生产
+ * @param AbstractBuilder $builder
+ * @param string $body
+ * @param string|null $routingKey
+ * @param array $headers
+ * @param bool $close
+ * @return bool
+ */
 function sync_publish(AbstractBuilder $builder, string $body, ?string $routingKey = null, array $headers = [], bool $close = false) : bool
 {
     $config = clone $builder->getBuilderConfig();
@@ -30,7 +55,7 @@ function sync_publish(AbstractBuilder $builder, string $body, ?string $routingKe
     $config->setHeaders(array_merge($config->getHeaders(), $headers));
     $config->setRoutingKey($routingKey ?? $config->getRoutingKey());
 
-    return $builder->getConnection()->syncPublish($config, $close);
+    return $builder->getConnection()?->syncPublish($config, $close);
 }
 
 /**
@@ -55,7 +80,7 @@ function async_publish(AbstractBuilder $builder, string $body, ?string $routingK
     $config->setHeaders(array_merge($config->getHeaders(), $headers));
     $config->setRoutingKey($routingKey ?? $config->getRoutingKey());
 
-    return $builder->getConnection()->asyncPublish($config, $close);
+    return $builder->getConnection()?->asyncPublish($config, $close);
 }
 
 /**

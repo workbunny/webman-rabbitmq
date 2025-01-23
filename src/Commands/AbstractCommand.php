@@ -5,8 +5,7 @@ namespace Workbunny\WebmanRabbitMQ\Commands;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
-use Workbunny\WebmanRabbitMQ\Builders\QueueBuilder;
-use Workbunny\WebmanRabbitMQ\Builders\RpcBuilder;
+use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
 use function Workbunny\WebmanRabbitMQ\base_path;
 
 abstract class AbstractCommand extends Command
@@ -15,20 +14,12 @@ abstract class AbstractCommand extends Command
     public static string $baseNamespace = 'process\workbunny\rabbitmq';
 
     /**
-     * @var string[]
-     */
-    protected array $builderList = [
-        'queue' => QueueBuilder::class,
-        'rpc'   => RpcBuilder::class
-    ];
-
-    /**
      * @param string $name
      * @return string|null
      */
     protected function getBuilder(string $name): ?string
     {
-        return $this->builderList[$name] ?? null;
+        return AbstractBuilder::getBuilderClass($name);
     }
 
     protected function info(OutputInterface $output, string $message): void
