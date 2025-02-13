@@ -11,8 +11,8 @@ use Bunny\Protocol\MethodConnectionCloseOkFrame;
 use Bunny\Protocol\MethodConnectionStartFrame;
 use React\Promise\PromiseInterface;
 use Workbunny\WebmanRabbitMQ\Clients\Traits\ClientMethods;
-use Workerman\Lib\Timer;
 use Workerman\RabbitMQ\Client;
+use Workerman\Timer;
 use Workerman\Worker;
 
 class AsyncClient extends Client
@@ -62,7 +62,7 @@ class AsyncClient extends Client
     /** @inheritdoc  */
     public function disconnect($replyCode = 0, $replyText = ""): PromiseInterface
     {
-        if ($this->heartbeatTimer) {
+        if ($this->heartbeatTimer and is_int($this->heartbeatTimer)) {
             Timer::del($this->heartbeatTimer);
             $this->heartbeatTimer = null;
         }
@@ -94,7 +94,7 @@ class AsyncClient extends Client
             }
         }
 
-        if ($this->heartbeatTimer) {
+        if ($this->heartbeatTimer and is_int($this->heartbeatTimer)) {
             Timer::del($this->heartbeatTimer);
             $this->heartbeatTimer = null;
         }
