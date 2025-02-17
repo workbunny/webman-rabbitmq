@@ -6,6 +6,7 @@
 
 namespace Workbunny\WebmanRabbitMQ\Clients\Traits;
 
+use Bunny\AbstractClient;
 use Bunny\Channel as OriginalChannel;
 use Bunny\ChannelStateEnum;
 use Bunny\ClientStateEnum;
@@ -16,6 +17,7 @@ use React\Promise\Promise;
 use React\Promise\PromiseInterface;
 use Workbunny\WebmanRabbitMQ\Clients\Channels\Channel as CurrentChannel;
 use Workbunny\WebmanRabbitMQ\Clients\SyncClient;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 
 trait ClientMethods
 {
@@ -87,12 +89,22 @@ trait ClientMethods
             });
     }
 
+    /** @inheritdoc  */
+    protected function read(): void
+    {
+        if (!$this->stream) {
+            throw new WebmanRabbitMQException("Stream is not connected.");
+        }
+        parent::read();
+    }
+
     /**
      * 重写authResponse方法
      *  1. 支持PLAIN及AMQPLAIN两种机制
      *
      * @param MethodConnectionStartFrame $start
      * @return bool|PromiseInterface
+     * @inheritdoc
      */
     abstract protected function authResponse(MethodConnectionStartFrame $start): PromiseInterface|bool;
 
