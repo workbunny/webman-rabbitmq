@@ -2,7 +2,7 @@
 
 namespace Workbunny\WebmanRabbitMQ\Connections;
 
-use Bunny\Async\Client;
+use Bunny\AbstractClient as Client;
 use Bunny\Channel;
 use Bunny\Exception\BunnyException;
 use Bunny\Exception\ClientException;

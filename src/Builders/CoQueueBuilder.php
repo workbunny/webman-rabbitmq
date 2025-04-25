@@ -7,8 +7,8 @@ use Workbunny\WebmanRabbitMQ\Connections\CoConnection;
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workerman\Worker;
-use Bunny\Channel as BunnyChannel;
-use Bunny\Async\Client as BunnyClient;
+use Workbunny\WebmanRabbitMQ\Clients\CoClient as BunnyClient;
+use Workbunny\WebmanRabbitMQ\Clients\Channels\Channel as BunnyChannel;
 use Bunny\Message as BunnyMessage;
 
 abstract class CoQueueBuilder extends AbstractBuilder
