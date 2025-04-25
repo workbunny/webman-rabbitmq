@@ -105,7 +105,7 @@ abstract class CoQueueBuilder extends AbstractBuilder
 namespace $namespace;
 
 use Bunny\Channel as BunnyChannel;
-use Bunny\Async\Client as BunnyClient;
+use Bunny\AbstractClient as BunnyClient;
 use Bunny\Message as BunnyMessage;
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\Builders\CoQueueBuilder;
