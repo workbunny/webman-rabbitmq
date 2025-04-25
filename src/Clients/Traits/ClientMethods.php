@@ -6,9 +6,10 @@
 
 namespace Workbunny\WebmanRabbitMQ\Clients\Traits;
 
-use Bunny\AbstractClient;
+
 use Bunny\Channel as OriginalChannel;
 use Bunny\ChannelStateEnum;
+use Bunny\Client;
 use Bunny\ClientStateEnum;
 use Bunny\Exception\ClientException;
 use Bunny\Protocol\MethodChannelOpenOkFrame;
@@ -16,7 +17,6 @@ use Bunny\Protocol\MethodConnectionStartFrame;
 use React\Promise\Promise;
 use React\Promise\PromiseInterface;
 use Workbunny\WebmanRabbitMQ\Clients\Channels\Channel as CurrentChannel;
-use Workbunny\WebmanRabbitMQ\Clients\SyncClient;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 
 trait ClientMethods
@@ -82,7 +82,7 @@ trait ClientMethods
                 );
             }
         }
-        return ($this instanceof SyncClient)
+        return ($this instanceof Client)
             ? $resChannel
             : new Promise(function () use ($resChannel) {
                 return $resChannel;
@@ -106,7 +106,7 @@ trait ClientMethods
      * @return bool|PromiseInterface
      * @inheritdoc
      */
-    abstract protected function authResponse(MethodConnectionStartFrame $start): PromiseInterface|bool;
+    abstract protected function authResponse(MethodConnectionStartFrame $start);
 
     /**
      * 回收

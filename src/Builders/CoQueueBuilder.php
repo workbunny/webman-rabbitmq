@@ -3,6 +3,7 @@
 namespace Workbunny\WebmanRabbitMQ\Builders;
 
 use Bunny\Exception\ClientException;
+use Workbunny\WebmanRabbitMQ\Connections\CoConnection;
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workerman\Worker;
@@ -38,6 +39,7 @@ abstract class CoQueueBuilder extends AbstractBuilder
     public function __construct()
     {
         parent::__construct();
+        $this->setConnection(new CoConnection($this->config));
         $name = str_replace('\\', '.', get_called_class());
 
         $this->getBuilderConfig()->setConsumerTag($this->exchangeName ?? $name);
