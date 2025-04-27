@@ -141,6 +141,7 @@ class CoConnection implements ConnectionInterface
                     if ($res) {
                         $headers = $message->headers;
                         $headers['workbunny-requeue-count'] = ($headers['workbunny-requeue-count'] ?? 0) + 1;
+                        $headers['workbunny-requeue-first-time'] = $headers['workbunny-requeue-first-time'] ?? microtime(true);
                         if (!$client->publish(
                             $config->getQueue(), $message->content, $headers,
                             $config->getExchange(), $config->getRoutingKey(),
