@@ -14,6 +14,7 @@ use Workbunny\WebmanRabbitMQ\BuilderConfig;
 use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQPublishException;
 use Workerman\Worker;
 use Workerman\RabbitMQ\Client as WorkermanRabbitMQClient;
 use Workbunny\WebmanRabbitMQ\Clients\CoClient;
@@ -135,11 +136,26 @@ class CoConnection implements ConnectionInterface
                     $res = $channel->ack($message);
                 } elseif ($tag === Constants::NACK) {
                     $res = $channel->nack($message);
+                } elseif ($tag === Constants::REQUEUE) {
+                    $res = $channel->ack($message);
+                    if ($res) {
+                        $headers = $message->headers;
+                        $headers['workbunny-requeue-count'] = ($headers['workbunny-requeue-count'] ?? 0) + 1;
+                        if (!$client->publish(
+                            $config->getQueue(), $message->content, $headers,
+                            $config->getExchange(), $config->getRoutingKey(),
+                            $config->isMandatory(), $config->isImmediate()
+                        )) {
+                            $c = clone $config;
+                            $c->setHeaders($headers);
+                            throw new WebmanRabbitMQPublishException('Consume requeue-publish failed.', 0, $c);
+                        }
+                    }
                 } else {
                     $res = $channel->reject($message);
                 }
                 if (!$res) {
-                    $throwable = new WebmanRabbitMQException('Consume requeue failed.');
+                    $throwable = new WebmanRabbitMQException("Consume $tag failed.");
                     if ($callback = $this->getErrorCallback()) {
                         \call_user_func($callback, $throwable, $this);
                     }

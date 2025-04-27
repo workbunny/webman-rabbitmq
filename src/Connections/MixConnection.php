@@ -158,10 +158,32 @@ class MixConnection implements ConnectionInterface
                     $res = $channel->ack($message);
                 } elseif ($tag === Constants::NACK) {
                     $res = $channel->nack($message);
+                } elseif ($tag === Constants::REQUEUE) {
+                    $res = $channel->ack($message);
                 } else {
                     $res = $channel->reject($message);
                 }
-                $res->then(function (){}, function (Throwable $throwable){
+                $res->then(function () use ($message, $config, $client, $tag) {
+                    if ($tag === Constants::REQUEUE) {
+                        $headers = $message->headers;
+                        $headers['workbunny-requeue-count'] = ($headers['workbunny-requeue-count'] ?? 0) + 1;
+                        $client->publish(
+                            $config->getQueue(), $message->content, $headers,
+                            $config->getExchange(), $config->getRoutingKey(),
+                            $config->isMandatory(), $config->isImmediate()
+                        )->then(function (){}, function (Throwable $throwable) use ($headers, $config, $client) {
+                            if ($callback = $this->getErrorCallback()) {
+                                $c = clone $config;
+                                $c->setHeaders($headers);
+                                \call_user_func(
+                                    $callback,
+                                    new WebmanRabbitMQAsyncPublishException('Consume requeue-publish failed.', 0, $c, $throwable),
+                                    $this
+                                );
+                            }
+                        });
+                    }
+                }, function (Throwable $throwable){
                     if ($callback = $this->getErrorCallback()) {
                         \call_user_func($callback, $throwable, $this);
                     }
