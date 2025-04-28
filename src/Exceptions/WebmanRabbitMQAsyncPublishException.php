@@ -7,13 +7,6 @@ use RuntimeException;
 use Throwable;
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
 
-class WebmanRabbitMQAsyncPublishException extends WebmanRabbitMQException
+class WebmanRabbitMQAsyncPublishException extends WebmanRabbitMQPublishException
 {
-    protected BuilderConfig $data;
-
-    public function __construct(string $message = "", int $code = 0, ?BuilderConfig $data = null, ?Throwable $previous = null)
-    {
-        $this->data = $data;
-        parent::__construct($message, $code, $previous);
-    }
 }

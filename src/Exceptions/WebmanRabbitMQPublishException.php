@@ -9,11 +9,19 @@ use Workbunny\WebmanRabbitMQ\BuilderConfig;
 
 class WebmanRabbitMQPublishException extends WebmanRabbitMQException
 {
-    protected BuilderConfig $data;
+    protected BuilderConfig $builderConfig;
 
-    public function __construct(string $message = "", int $code = 0, ?BuilderConfig $data = null, ?Throwable $previous = null)
+    public function __construct(string $message = "", int $code = 0, ?BuilderConfig $builderConfig = null, ?Throwable $previous = null)
     {
-        $this->data = $data;
+        $this->builderConfig = $builderConfig;
         parent::__construct($message, $code, $previous);
+    }
+
+    /**
+     * @return BuilderConfig|null
+     */
+    public function getBuilderConfig(): ?BuilderConfig
+    {
+        return $this->builderConfig;
     }
 }
