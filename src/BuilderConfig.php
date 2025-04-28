@@ -34,6 +34,25 @@ class BuilderConfig
 
     protected $_callback;
 
+    /**
+     * 转数组
+     * @return array
+     */
+    public function __invoke(): array
+    {
+        $result = [];
+        $ref = new \ReflectionObject($this);
+        // 获取所有受保护的属性
+        $properties = $ref->getProperties(\ReflectionProperty::IS_PROTECTED);
+
+        foreach ($properties as $property) {
+            // 设置属性为可访问，否则无法读取受保护属性的值
+            $property->setAccessible(true);
+            $result[$property->getName()] = $property->getValue($this);
+        }
+        return $result;
+    }
+
     public function getExchangeType(): string
     {
         return $this->_exchangeType;
