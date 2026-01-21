@@ -16,21 +16,20 @@ use Throwable;
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
 use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
 use Workbunny\WebmanRabbitMQ\Clients\AsyncClient;
+use Workbunny\WebmanRabbitMQ\Clients\CoClient;
 use Workbunny\WebmanRabbitMQ\Clients\SyncClient;
 use Workbunny\WebmanRabbitMQ\Clients\Channels\Channel as CurrentChannel;
+use Workbunny\WebmanRabbitMQ\Connections\Traits\ClientMethods;
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQAsyncPublishException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
+use Workerman\RabbitMQ\Client as WorkermanRabbitMQClient;
 use Workerman\Worker;
 
 class MixConnection implements ConnectionInterface
 {
 
-    /** @var AsyncClient 异步客户端连接 */
-    protected AsyncClient $_asyncClient;
-
-    /** @var SyncClient 同步客户端连接 */
-    protected SyncClient $_syncClient;
+    use ClientMethods;
 
     /** @var array  */
     protected array $_config = [];
@@ -43,24 +42,30 @@ class MixConnection implements ConnectionInterface
     public function __construct(array $config)
     {
         $this->_config        = $config;
-        $this->_asyncClient   = new AsyncClient($this->_config);
-        $this->_syncClient    = new SyncClient($this->_config);
+        $this->setConsumer(WorkermanRabbitMQClient::factory($config, clientClassname: AsyncClient::class));
+        $this->setPublisher(WorkermanRabbitMQClient::factory($config, clientClassname: SyncClient::class));
     }
 
     /**
+     * @deprecated
      * @return AsyncClient
      */
     public function getAsyncClient(): AsyncClient
     {
-        return $this->_asyncClient;
+        /** @var AsyncClient $client */
+        $client = $this->getConsumer();
+        return $client;
     }
 
     /**
+     * @deprecated
      * @return SyncClient
      */
     public function getSyncClient(): SyncClient
     {
-        return $this->_syncClient;
+        /** @var SyncClient $client */
+        $client = $this->getPublisher();
+        return $client;
     }
 
     /**
@@ -79,10 +84,13 @@ class MixConnection implements ConnectionInterface
     public function publish(BuilderConfig $config, bool $close = false): bool
     {
         try {
-            if ($this->getSyncClient()->isConnected()) {
-                $channel = $this->getSyncClient()->catchChannel(AbstractBuilder::isReuseChannel());
+            /** @var SyncClient $client */
+            $client = $this->getPublisher();
+            if ($client->isConnected()) {
+                $channel = $client->catchChannel(AbstractBuilder::isReuseChannel());
             } else {
-                $channel = $this->getSyncClient()->connect()->catchChannel();
+                $channel = $client->connect();
+                $channel = $channel->catchChannel();
                 $channel->exchangeDeclare(
                     $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
                     $config->isAutoDelete(), $config->isInternal(), $config->isNowait(), $config->getArguments()
@@ -105,12 +113,17 @@ class MixConnection implements ConnectionInterface
                 \call_user_func($callback, $throwable, $this);
             }
             if ($throwable instanceof BunnyException) {
-                $this->close($this->getSyncClient(), $throwable);
+                $this->disconnect([
+                    'client' => $this->getPublisher(),
+                    'throwable' => $throwable
+                ]);
             }
             return false;
         } finally {
             if ($close) {
-                $this->close($this->getSyncClient());
+                $this->disconnect([
+                    'client' => $this->getPublisher()
+                ]);
             }
         }
     }
@@ -118,8 +131,10 @@ class MixConnection implements ConnectionInterface
     /** @inheritdoc  */
     public function consume(BuilderConfig $config): void
     {
+        /** @var AsyncClient $client */
+        $client = $this->getConsumer();
         // 创建连接
-        $promise = $this->getAsyncClient()->connect()->then(function (AsyncClient $client){
+        $promise = $client->connect()->then(function (AsyncClient $client){
             return $client->catchChannel();
         }, function ($reason) {
             if ($reason instanceof Throwable){
@@ -127,7 +142,10 @@ class MixConnection implements ConnectionInterface
                     \call_user_func($callback, $reason, $this);
                 }
                 if ($reason instanceof BunnyException) {
-                    $this->close($this->getAsyncClient(), $reason);
+                    $this->disconnect([
+                        'client' => $this->getConsumer(),
+                        'throwable' => $reason
+                    ]);
                     throw new WebmanRabbitMQException($reason->getMessage(), $reason->getCode(), $reason);
                 }
             }
@@ -189,7 +207,10 @@ class MixConnection implements ConnectionInterface
                         \call_user_func($callback, $throwable, $this);
                     }
                     if ($throwable instanceof BunnyException) {
-                        $this->close($this->getAsyncClient(), $throwable);
+                        $this->disconnect([
+                            'client' => $this->getConsumer(),
+                            'throwable' => $throwable
+                        ]);
                         throw new WebmanRabbitMQException($throwable->getMessage(), $throwable->getCode(), $throwable);
                     }
                 })->done();
@@ -200,7 +221,10 @@ class MixConnection implements ConnectionInterface
                     \call_user_func($callback, $throwable, $this);
                 }
                 if ($throwable instanceof BunnyException) {
-                    $this->close($this->getAsyncClient(), $throwable);
+                    $this->disconnect([
+                        'client' => $this->getConsumer(),
+                        'throwable' => $throwable
+                    ]);
                     throw new WebmanRabbitMQException($throwable->getMessage(), $throwable->getCode(), $throwable);
                 }
             })->done();
@@ -213,7 +237,7 @@ class MixConnection implements ConnectionInterface
         $throwable = $options['throwable'] ?? null;
         $client    = $options['client'] ?? null;
         $replyCode = $throwable instanceof ClientException ? $throwable->getCode() : 0;
-        $replyText = $throwable instanceof ClientException ? $throwable->getMessage() : '';
+        $replyText = $throwable instanceof ClientException ? $throwable->getMessage() : (is_string($throwable) ? $throwable : '');
         try {
             switch (true) {
                 case $client instanceof AsyncClient:
@@ -239,15 +263,15 @@ class MixConnection implements ConnectionInterface
                     }
                     break;
                 case $client === null:
-                    if ($this->getAsyncClient()) {
+                    if ($this->getConsumer()) {
                         $this->disconnect([
-                            'client' => $this->getAsyncClient(),
+                            'client' => $this->getConsumer(),
                             'throwable' => $throwable
                         ]);
                     }
-                    if ($this->getSyncClient()) {
+                    if ($this->getPublisher()) {
                         $this->disconnect([
-                            'client' => $this->getSyncClient(),
+                            'client' => $this->getPublisher(),
                             'throwable' => $throwable
                         ]);
                     }
@@ -261,6 +285,7 @@ class MixConnection implements ConnectionInterface
     /**
      * 兼容旧版
      *
+     * @deprecated
      * @param AbstractClient $client
      * @param Throwable|string|null $throwable
      * @return void
@@ -282,10 +307,12 @@ class MixConnection implements ConnectionInterface
      */
     public function asyncPublish(BuilderConfig $config, bool $close = false) : PromiseInterface
     {
-        if ($this->getAsyncClient()->isConnected()) {
-            $promise = $this->getAsyncClient()->catchChannel();
+        /** @var AsyncClient $client */
+        $client = $this->getConsumer();
+        if ($client->isConnected()) {
+            $promise = $client->catchChannel();
         } else {
-            $promise = $this->getAsyncClient()->connect()->then(function (AsyncClient $client) {
+            $promise = $client->connect()->then(function (AsyncClient $client) {
                 return $client->catchChannel();
             }, function ($reason) {
                 if ($reason instanceof Throwable){
@@ -293,7 +320,10 @@ class MixConnection implements ConnectionInterface
                         \call_user_func($callback, $reason, $this);
                     }
                     if ($reason instanceof BunnyException) {
-                        $this->close($this->getAsyncClient(), $reason);
+                        $this->disconnect([
+                            'client' => $this->getConsumer(),
+                            'throwable' => $reason
+                        ]);
                     }
                 }
                 if (is_string($reason)) {
@@ -325,14 +355,18 @@ class MixConnection implements ConnectionInterface
                     $channel->setState(ChannelStateEnum::READY);
                 }
                 if ($close) {
-                    $this->close($this->getAsyncClient());
+                    // 异步客户端不可关闭
+                    return;
                 }
             }, function (Throwable $throwable) {
                 if ($callback = $this->getErrorCallback()) {
                     \call_user_func($callback, $throwable, $this);
                 }
                 if ($throwable instanceof BunnyException) {
-                    $this->close($this->getAsyncClient(), $throwable);
+                    $this->disconnect([
+                        'client' => $this->getConsumer(),
+                        'throwable' => $throwable
+                    ]);
                 }
             })->done();
         }, function ($reason) {
@@ -341,7 +375,10 @@ class MixConnection implements ConnectionInterface
                     \call_user_func($callback, $reason, $this);
                 }
                 if ($reason instanceof BunnyException) {
-                    $this->close($this->getAsyncClient(), $reason);
+                    $this->disconnect([
+                        'client' => $this->getConsumer(),
+                        'throwable' => $reason
+                    ]);
                 }
             }
             if (is_string($reason)) {

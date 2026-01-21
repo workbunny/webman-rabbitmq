@@ -85,10 +85,10 @@ function async_publish(AbstractBuilder $builder, string $body, ?string $routingK
 
 /**
  * @param string|null $key
- * @param mixed|null $default
+ * @param mixed $default
  * @return array|mixed|null
  */
-function config(string $key = null, mixed $default = null): mixed
+function config(string $key = null, $default = null): mixed
 {
     if(AbstractBuilder::$debug) {
         Config::load(config_path());

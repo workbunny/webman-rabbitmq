@@ -12,6 +12,7 @@ use React\Promise\PromiseInterface;
 use Throwable;
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
 use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
+use Workbunny\WebmanRabbitMQ\Connections\Traits\ClientMethods;
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQPublishException;
@@ -21,12 +22,9 @@ use Workbunny\WebmanRabbitMQ\Clients\CoClient;
 
 class CoConnection implements ConnectionInterface
 {
-    /**
-     * @var CoClient
-     */
-    protected CoClient $_client;
+    use ClientMethods;
 
-    /** @var array  */
+    /** @var array */
     protected array $_config = [];
 
     /**
@@ -41,17 +39,19 @@ class CoConnection implements ConnectionInterface
             throw new WebmanRabbitMQException('Please use the version of workerman/rabbitmq greater than 2.0.0');
         }
         $this->_config = $config;
-        /** @var CoClient $client */
-        $client = WorkermanRabbitMQClient::factory($config, clientClassname: CoClient::class);
-        $this->_client = $client;
+        $this->setConsumer(WorkermanRabbitMQClient::factory($config, clientClassname: CoClient::class));
+        $this->setPublisher(WorkermanRabbitMQClient::factory($config, clientClassname: CoClient::class));
     }
 
     /**
      * @return CoClient
+     * @deprecated
      */
     public function getClient(): CoClient
     {
-        return $this->_client;
+        /** @var CoClient $client */
+        $client = $this->getConsumer();
+        return $client;
     }
 
     /**
@@ -66,14 +66,17 @@ class CoConnection implements ConnectionInterface
         return $errorCallback;
     }
 
-    /** @inheritdoc  */
+    /** @inheritdoc */
     public function publish(BuilderConfig $config, bool $close = false): bool
     {
         try {
-            if ($this->getClient()->isConnected()) {
-                $channel = $this->getClient()->catchChannel(AbstractBuilder::isReuseChannel());
+            /** @var CoClient $client */
+            $client = $this->getPublisher();
+            if ($client->isConnected()) {
+                $channel = $client->catchChannel(AbstractBuilder::isReuseChannel());
             } else {
-                $channel = $this->getClient()->connect()->catchChannel();
+                $channel = $client->connect();
+                $channel = $channel->catchChannel();
                 $channel->exchangeDeclare(
                     $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
                     $config->isAutoDelete(), $config->isInternal(), $config->isNowait(), $config->getArguments()
@@ -91,7 +94,7 @@ class CoConnection implements ConnectionInterface
                 $config->getBody(), $config->getHeaders(), $config->getExchange(), $config->getRoutingKey(),
                 $config->isMandatory(), $config->isImmediate()
             );
-        } catch (Throwable $throwable){
+        } catch (Throwable $throwable) {
             if ($callback = $this->getErrorCallback()) {
                 \call_user_func($callback, $throwable, $this);
             }
@@ -109,11 +112,11 @@ class CoConnection implements ConnectionInterface
         }
     }
 
-    /** @inheritdoc  */
+    /** @inheritdoc */
     public function consume(BuilderConfig $config): void
     {
         try {
-            $client = $this->getClient()->connect();
+            $client = $this->getConsumer()->connect();
             $channel = $this->_channelInit(
                 $client->catchChannel(),
                 $config
@@ -175,22 +178,47 @@ class CoConnection implements ConnectionInterface
         echo "Consume Start: {$config->getExchange()} | {$config->getQueue()}\n";
     }
 
-    /** @inheritdoc  */
+    /** @inheritdoc */
     public function disconnect(array $options = []): void
     {
         try {
-            $replyCode = $options['replyCode'] ?? 0;
-            $replyText = $options['replyText'] ?? '';
-            if ($client = $this->getClient()) {
-                if ($client->isConnected()) {
-                    foreach ($client->getChannels() as $channelId => $channel) {
-                        $channel->close();
-                        $client->removeChannel($channelId);
+            $throwable = $options['throwable'] ?? null;
+            $clientTag = $options['client'] ?? null;
+            $replyCode = $throwable instanceof ClientException ? $throwable->getCode() : ($options['replyCode'] ?? 0);
+            $replyText = $throwable instanceof ClientException ? $throwable->getMessage() : ($options['replyText'] ?? '');
+            switch (true) {
+                case $clientTag === 'consumer':
+                    /** @var CoClient $client */
+                    if ($client = $this->getConsumer()) {
+                        if ($client->isConnected()) {
+                            foreach ($client->getChannels() as $channelId => $channel) {
+                                $channel->close();
+                                $client->removeChannel($channelId);
+                            }
+                            $client->disconnect($replyCode, $replyText)->done();
+                        }
                     }
-                    $client->disconnect($replyCode, $replyText)->done();
-                }
+                    break;
+                case $clientTag === 'publisher':
+                    /** @var CoClient $client */
+                    if ($client = $this->getPublisher()) {
+                        if ($client->isConnected()) {
+                            foreach ($client->getChannels() as $channelId => $channel) {
+                                $channel->close();
+                                $client->removeChannel($channelId);
+                            }
+                            $client->disconnect($replyCode, $replyText)->done();
+                        }
+                    }
+                    break;
+                default:
+                    $options['client'] = 'consumer';
+                    $this->disconnect($options);
+                    $options['client'] = 'publisher';
+                    $this->disconnect($options);
             }
-        } catch (Throwable) {}
+        } catch (Throwable) {
+        }
     }
 
 
