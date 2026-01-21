@@ -16,7 +16,6 @@ use Throwable;
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
 use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
 use Workbunny\WebmanRabbitMQ\Clients\AsyncClient;
-use Workbunny\WebmanRabbitMQ\Clients\CoClient;
 use Workbunny\WebmanRabbitMQ\Clients\SyncClient;
 use Workbunny\WebmanRabbitMQ\Clients\Channels\Channel as CurrentChannel;
 use Workbunny\WebmanRabbitMQ\Connections\Traits\ClientMethods;
