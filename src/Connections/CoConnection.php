@@ -116,7 +116,9 @@ class CoConnection implements ConnectionInterface
     public function consume(BuilderConfig $config): void
     {
         try {
-            $client = $this->getConsumer()->connect();
+            /** @var CoClient $client */
+            $client = $this->getConsumer();
+            $client->connect();
             $channel = $this->_channelInit(
                 $client->catchChannel(),
                 $config
@@ -173,7 +175,10 @@ class CoConnection implements ConnectionInterface
             if ($callback = $this->getErrorCallback()) {
                 \call_user_func($callback, $throwable, $this);
             }
-            $this->disconnect();
+            $this->disconnect([
+                'client' => 'consumer',
+                'throwable' => $throwable,
+            ]);
         }
         echo "Consume Start: {$config->getExchange()} | {$config->getQueue()}\n";
     }
