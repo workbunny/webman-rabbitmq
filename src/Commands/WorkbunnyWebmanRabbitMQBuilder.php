@@ -7,9 +7,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
-use function Workbunny\WebmanRabbitMQ\config;
-use function Workbunny\WebmanRabbitMQ\config_path;
-use function Workbunny\WebmanRabbitMQ\base_path;
 
 class WorkbunnyWebmanRabbitMQBuilder extends AbstractCommand
 {
@@ -25,7 +22,7 @@ class WorkbunnyWebmanRabbitMQBuilder extends AbstractCommand
             ->setDescription('Create and initialize a workbunny/webman-rabbitmq Builder. ');
         $this->addArgument('name', InputArgument::REQUIRED, 'Builder name. ');
         $this->addArgument('count', InputArgument::OPTIONAL, 'Number of processes started by builder. ', 1);
-        $this->addOption('mode', 'm', InputOption::VALUE_REQUIRED, 'Builder mode: queue, rpc', 'queue');
+        $this->addOption('mode', 'm', InputOption::VALUE_REQUIRED, 'Builder mode: queue or your custom mode.', 'queue');
         $this->addOption('delayed', 'd', InputOption::VALUE_NONE, 'Delay mode builder. ');
     }
 
@@ -52,13 +49,11 @@ class WorkbunnyWebmanRabbitMQBuilder extends AbstractCommand
             return $this->error($output, "Builder {$name} failed to create: Config already exists.");
         }
         // get mode
-        /** @var AbstractBuilder $builderClass */
-        $builderClass = $this->getBuilder($mode);
-        if($builderClass === null) {
+        if (!$builderClass = AbstractBuilder::getMode($mode)) {
             return $this->error($output, "Builder {$name} failed to create: Mode {$mode} does not exist.");
         }
         // config set
-        if(file_put_contents($process, preg_replace_callback('/(];)(?!.*\1)/',
+        if (file_put_contents($process, preg_replace_callback('/(];)(?!.*\1)/',
             function () use ($processName, $className, $count, $mode) {
                 return <<<DOC
     '$processName' => [
@@ -76,8 +71,8 @@ DOC;
             mkdir($path, 0777, true);
         }
         // file create
-        if(!file_exists($file)){
-            if(file_put_contents($file, $builderClass::classContent(
+        if (!file_exists($file)) {
+            if (file_put_contents($file, $builderClass::classContent(
                     $namespace, $name, str_ends_with($name, 'Delayed')
                 )) !== false) {
                 $this->info($output, "Builder created.");

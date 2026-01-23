@@ -2,8 +2,6 @@
 
 namespace Workbunny\WebmanRabbitMQ\Builders;
 
-use Bunny\Exception\ClientException;
-use Workbunny\WebmanRabbitMQ\Connections\MixConnection;
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workerman\Worker;
@@ -39,10 +37,7 @@ abstract class QueueBuilder extends AbstractBuilder
     public function __construct()
     {
         parent::__construct();
-        $this->setConnection(new MixConnection($this->config));
-
-        $name = str_replace('\\', '.', get_called_class());
-
+        $name = $this->getBuilderName();
         $this->getBuilderConfig()->setConsumerTag($this->exchangeName ?? $name);
         $this->getBuilderConfig()->setExchange($this->exchangeName ?? $name);
         $this->getBuilderConfig()->setExchangeType($this->exchangeType);
@@ -65,10 +60,13 @@ abstract class QueueBuilder extends AbstractBuilder
     public function onWorkerStart(Worker $worker): void
     {
         try {
-            $this->getConnection()?->consume($this->getBuilderConfig());
-        } catch (ClientException|WebmanRabbitMQException $exception) {
-            $worker::log("Queue $worker->id exception: [{$exception->getCode()}] {$exception->getMessage()}. \n");
-            $worker::log("Retry after $this->restartInterval seconds...... \n");
+            $this->connection()?->consume($this->getBuilderConfig());
+        } catch (WebmanRabbitMQException $exception) {
+            $this->logger?->notice("Queue $worker->id exception, retry after $this->restartInterval seconds. ", [
+                'message' => $exception->getMessage(),
+                'code' => $exception->getCode(),
+                'file' => $exception->getFile() . ':' . $exception->getLine(),
+            ]);
             sleep($this->restartInterval);
             $worker::stopAll();
         }
@@ -77,14 +75,14 @@ abstract class QueueBuilder extends AbstractBuilder
     /** @inheritDoc */
     public function onWorkerStop(Worker $worker): void
     {
-        self::destroy($this->getBuilderName());
+        self::getConnections()->closeConnections();
     }
 
     /** @inheritDoc */
     public function onWorkerReload(Worker $worker): void
     {
         $queue = $this->getBuilderConfig()->getQueue();
-        echo "Consumer $worker->id [queue: $queue] reload. " . PHP_EOL;
+        $this->logger?->notice("Consumer $worker->id [queue: $queue] reload.");
     }
 
     /**

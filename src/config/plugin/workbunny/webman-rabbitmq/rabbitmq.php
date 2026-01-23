@@ -13,18 +13,28 @@ return [
             'restart_interval'   => 0,
             // 心跳间隔
             'heartbeat'          => 50,
-            // 心跳回调
-            'heartbeat_callback' => function(){
-            },
-            // 错误回调
-            'error_callback'     => function(Throwable $throwable){
-            },
-//            // AMQPS 如需使用AMQPS请取消注释
-//            'ssl' => [
-//                'cafile' => 'ca.pem',
-//                'local_cert' => 'client.cert',
-//                'local_pk' => 'client.key',
-//            ],
+            'lazy_connect'       => false,
+            // 消费者
+            'consumer' => [
+                'reuse' => true, // 复用
+                'wait_min' => 10, // 最小间隔
+                'wait_max' => 90, // 最大间隔
+            ],
+            // 生产者
+            'producer' => [
+                'reuse' => true,
+                'wait_min' => 10,
+                'wait_max' => 90,
+            ],
+            // 连接池
+            'pool' => [
+                'min_connections' => 1,
+                'max_connections' => 10,
+                'idle_timeout'    => 60,
+                'wait_timeout'    => 10
+            ],
+            // 心跳回调 callable
+            'heartbeat_callback' => null,
         ]
     ]
 ];

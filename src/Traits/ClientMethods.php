@@ -4,20 +4,17 @@
  * @email chaz6chez1993@outlook.com
  */
 
-namespace Workbunny\WebmanRabbitMQ\Clients\Traits;
+namespace Workbunny\WebmanRabbitMQ\Traits;
 
-
-use Bunny\Channel as OriginalChannel;
 use Bunny\ChannelStateEnum;
-use Bunny\Client;
-use Bunny\ClientStateEnum;
 use Bunny\Exception\ClientException;
 use Bunny\Protocol\MethodChannelOpenOkFrame;
 use Bunny\Protocol\MethodConnectionStartFrame;
-use React\Promise\Promise;
 use React\Promise\PromiseInterface;
-use Workbunny\WebmanRabbitMQ\Clients\Channels\Channel as CurrentChannel;
+use Workbunny\WebmanRabbitMQ\Channels\Channel;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
+use Workerman\Timer;
 
 trait ClientMethods
 {
@@ -34,10 +31,19 @@ trait ClientMethods
     /**
      * 获取已创建的通道
      *
-     * @return OriginalChannel[]|CurrentChannel[]
+     * @return Channel[]
      */
     public function getChannels(): array
     {
+        /**
+         * @var int $id
+         * @var Channel $channel
+         */
+        foreach ($this->channels as $id => $channel) {
+            if ($channel->getState() === ChannelStateEnum::CLOSED) {
+                unset($this->channels[$id]);
+            }
+        }
         return $this->channels;
     }
 
@@ -45,48 +51,42 @@ trait ClientMethods
      * 获取一个可用的通道
      *
      * @param bool $reuse
-     * @return CurrentChannel|PromiseInterface
+     * @param int $min
+     * @param int $max
+     * @return Channel
+     * @throws WebmanRabbitMQConnectException
      */
-    public function catchChannel(bool $reuse = false): CurrentChannel|PromiseInterface
+    public function catchChannel(bool $reuse = false, int $min = 10, int $max = 100): Channel
     {
         $resChannel = null;
         // 从已创建的频道中获取一个可用的频道
         $channels = $reuse ? $this->getChannels() : [];
-        foreach ($channels as $channel) {
-            if (
-                $channel instanceof CurrentChannel and
-                $channel->getState() === ChannelStateEnum::READY
-            ) {
+        foreach ($channels as  $channel) {
+            if ($channel->getState() === ChannelStateEnum::READY) {
                 $resChannel = $channel;
                 break;
             }
         }
+        // 如果已创建的频道已满，则等待
+        if ($this->getChannelLimit() <= count($this->getChannels())) {
+            Timer::sleep(rand($min, $max) / 1000);
+        }
         // 如果没有可用的频道，则创建一个新频道
-        if (!$resChannel) {
-            $channelId = $this->findChannelId();
-            $this->channels[$channelId] = new CurrentChannel($this, $channelId);
+        if ($resChannel) {
+            return $resChannel;
+
+        }
+        $channelId = $this->findChannelId();
+        $resChannel = new Channel($this, $channelId);
+        try {
             $response = $this->channelOpen($channelId);
             if ($response instanceof MethodChannelOpenOkFrame) {
-                return $this->channels[$channelId];
-
-            } elseif ($response instanceof PromiseInterface) {
-                return $response->then(function () use ($channelId) {
-                    return $this->channels[$channelId];
-                });
-            } else {
-                $this->state = ClientStateEnum::ERROR;
-                throw new ClientException(
-                    "channel.open unexpected response of type " . gettype($response) .
-                    (is_object($response) ? "(" . get_class($response) . ")" : "") .
-                    "."
-                );
+                return $this->channels[$channelId] = $resChannel;
             }
+            throw new WebmanRabbitMQConnectException("Channel open failed.");
+        } catch (ClientException $e) {
+            throw new WebmanRabbitMQConnectException($e->getMessage(), $e->getCode(), $e);
         }
-        return ($this instanceof Client)
-            ? $resChannel
-            : new Promise(function () use ($resChannel) {
-                return $resChannel;
-            });
     }
 
     /** @inheritdoc  */

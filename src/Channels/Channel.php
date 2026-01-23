@@ -3,8 +3,7 @@
  * @author workbunny/Chaz6chez
  * @email chaz6chez1993@outlook.com
  */
-
-namespace Workbunny\WebmanRabbitMQ\Clients\Channels;
+namespace Workbunny\WebmanRabbitMQ\Channels;
 
 class Channel extends \Bunny\Channel
 {

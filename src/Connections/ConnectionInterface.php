@@ -1,15 +1,31 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Connections;
 
-
-use Throwable;
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
 
 interface ConnectionInterface
 {
+
+    /**
+     * 获取通道
+     * @return mixed
+     */
+    public function channels(): mixed;
+
+    /**
+     * 获取消费者
+     * @param bool $reuse 是否复用channel
+     * @return mixed
+     */
+    public function getConsumer(bool $reuse): mixed;
+
+    /**
+     * 获取生产者
+     * @param bool $reuse 是否复用channel
+     * @return mixed
+     */
+    public function getProducer(bool $reuse): mixed;
 
     /**
      * 发布
@@ -27,6 +43,15 @@ interface ConnectionInterface
      * @return void
      */
     public function consume(BuilderConfig $config): void;
+
+    /**
+     * 连接/重连
+     *
+     * @param array $options
+     * @param bool $force
+     * @return void
+     */
+    public function reconnect(array $options = [], bool $force = true): void;
 
     /**
      * 关闭连接

@@ -5,22 +5,11 @@ namespace Workbunny\WebmanRabbitMQ\Commands;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
-use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
-use function Workbunny\WebmanRabbitMQ\base_path;
 
 abstract class AbstractCommand extends Command
 {
     public static string $baseProcessPath = 'process/workbunny/rabbitmq';
     public static string $baseNamespace = 'process\workbunny\rabbitmq';
-
-    /**
-     * @param string $name
-     * @return string|null
-     */
-    protected function getBuilder(string $name): ?string
-    {
-        return AbstractBuilder::getBuilderClass($name);
-    }
 
     protected function info(OutputInterface $output, string $message): void
     {

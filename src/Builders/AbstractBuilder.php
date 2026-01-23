@@ -2,183 +2,138 @@
 
 namespace Workbunny\WebmanRabbitMQ\Builders;
 
+use Psr\Log\LoggerInterface;
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
-use Workbunny\WebmanRabbitMQ\Builders\Traits\BuilderConfigManagement;
-use Workbunny\WebmanRabbitMQ\Builders\Traits\ConnectionsManagement;
+use Workbunny\WebmanRabbitMQ\Connections\Connection;
 use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
+use Workbunny\WebmanRabbitMQ\Traits\BuilderConfigManagement;
+use Workbunny\WebmanRabbitMQ\Traits\ConfigMethods;
+use Workerman\Coroutine\Pool;
 use Workerman\Worker;
-use function Workbunny\WebmanRabbitMQ\config;
+use Webman\Context;
 
 abstract class AbstractBuilder
 {
-    use ConnectionsManagement;
-    use BuilderConfigManagement;
+
+    use ConfigMethods,
+        BuilderConfigManagement;
 
     /**
-     * @var bool
-     */
-    public static bool $debug = false;
-
-    /**
-     * @var bool
-     */
-    private static bool $reuseConnection = false;
-
-    /**
-     * @var bool
-     */
-    private static bool $reuseChannel = false;
-
-    /**
-     * builder对象池
+     * 连接池
      *
-     * @var AbstractBuilder[]
+     * @var Pool|null
      */
-    private static array $_builders = [];
+    protected static ?Pool $connections = null;
 
     /**
-     * @var string[]
+     * @var class-string[]
      */
-    private static array $builderList = [
-        'queue'     => QueueBuilder::class,
-        'co-queue'  => CoQueueBuilder::class
+    protected static array $modes = [
+        'queue' => QueueBuilder::class
     ];
-
-    /**
-     * builder 名称
-     *
-     * @var string|null
-     */
-    private ?string $_builderName = null;
 
     /**
      * 默认连接名
      *
      * @var string|null
      */
-    protected ?string $connection = null;
+    protected ?string $connection = 'rabbitmq';
 
     /**
-     * @var array
+     * @var LoggerInterface|null
      */
-    protected array $config = [];
+    protected ?LoggerInterface $logger;
 
     public function __construct()
     {
-        $this->setBuilderName(get_called_class());
-        self::$reuseConnection = config('plugin.workbunny.webman-rabbitmq.app.reuse_connection', false);
-        self::$reuseChannel = config('plugin.workbunny.webman-rabbitmq.app.reuse_channel', false);
-        $this->config = $this->connection
-            ? config("plugin.workbunny.webman-rabbitmq.rabbitmq.connections.$this->connection", []) // 通过rabbitmq 配置文件配置
-            : config('plugin.workbunny.webman-rabbitmq.app', []); // 兼容旧版配置
-        if (!$this->config) {
-            throw new WebmanRabbitMQException('RabbitMQ config not found. ');
+        $this->setConfig(\config("plugin.workbunny.webman-rabbitmq.rabbitmq.connections.$this->connection", []));
+        if (!$this->getConfigs()) {
+            throw new WebmanRabbitMQException("RabbitMQ config not found [$this->connection].");
         }
+        $logger = \config('plugin.workbunny.webman-rabbitmq.app.logger');
+        $this->logger = is_a($logger, LoggerInterface::class, true)
+            ? (is_string($logger) ? new $logger() : $logger)
+            : null;
         $this->setBuilderConfig(new BuilderConfig());
-    }
-
-    /**
-     * 是否复用连接
-     *
-     * @return bool
-     */
-    public static function isReuseConnection(): bool
-    {
-        return self::$reuseConnection;
-    }
-
-    /**
-     * 是否复用channel
-     *
-     * @return bool
-     */
-    public static function isReuseChannel(): bool
-    {
-        return self::$reuseChannel;
-    }
-
-    /**
-     * builder单例
-     *
-     * @return AbstractBuilder
-     */
-    public static function instance(): AbstractBuilder
-    {
-        if (!(self::$_builders[$class = get_called_class()] ?? null)) {
-            self::$_builders[$class] = new $class();
+        if (!self::$connections) {
+            self::$connections = new Pool($this->getConfig('pool.max_connections', 1), $this->getConfig('pool', []));
+            self::$connections->setConnectionCreator(function () {
+                $connection = $this->getConfig('pool.connection_class', Connection::class);
+                if (!is_a($connection, ConnectionInterface::class, true)) {
+                    throw new WebmanRabbitMQConnectException("RabbitMQ connection class [{$connection}] not found.");
+                }
+                return new $connection($this->getConfigs(), $this->logger);
+            });
+            self::$connections->setConnectionCloser(function (ConnectionInterface $connection) {
+                $connection->disconnect();
+            });
         }
-        return self::$_builders[$class];
     }
 
     /**
-     * 获取builder对象池
-     *
-     * @return AbstractBuilder[]
-     */
-    public static function builders(): array
-    {
-        return self::$_builders;
-    }
-
-    /**
-     * 销毁指定builder
-     *
-     * @param string $builderName
-     * @return void
-     */
-    public static function destroy(string $builderName): void
-    {
-        self::connectionDestroy($builderName);
-        unset(self::$_builders[$builderName]);
-    }
-
-    /**
-     * 通过mode获取builder类名
+     * 获取模式
      *
      * @param string $mode
-     * @return string|null
+     * @return class-string|null
      */
-    public static function getBuilderClass(string $mode): ?string
+    public static function getMode(string $mode): ?string
     {
-        return static::$builderList[$mode] ?? null;
+        return static::$modes[$mode] ?? null;
     }
 
     /**
-     * @return string|null
-     */
-    public function getBuilderName(): ?string
-    {
-        return $this->_builderName;
-    }
-
-    /**
-     * @param string|null $builderName
-     */
-    public function setBuilderName(?string $builderName): void
-    {
-        $this->_builderName = $builderName;
-    }
-
-    /**
-     * 获取连接
+     * 注册模式
      *
-     * @return ConnectionInterface|null
+     * @param string $mode
+     * @param string $className
+     * @return class-string[]
      */
-    public function getConnection(): ?ConnectionInterface
+    public static function registerMode(string $mode, string $className): array
     {
-        return static::connectionGet(self::isReuseConnection() ? '' : $this->getBuilderName());
+        if (!is_a($className, AbstractBuilder::class, true)) {
+            throw new WebmanRabbitMQException("Class [{$className}] not AbstractBuilder.");
+        }
+        return static::$modes;
     }
 
     /**
-     * 设置连接
-     *
-     * @param ConnectionInterface $connection
+     * @return Pool|null
      */
-    public function setConnection(ConnectionInterface $connection): void
+    public static function getConnections(): ?Pool
     {
-        static::connectionSet(self::isReuseConnection() ? '' : $this->getBuilderName(), $connection);
+        return self::$connections;
     }
+
+    /**
+     * @return string
+     */
+    public function getBuilderName(): string
+    {
+        return str_replace('\\', '.', static::class);
+    }
+
+    /**
+     * @return ConnectionInterface
+     */
+    public function connection(): ConnectionInterface
+    {
+        $connection = Context::get('workbunny.webman-rabbitmq.connection');
+        if (!$connection) {
+            try {
+                $connection = self::$connections->get();
+            } catch (\Throwable $e) {
+                throw new WebmanRabbitMQConnectException($e->getMessage(), $e->getCode(), $e);
+            }
+            Context::set('workbunny.webman-rabbitmq.connection', $connection);
+            Context::onDestroy(function () use ($connection) {
+                self::$connections->put($connection);
+            });
+        }
+        return $connection;
+    }
+
 
     /**
      * Builder 启动时

@@ -7,9 +7,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use function Workbunny\WebmanRabbitMQ\config;
-use function Workbunny\WebmanRabbitMQ\config_path;
-use function Workbunny\WebmanRabbitMQ\base_path;
 use function Workbunny\WebmanRabbitMQ\is_empty_dir;
 
 class WorkbunnyWebmanRabbitMQRemove extends AbstractCommand

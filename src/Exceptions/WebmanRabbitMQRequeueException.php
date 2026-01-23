@@ -7,6 +7,6 @@ use RuntimeException;
 use Throwable;
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
 
-class WebmanRabbitMQAsyncPublishException extends WebmanRabbitMQPublishException
+class WebmanRabbitMQRequeueException extends WebmanRabbitMQPublishException
 {
 }

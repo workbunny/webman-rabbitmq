@@ -15,13 +15,14 @@
     "source": "https://github.com/workbunny/webman-rabbitmq"
   },
   "require": {
-    "php": "^8.0",
-    "workerman/rabbitmq": "^1.0 | ^2.0",
-    "webman/console": "^1.0 | ^2.0"
+    "php": "^8.1",
+    "workerman/rabbitmq": "^2.0",
+    "webman/console": "^2.0",
+    "psr/log": "^3.0"
   },
   "require-dev": {
-    "workerman/webman-framework": "^1.3 | ^2.0",
-    "phpunit/phpunit": "^9.6",
+    "workerman/webman-framework": "^2.0",
+    "phpunit/phpunit": "^10.0",
     "guzzlehttp/guzzle": "^7.9",
     "symfony/var-dumper": "^6.0 | ^7.0"
   },
@@ -39,9 +40,17 @@
       "process\\": "process"
     }
   },
+  "suggest": {
+    "revolt/event-loop": "supported Event/Fiber",
+    "ext-swoole": "supported Event/Swoole",
+    "ext-swow": "supported Event/Swow"
+  },
   "extra": {
     "branch-alias": {
       "dev-master": "3.x-dev"
     }
+  },
+  "scripts": {
+    "test": "php tests/processes/tester.php start"
   }
 }
