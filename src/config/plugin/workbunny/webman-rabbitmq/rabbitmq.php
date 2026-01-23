@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 return [
     'connections' => [
         'rabbitmq' => [
@@ -28,10 +29,10 @@ return [
             ],
             // 连接池
             'pool' => [
-                'min_connections' => 1,
-                'max_connections' => 10,
-                'idle_timeout'    => 60,
-                'wait_timeout'    => 10
+                'min_connections'  => 1,
+                'max_connections'  => 10,
+                'idle_timeout'     => 60,
+                'wait_timeout'     => 10
             ],
             // 心跳回调 callable
             'heartbeat_callback' => null,

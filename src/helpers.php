@@ -4,7 +4,7 @@ namespace Workbunny\WebmanRabbitMQ;
 
 use SplFileInfo;
 use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
-use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQPublishException;
 
 /**
  * 生产
@@ -22,7 +22,7 @@ function publish(AbstractBuilder $builder, string $body, ?string $routingKey = n
         ($config->getExchangeType() !== Constants::DELAYED and $headers['x-delay'] ?? 0) or
         ($config->getExchangeType() === Constants::DELAYED and !($headers['x-delay'] ?? 0))
     ) {
-        throw new WebmanRabbitMQException('Invalid publish. ');
+        throw new WebmanRabbitMQPublishException('Invalid publish. ');
     }
     $config->setBody($body);
     $config->setHeaders($headers ?? $config->getHeaders());

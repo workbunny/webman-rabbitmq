@@ -5,27 +5,18 @@ namespace Workbunny\WebmanRabbitMQ\Builders;
 use Psr\Log\LoggerInterface;
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
 use Workbunny\WebmanRabbitMQ\Connections\Connection;
-use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
-use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workbunny\WebmanRabbitMQ\Traits\BuilderConfigManagement;
 use Workbunny\WebmanRabbitMQ\Traits\ConfigMethods;
-use Workerman\Coroutine\Pool;
+use Workbunny\WebmanRabbitMQ\Traits\ConnectionsManagement;
 use Workerman\Worker;
-use Webman\Context;
 
 abstract class AbstractBuilder
 {
 
     use ConfigMethods,
-        BuilderConfigManagement;
-
-    /**
-     * 连接池
-     *
-     * @var Pool|null
-     */
-    protected static ?Pool $connections = null;
+        BuilderConfigManagement,
+        ConnectionsManagement;
 
     /**
      * @var class-string[]
@@ -57,19 +48,12 @@ abstract class AbstractBuilder
             ? (is_string($logger) ? new $logger() : $logger)
             : null;
         $this->setBuilderConfig(new BuilderConfig());
-        if (!self::$connections) {
-            self::$connections = new Pool($this->getConfig('pool.max_connections', 1), $this->getConfig('pool', []));
-            self::$connections->setConnectionCreator(function () {
-                $connection = $this->getConfig('pool.connection_class', Connection::class);
-                if (!is_a($connection, ConnectionInterface::class, true)) {
-                    throw new WebmanRabbitMQConnectException("RabbitMQ connection class [{$connection}] not found.");
-                }
-                return new $connection($this->getConfigs(), $this->logger);
-            });
-            self::$connections->setConnectionCloser(function (ConnectionInterface $connection) {
-                $connection->disconnect();
-            });
-        }
+        $connectionClass = \config('app.connection_class', Connection::class);
+        self::setConnections(
+            $connectionClass,
+            $this->getConfig('pool.max_connections', 1),
+            $this->getConfig('pool', [])
+        );
     }
 
     /**
@@ -99,39 +83,11 @@ abstract class AbstractBuilder
     }
 
     /**
-     * @return Pool|null
-     */
-    public static function getConnections(): ?Pool
-    {
-        return self::$connections;
-    }
-
-    /**
      * @return string
      */
     public function getBuilderName(): string
     {
         return str_replace('\\', '.', static::class);
-    }
-
-    /**
-     * @return ConnectionInterface
-     */
-    public function connection(): ConnectionInterface
-    {
-        $connection = Context::get('workbunny.webman-rabbitmq.connection');
-        if (!$connection) {
-            try {
-                $connection = self::$connections->get();
-            } catch (\Throwable $e) {
-                throw new WebmanRabbitMQConnectException($e->getMessage(), $e->getCode(), $e);
-            }
-            Context::set('workbunny.webman-rabbitmq.connection', $connection);
-            Context::onDestroy(function () use ($connection) {
-                self::$connections->put($connection);
-            });
-        }
-        return $connection;
     }
 
 

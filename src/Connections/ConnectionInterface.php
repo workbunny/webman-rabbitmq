@@ -3,29 +3,29 @@
 namespace Workbunny\WebmanRabbitMQ\Connections;
 
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
+use Workbunny\WebmanRabbitMQ\Channels\Channel;
 
 interface ConnectionInterface
 {
-
     /**
      * 获取通道
-     * @return mixed
+     * @return Channel[]
      */
-    public function channels(): mixed;
+    public function channels(): array;
 
     /**
      * 获取消费者
      * @param bool $reuse 是否复用channel
-     * @return mixed
+     * @return Channel|null
      */
-    public function getConsumer(bool $reuse): mixed;
+    public function getConsumer(bool $reuse): ?Channel;
 
     /**
      * 获取生产者
      * @param bool $reuse 是否复用channel
-     * @return mixed
+     * @return Channel|null
      */
-    public function getProducer(bool $reuse): mixed;
+    public function getProducer(bool $reuse): ?Channel;
 
     /**
      * 发布
