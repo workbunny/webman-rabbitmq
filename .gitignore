@@ -5,3 +5,5 @@
 /temp
 composer.lock
 .phpunit.result.cache
+/config
+/process
