@@ -64,18 +64,18 @@ RabbitMQ的webman客户端插件；
 
 - `Builder`：队列抽象结构
   - `BuilderConfig`: 队列配置结构
+  - `Builder`继承了`ConnectionManagement`，本质上也是连接池管理器
 - `Connection`：抽象的连接对象
-  - 连接池为静态，不会因为`Builder`的释放而释放
-  - 可使用`ConnectionsManagement`进行管理，也可使用`Builder`的静态方法进行管理
+  - `Connection`由`ConnectionManagement`管理，连接池为静态，不会因为`Builder`的释放而释放
+  - `Connection`连接池拿取连接后需要手动归还
   - `min_connections`: 最小连接数
   - `max_connections`: 最大连接数
   - `idel_timeout`: 空闲回收时间 [s]
   - `wait_timeout`: 等待连接超时时间 [s]
 - `Channel`：抽象的通道对象
-  - `Consumer`消费者与`Producer`生产者相互独立，但共用一个`Channel`池
-  - `reuse`：是否复用`Channel`
-  - `wait_min`：当`Channel`达到`channel-max`被限制创建时，最小的随机等待时间 [ms]
-  - `wait_max`：当`Channel`达到`channel-max`被限制创建时，最大的随机等待时间 [ms]
+  - 每一个`Connection`都具备一个`Channel`池，存在协程切换时，自动创建新的`Channel`消费
+  - `idel_timeout`: 空闲回收时间 [s]
+  - `wait_timeout`: 等待连接超时时间 [s]
 
 ## 使用
 
@@ -101,19 +101,28 @@ return [
     'enable' => true,
     // 日志 LoggerInterface | LoggerInterface::class
     'logger'   => null,
-    // 连接 ConnectionInterface | ConnectionInterface::class
-    'connection' => \Workbunny\WebmanRabbitMQ\Connections\Connection::class
 ];
 ```
 
-#### **连接配置** `rabbitmq.php`
+#### **连接配置** `connections.php`
 
 ```php
 <?php declare(strict_types=1);
 
+use Workbunny\WebmanRabbitMQ\Clients\AbstractClient;
+use Workbunny\WebmanRabbitMQ\Connections\Connection;
+
 return [
-    'connections' => [
-        'rabbitmq' => [
+    'default' => [
+        'connection'       => Connection::class,
+        // 连接池，用于支撑影子模式
+        'connections_pool' => [
+            'min_connections'       => 1,
+            'max_connections'       => 20,
+            'idle_timeout'          => 60,
+            'wait_timeout'          => 10
+        ],
+        'config' => [
             'host'               => 'rabbitmq',
             'vhost'              => '/',
             'port'               => 5672,
@@ -122,28 +131,16 @@ return [
             'mechanism'          => 'AMQPLAIN',
             'timeout'            => 10,
             // 重启间隔
-            'restart_interval'   => 0,
-            // 心跳间隔
-            'heartbeat'          => 50,
-            'lazy_connect'       => false,
-            // 消费者
-            'consumer' => [
-                'reuse' => true, // 复用
-                'wait_min' => 10, // 最小间隔
-                'wait_max' => 90, // 最大间隔
-            ],
-            // 生产者
-            'producer' => [
-                'reuse' => true,
-                'wait_min' => 10,
-                'wait_max' => 90,
-            ],
-            // 连接池
-            'pool' => [
-                'min_connections'  => 1,
-                'max_connections'  => 10,
+            'restart_interval'   => 5,
+            'heartbeat'          => 5,
+            // 通道池
+            'channels_pool'      => [
                 'idle_timeout'     => 60,
                 'wait_timeout'     => 10
+            ],
+            'client_properties' => [
+                'name'     => 'workbunny/webman-rabbitmq',
+                'version'  => \Composer\InstalledVersions::getVersion('workbunny/webman-rabbitmq')
             ],
             // 心跳回调 callable
             'heartbeat_callback' => null,

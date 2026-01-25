@@ -78,11 +78,13 @@ class ConnectionTest extends BaseTestCase
         $c2 = $connection->channel();
 
         $this->assertSame($c1, $c2);
+        $this->assertCount(1, $connection->channels());
         $this->assertEquals(ChannelStateEnum::READY, $c1->getState());
         $this->assertEquals(ChannelStateEnum::READY, $c2->getState());
 
         $c1->close();
 
+        $this->assertCount(0, $connection->channels());
         $this->assertEquals(ChannelStateEnum::CLOSED, $c1->getState());
         $this->assertEquals(ChannelStateEnum::CLOSED, $c2->getState());
     }
