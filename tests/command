@@ -1,13 +1,11 @@
 #!/usr/bin/env php
 <?php declare(strict_types=1);
 
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/bootstrap.php';
+
 use Webman\Console\Command;
-use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
-use function Workbunny\WebmanRabbitMQ\config;
 
-require_once dirname(__DIR__) . '/vendor/autoload.php';
-
-AbstractBuilder::$debug = true;
 echo "ℹ️ Run in debug mode!\n";
 
 $cli = new Command();
