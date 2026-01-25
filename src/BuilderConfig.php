@@ -34,6 +34,16 @@ class BuilderConfig
 
     protected $_callback;
 
+    public function __construct(array $config = [])
+    {
+        foreach ($config as $key => $value) {
+            if (!property_exists($this, $key)) {
+                continue;
+            }
+            $this->{$key} = $value;
+        }
+    }
+
     /**
      * 转数组
      * @return array

@@ -5,6 +5,9 @@
  */
 namespace Workbunny\WebmanRabbitMQ\Channels;
 
+use Bunny\ChannelStateEnum;
+use Workerman\Timer;
+
 class Channel extends \Bunny\Channel
 {
     /**
@@ -26,5 +29,24 @@ class Channel extends \Bunny\Channel
     public function setState(int $state): void
     {
         $this->state = $state;
+    }
+
+    /** @inheritDoc */
+    public function close($replyCode = 0, $replyText = ""): bool
+    {
+        if ($this->state === ChannelStateEnum::CLOSED) {
+            return true;
+        }
+        $this->setState(ChannelStateEnum::CLOSING);
+        // 发送关闭信号
+        $this->client->channelClose($this->channelId, $replyCode, $replyText, 0, 0);
+        // 阻塞等待关闭
+        while (1) {
+            // 随机休眠 协程切换
+            Timer::sleep(rand(10, 100) / 1000);
+            if ($this->state === ChannelStateEnum::CLOSED) {
+                return true;
+            }
+        }
     }
 }

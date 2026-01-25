@@ -2,9 +2,10 @@
 
 namespace Workbunny\WebmanRabbitMQ\Builders;
 
+use Closure;
 use Psr\Log\LoggerInterface;
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
-use Workbunny\WebmanRabbitMQ\Connections\Connection;
+use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workbunny\WebmanRabbitMQ\Traits\BuilderConfigManagement;
 use Workbunny\WebmanRabbitMQ\Traits\ConfigMethods;
@@ -30,7 +31,7 @@ abstract class AbstractBuilder
      *
      * @var string|null
      */
-    protected ?string $connection = 'rabbitmq';
+    protected ?string $connection = 'default';
 
     /**
      * @var LoggerInterface|null
@@ -48,12 +49,7 @@ abstract class AbstractBuilder
             ? (is_string($logger) ? new $logger() : $logger)
             : null;
         $this->setBuilderConfig(new BuilderConfig());
-        $connectionClass = \config('app.connection_class', Connection::class);
-        self::setConnections(
-            $connectionClass,
-            $this->getConfig('pool.max_connections', 1),
-            $this->getConfig('pool', [])
-        );
+        self::initialize($this->connection, $this->logger);
     }
 
     /**
@@ -90,6 +86,16 @@ abstract class AbstractBuilder
         return str_replace('\\', '.', static::class);
     }
 
+    /**
+     * 运行
+     *
+     * @param Closure $action = function(ConnectionInterface $connection) {}
+     * @return mixed
+     */
+    public function action(Closure $action): mixed
+    {
+        return self::connection($action, $this->connection);
+    }
 
     /**
      * Builder 启动时

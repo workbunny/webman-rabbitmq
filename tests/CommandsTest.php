@@ -2,21 +2,10 @@
 
 namespace Workbunny\Tests;
 
-use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
-
-/**
- * @runTestsInSeparateProcesses
- */
 final class CommandsTest extends BaseTestCase
 {
-    protected function setUp(): void
-    {
-        AbstractBuilder::$debug = true;
-        parent::setUp();
-    }
 
     /**
-     * @testdox 测试Builder的创建和移除
      * @return void
      */
     public function testBuilderNormal(): void
@@ -24,7 +13,7 @@ final class CommandsTest extends BaseTestCase
         $name = 'test';
         // create
         $this->assertFalse($this->fileIsset($name, false));
-        list($result, $status) = $this->exec("php bin/command workbunny:rabbitmq-builder $name");
+        list($result, $status) = $this->exec("php tests/command workbunny:rabbitmq-builder $name");
         $this->assertEquals(0, $status);
         $this->assertEquals([
             "ℹ️ Run in debug mode!" ,
@@ -35,7 +24,7 @@ final class CommandsTest extends BaseTestCase
         $this->assertTrue($this->fileIsset($name, false));
         // remove
         $this->assertTrue($this->fileIsset($name, false));
-        list($result, $status) = $this->exec("php bin/command workbunny:rabbitmq-remove $name");
+        list($result, $status) = $this->exec("php tests/command workbunny:rabbitmq-remove $name");
         $this->assertEquals(0, $status);
         $this->assertEquals([
             "ℹ️ Run in debug mode!" ,
@@ -47,7 +36,6 @@ final class CommandsTest extends BaseTestCase
     }
 
     /**
-     * @testdox 测试多层级Builder的创建和移除
      * @return void
      */
     public function testBuilderMultilevel()
@@ -55,7 +43,7 @@ final class CommandsTest extends BaseTestCase
         $name = 'test/test';
         // create
         $this->assertFalse($this->fileIsset($name, false));
-        list($result, $status) = $this->exec("php bin/command workbunny:rabbitmq-builder $name");
+        list($result, $status) = $this->exec("php tests/command workbunny:rabbitmq-builder $name");
         $this->assertEquals(0, $status);
         $this->assertEquals([
             "ℹ️ Run in debug mode!" ,
@@ -66,7 +54,7 @@ final class CommandsTest extends BaseTestCase
         $this->assertTrue($this->fileIsset($name, false));
         // remove
         $this->assertTrue($this->fileIsset($name, false));
-        list($result, $status) = $this->exec("php bin/command workbunny:rabbitmq-remove $name");
+        list($result, $status) = $this->exec("php tests/command workbunny:rabbitmq-remove $name");
         $this->assertEquals(0, $status);
         $this->assertEquals([
             "ℹ️ Run in debug mode!" ,
@@ -79,7 +67,6 @@ final class CommandsTest extends BaseTestCase
     }
 
     /**
-     * @testdox 测试DelayedBuilder的创建和移除
      * @return void
      */
     public function testDelayedBuilder()
@@ -87,7 +74,7 @@ final class CommandsTest extends BaseTestCase
         $name = 'test';
         // create
         $this->assertFalse($this->fileIsset($name, true));
-        list($result, $status) = $this->exec("php bin/command workbunny:rabbitmq-builder $name -d");
+        list($result, $status) = $this->exec("php tests/command workbunny:rabbitmq-builder $name -d");
         $this->assertEquals(0, $status);
         $this->assertEquals([
             "ℹ️ Run in debug mode!" ,
@@ -98,7 +85,7 @@ final class CommandsTest extends BaseTestCase
         $this->assertTrue($this->fileIsset($name, true));
         // remove
         $this->assertTrue($this->fileIsset($name, true));
-        list($result, $status) = $this->exec("php bin/command workbunny:rabbitmq-remove $name -d");
+        list($result, $status) = $this->exec("php tests/command workbunny:rabbitmq-remove $name -d");
         $this->assertEquals(0, $status);
         $this->assertEquals([
             "ℹ️ Run in debug mode!" ,
@@ -110,7 +97,6 @@ final class CommandsTest extends BaseTestCase
     }
 
     /**
-     * @testdox 测试多层级DelayedBuilder的创建和移除
      * @return void
      */
     public function testDelayedBuilderMultilevel()
@@ -118,7 +104,7 @@ final class CommandsTest extends BaseTestCase
         $name = 'test/test';
         // create
         $this->assertFalse($this->fileIsset($name, true));
-        list($result, $status) = $this->exec("php bin/command workbunny:rabbitmq-builder $name -d");
+        list($result, $status) = $this->exec("php tests/command workbunny:rabbitmq-builder $name -d");
         $this->assertEquals(0, $status);
         $this->assertEquals([
             "ℹ️ Run in debug mode!" ,
@@ -129,7 +115,7 @@ final class CommandsTest extends BaseTestCase
         $this->assertTrue($this->fileIsset($name, true));
         // remove
         $this->assertTrue($this->fileIsset($name, true));
-        list($result, $status) = $this->exec("php bin/command workbunny:rabbitmq-remove $name -d");
+        list($result, $status) = $this->exec("php tests/command workbunny:rabbitmq-remove $name -d");
         $this->assertEquals(0, $status);
         $this->assertEquals([
             "ℹ️ Run in debug mode!" ,

@@ -7,12 +7,11 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
 use Workbunny\WebmanRabbitMQ\Channels\Channel;
-use Workbunny\WebmanRabbitMQ\Clients\AbstractClient;
 use Workbunny\WebmanRabbitMQ\Clients\Client;
 use Workbunny\WebmanRabbitMQ\Constants;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
-use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQPublishException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQRequeueException;
 use Workbunny\WebmanRabbitMQ\Traits\ConfigMethods;
 use Workerman\Timer;
@@ -24,9 +23,14 @@ class Connection implements ConnectionInterface
     use ConfigMethods;
 
     /**
-     * @var AbstractClient
+     * @var Client
      */
-    protected AbstractClient $client;
+    protected Client $client;
+
+    /**
+     * @var string
+     */
+    protected string $name;
 
     /**
      * @var bool
@@ -41,21 +45,24 @@ class Connection implements ConnectionInterface
     /**
      * 初始化连接
      * @param array $config
+     * @param string $name
      * @param LoggerInterface|null $logger
      */
-    public function __construct(array $config, ?LoggerInterface $logger = null)
+    public function __construct(array $config, string $name, ?LoggerInterface $logger = null)
     {
+        $this->name = $name;
         $this->setConfig($config);
-        $client = $this->getConfig('client_class', Client::class);
-        if (!$client instanceof AbstractClient) {
-            throw new WebmanRabbitMQException("Client must be an instance of AbstractClient");
-        }
-        $this->client = new $client($this->getConfigs(), $logger);
-        $this->client->run();
+        $this->client = new Client($this->getConfig('config', []), $logger);
         $this->logger = $logger;
-        if (!$this->getConfig('lazy_connect', false)) {
-            $this->reconnect(force: false);
-        }
+        $this->reconnect(force: true);
+    }
+
+    /**
+     * @return Client
+     */
+    public function getClient(): Client
+    {
+        return $this->client;
     }
 
     /**
@@ -66,6 +73,14 @@ class Connection implements ConnectionInterface
         return $this->isConnected and $this->client->isConnected();
     }
 
+    /** @inheritDoc */
+    public function heartbeat(): void
+    {
+        if ($this->isConnected()) {
+            $this->client->heartbeat();
+        }
+    }
+
     /**
      * @inheritDoc
      * @param array $options
@@ -73,12 +88,11 @@ class Connection implements ConnectionInterface
      * @return void
      * @throws WebmanRabbitMQConnectException
      */
-    public function reconnect(array $options = [], bool $force = true): void
+    public function reconnect(array $options = [], bool $force = false): void
     {
-        if ($force) {
+        if ($force and $this->isConnected()) {
             $this->disconnect($options);
         }
-
         if (!$this->isConnected()) {
             try {
                 $this->client->connect();
@@ -93,48 +107,41 @@ class Connection implements ConnectionInterface
     public function disconnect(array $options = []): void
     {
         try {
-            $channels = $this->client->getChannels();
-            foreach ($channels as $channelId => $channel) {
-                try {
-                    $channel->close();
-                    $this->client->removeChannel($channelId);
-                } catch (Throwable) {}
+            if ($this->isConnected()) {
+                $channels = $this->client->getChannels();
+                foreach ($channels as $channelId => $channel) {
+                    try {
+                        $channel->close();
+                    } catch (Throwable) {
+                    } finally {
+                        $this->client->removeChannel($channelId);
+                    }
+                }
+                $this->client->disconnect($options['replyCode'] ?? 0, $options['replyText'] ?? '');
+                $this->isConnected = false;
             }
-            $this->client->disconnect($options['replyCode'] ?? 0, $options['replyText'] ?? '');
-            $this->isConnected = false;
         } catch (Throwable) {}
     }
 
     /** @inheritDoc */
-    public function getConsumer(bool $reuse): Channel
+    public function channels(): array
     {
-        if (!$this->isConnected()) {
-            $this->reconnect();
-        }
-        return $this->client->catchChannel(
-            $reuse,
-            intval($this->getConfig('consumer.wait_min', 10)),
-            intval($this->getConfig('consumer.wait_max', 100))
-        );
+        return $this->isConnected() ? $this->client->getChannels() : [];
     }
 
     /** @inheritDoc */
-    public function getProducer(bool $reuse): Channel
+    public function channel(): ?Channel
     {
         if (!$this->isConnected()) {
             $this->reconnect();
         }
-        return $this->client->catchChannel(
-            $reuse,
-            intval($this->getConfig('producer.wait_min', 10)),
-            intval($this->getConfig('producer.wait_max', 100))
-        );
+        return $this->client->channel();
     }
 
     /** @inheritDoc */
     public function publish(BuilderConfig $config, bool $close = false): bool|int
     {
-        $producer = $this->getProducer(boolval($this->getConfig('producer.reuse', true)));
+        $producer = $this->channel();
         try {
             $producer->exchangeDeclare(
                 $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
@@ -162,7 +169,7 @@ class Connection implements ConnectionInterface
     /** @inheritdoc */
     public function consume(BuilderConfig $config): void
     {
-        $consumer = $this->getConsumer(boolval($this->getConfig('consumer.reuse', true)));
+        $consumer = $this->channel();
         $consumer->exchangeDeclare(
             $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
             $config->isAutoDelete(), $config->isInternal(), $config->isNowait(), $config->getArguments()
@@ -217,7 +224,7 @@ class Connection implements ConnectionInterface
                 // ACK失败则定时器重试，直到成功
                 $id = Timer::delay(5, function (string $tag, string $call, Message $message) use (&$id) {
                     try {
-                        $res = $this->getConsumer(true)->$call($message);
+                        $res = $this->channel()->$call($message);
                         if ($res) {
                             Timer::del($id);
                         }
@@ -227,11 +234,5 @@ class Connection implements ConnectionInterface
         }, $config->getQueue(), $config->getConsumerTag(), $config->isNoLocal(), $config->isNoAck(),
             $config->isExclusive(), $config->isNowait(), $config->getArguments()
         );
-    }
-
-    /** @inheritDoc */
-    public function channels(): array
-    {
-        return $this->isConnected() ? $this->client->getChannels() : [];
     }
 }

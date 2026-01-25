@@ -16,15 +16,16 @@
   },
   "require": {
     "php": "^8.1",
+    "workerman/webman-framework": "^2.0",
     "workerman/rabbitmq": "^2.0",
     "webman/console": "^2.0",
     "psr/log": "^3.0"
   },
   "require-dev": {
-    "workerman/webman-framework": "^2.0",
     "phpunit/phpunit": "^10.0",
     "guzzlehttp/guzzle": "^7.9",
-    "symfony/var-dumper": "^6.0 | ^7.0"
+    "symfony/var-dumper": "^7.0",
+    "revolt/event-loop": "^1.0"
   },
   "autoload": {
     "psr-4": {
@@ -49,8 +50,5 @@
     "branch-alias": {
       "dev-master": "3.x-dev"
     }
-  },
-  "scripts": {
-    "test": "php tests/processes/tester.php start"
   }
 }

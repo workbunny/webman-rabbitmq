@@ -7,6 +7,13 @@ use Workbunny\WebmanRabbitMQ\Channels\Channel;
 
 interface ConnectionInterface
 {
+
+    /**
+     * 是否已连接
+     *
+     * @return bool
+     */
+    public function isConnected(): bool;
     /**
      * 获取通道
      * @return Channel[]
@@ -14,18 +21,10 @@ interface ConnectionInterface
     public function channels(): array;
 
     /**
-     * 获取消费者
-     * @param bool $reuse 是否复用channel
+     * 获取通道
      * @return Channel|null
      */
-    public function getConsumer(bool $reuse): ?Channel;
-
-    /**
-     * 获取生产者
-     * @param bool $reuse 是否复用channel
-     * @return Channel|null
-     */
-    public function getProducer(bool $reuse): ?Channel;
+    public function channel(): ?Channel;
 
     /**
      * 发布
@@ -43,6 +42,13 @@ interface ConnectionInterface
      * @return void
      */
     public function consume(BuilderConfig $config): void;
+
+    /**
+     * 心跳
+     *
+     * @return void
+     */
+    public function heartbeat(): void;
 
     /**
      * 连接/重连

@@ -2,7 +2,8 @@
 
 namespace Workbunny\WebmanRabbitMQ\Traits;
 
-use Webman\Context;
+use Psr\Log\LoggerInterface;
+use Workbunny\WebmanRabbitMQ\Connections\Connection;
 use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
 use Workerman\Coroutine\Pool;
@@ -12,57 +13,146 @@ trait ConnectionsManagement
     /**
      * 连接池
      *
-     * @var Pool|null
+     * @var Pool[]
      */
-    private static ?Pool $connections = null;
+    private static array $pools = [];
+
 
     /**
-     * @param string $connectionClass
-     * @param int $max
-     * @param array $config
-     * @return void
-     */
-    public static function setConnections(string $connectionClass, int $max, array $config): void
-    {
-        if (!self::$connections) {
-            self::$connections = new Pool($max, $config);
-            self::$connections->setConnectionCreator(function () use ($connectionClass) {
-                if (!is_a($connectionClass, ConnectionInterface::class, true)) {
-                    throw new WebmanRabbitMQConnectException("Connection class must be a subclass of " . ConnectionInterface::class);
-                }
-                return new $connectionClass($this->getConfigs(), $this->logger);
-            });
-            self::$connections->setConnectionCloser(function (ConnectionInterface $connection) {
-                $connection->disconnect();
-            });
-        }
-    }
-
-    /**
-     * @return Pool|null
-     */
-    public static function getConnections(): ?Pool
-    {
-        return self::$connections;
-    }
-
-    /**
+     * 获取连接
+     *  - 手动使用完后请调用release方法归还连接
+     *
+     * @param string $connection
      * @return ConnectionInterface
      */
-    public function connection(): ConnectionInterface
+    public static function get(string $connection = 'default'): ConnectionInterface
     {
-        $connection = Context::get('workbunny.webman-rabbitmq.connection');
-        if (!$connection) {
-            try {
-                $connection = self::$connections->get();
-            } catch (\Throwable $e) {
-                throw new WebmanRabbitMQConnectException($e->getMessage(), $e->getCode(), $e);
-            }
-            Context::set('workbunny.webman-rabbitmq.connection', $connection);
-            Context::onDestroy(function () use ($connection) {
-                self::getConnections()->put($connection);
-            });
+        $pool = self::$pools[$connection] ?? null;
+        if (!$pool) {
+            throw new WebmanRabbitMQConnectException("Please initialize the connection [$connection] pool first");
         }
-        return $connection;
+        try {
+            return $pool->get();
+        } catch (\Throwable $e) {
+            throw new WebmanRabbitMQConnectException($e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * 归还
+     * @param ConnectionInterface|null $connectionObject
+     * @param string $connection
+     * @return void
+     */
+    public static function release(?ConnectionInterface $connectionObject, string $connection = 'default'): void
+    {
+        if ($connectionObject) {
+            if ($pool = self::pool($connection)) {
+                try {
+                    $pool->put($connectionObject);
+                } catch (\Throwable) {}
+            }
+        }
+    }
+
+    /**
+     * 运行
+     *
+     * @param callable $action
+     * @param string $connection
+     * @return mixed
+     */
+    public static function connection(callable $action, string $connection = 'default'): mixed
+    {
+        try {
+            $instance = self::get($connection);
+            return $action($instance);
+        } finally {
+            if (isset($instance)) {
+                self::release($instance, $connection);
+            }
+        }
+    }
+
+    /**
+     * @param string $connection
+     * @return void
+     */
+    public static function destroy(string $connection = 'default'): void
+    {
+        if ($pool = self::pool($connection)) {
+            $pool->closeConnections();
+            unset(self::$pools[$connection]);
+        }
+    }
+
+
+    /**
+     * 初始化
+     * @param string $connection
+     * @param LoggerInterface|null $logger
+     * @param string|null $tag copy mode
+     * @return void
+     */
+    public static function initialize(string $connection = 'default', ?LoggerInterface $logger = null, ?string $tag = null): void
+    {
+        $has = self::pool($connection);
+        if ($tag === null and $has) {
+            return;
+        }
+        // copy mode
+        if ($tag and !$has) {
+            throw new WebmanRabbitMQConnectException("Please initialize the connection [$connection] pool first");
+        }
+        $config = self::config($connection);
+        $pool = new Pool($config['connections_pool']['max_connections'] ?? 1, $config['connections_pool'] ?? []);
+        $pool->setConnectionCreator(function () use ($connection, $config, $logger) {
+            $connectionClass = $config['connections'] ?? Connection::class;
+            if (!is_a($connectionClass, ConnectionInterface::class, true)) {
+                throw new WebmanRabbitMQConnectException("Connection class must be a subclass of " . ConnectionInterface::class);
+            }
+            return new $connectionClass($config, $connection, $logger);
+        });
+        $pool->setConnectionCloser(function (ConnectionInterface $connection) {
+            $connection->disconnect();
+        });
+        // copy mode
+        if ($tag) {
+            self::initialize("$connection#$tag", $logger, $tag);
+            return;
+        }
+        self::$pools[$connection] = $pool;
+    }
+
+    /**
+     * @param string $connection
+     * @return array
+     */
+    public static function config(string $connection): array
+    {
+        $config = \config("plugin.workbunny.webman-rabbitmq.connections.$connection", []);
+        if (!$config) {
+            throw new WebmanRabbitMQConnectException("Not found connection config for $connection");
+        }
+        return $config;
+    }
+
+    /**
+     * 获取连接池
+     * @param string $connection
+     * @return Pool|null
+     */
+    public static function pool(string$connection = 'default'): ?Pool
+    {
+        return self::$pools[$connection] ?? null;
+    }
+
+    /**
+     * 获取所有连接池
+     * @return Pool[]
+     */
+    public static function pools(): array
+    {
+        return self::$pools;
     }
 }

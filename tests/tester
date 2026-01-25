@@ -1,4 +1,5 @@
-<?php
+#!/usr/bin/env php
+<?php declare(strict_types=1);
 
 use Workerman\Events\Swow;
 use Workerman\Events\Swoole;
@@ -8,36 +9,15 @@ use Workerman\Worker;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-
+$params = array_slice($argv, 2) ?: glob(__DIR__ . '/*Test.php');
 if (class_exists(Revolt\EventLoop::class) && (DIRECTORY_SEPARATOR === '/' || !extension_loaded('swow'))) {
-    create_test_worker(function () {
+    create_test_worker(function () use ($params) {
         (new PHPUnit\TextUI\Application)->run([
             __DIR__ . '/../vendor/bin/phpunit',
             '--colors=always',
-            ...glob(__DIR__ . '/*Test.php')
+            ...$params
         ]);
     }, Fiber::class);
-}
-
-
-if (extension_loaded('Swoole')) {
-    create_test_worker(function () {
-        (new PHPUnit\TextUI\Application)->run([
-            __DIR__ . '/../vendor/bin/phpunit',
-            '--colors=always',
-            ...glob(__DIR__ . '/*Test.php')
-        ]);
-    }, Swoole::class);
-}
-
-if (extension_loaded('Swow')) {
-    create_test_worker(function () {
-        (new PHPUnit\TextUI\Application)->run([
-            __DIR__ . '/../vendor/bin/phpunit',
-            '--colors=always',
-            ...glob(__DIR__ . '/*Test.php')
-        ]);
-    }, Swow::class);
 }
 
 function create_test_worker(Closure $callable, $eventLoopClass): void
@@ -67,5 +47,6 @@ function create_test_worker(Closure $callable, $eventLoopClass): void
         });
     };
 }
+\Workbunny\WebmanRabbitMQ\Install::install();
 Worker::$logFile = 'tester.log';
 Worker::runAll();

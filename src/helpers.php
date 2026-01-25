@@ -4,6 +4,8 @@ namespace Workbunny\WebmanRabbitMQ;
 
 use SplFileInfo;
 use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
+use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQPublishException;
 
 /**
@@ -17,7 +19,7 @@ use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQPublishException;
  */
 function publish(AbstractBuilder $builder, string $body, ?string $routingKey = null, ?array $headers = null, bool $close = false): bool
 {
-    $config = $builder->getBuilderConfig();
+    $config = new BuilderConfig($builder->getBuilderConfig()());
     if (
         ($config->getExchangeType() !== Constants::DELAYED and $headers['x-delay'] ?? 0) or
         ($config->getExchangeType() === Constants::DELAYED and !($headers['x-delay'] ?? 0))
@@ -28,8 +30,11 @@ function publish(AbstractBuilder $builder, string $body, ?string $routingKey = n
     $config->setHeaders($headers ?? $config->getHeaders());
     $config->setRoutingKey($routingKey ?? $config->getRoutingKey());
 
-    return $builder->connection()->publish($config, $close);
+    return $builder->action(function (ConnectionInterface $connection) use ($config, $close) {
+        return $connection->publish($config);
+    });
 }
+
 
 /**
  * @param string $path

@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
-         bootstrap="support/bootstrap.php"
+         bootstrap="tests/bootstrap.php"
          cacheDirectory="tests/.phpunit.cache"
          executionOrder="depends,defects"
-         shortenArraysForExportThreshold="10"
          requireCoverageMetadata="false"
          beStrictAboutCoverageMetadata="true"
          beStrictAboutOutputDuringTests="true"
@@ -12,6 +11,7 @@
          failOnPhpunitDeprecation="true"
          failOnRisky="true"
          failOnWarning="true"
+         testdox="true"
          colors="true">
     <testsuites>
         <testsuite name="tests">

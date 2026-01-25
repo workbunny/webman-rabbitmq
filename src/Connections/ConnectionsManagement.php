@@ -2,8 +2,7 @@
 
 namespace Workbunny\WebmanRabbitMQ\Connections;
 
-use Workbunny\WebmanRabbitMQ\Traits\ConnectionsManagement as ConnectionsManagementTraits;
 class ConnectionsManagement
 {
-    use ConnectionsManagementTraits;
+    use \Workbunny\WebmanRabbitMQ\Traits\ConnectionsManagement;
 }

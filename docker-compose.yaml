@@ -14,9 +14,9 @@ services:
         max-file: "10"
     tty: true
 
-  workbunny-rabbitmq:
+  rabbitmq:
     restart: always
-    container_name: workbunny-rabbitmq
+    container_name: rabbitmq
     image: rabbitmq:3-management-alpine
     ports:
       - "5671:5671"
