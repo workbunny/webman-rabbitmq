@@ -59,7 +59,7 @@ class Client extends AbstractClient
             $this->channelsPool->setConnectionCloser(function (Channel $channel) {
                 try {
                     $channel->close();
-                    unset($this->channels[$channel->getChannelId()]);
+                    $this->removeChannel($channel->getChannelId());
                 } catch (\Throwable) {}
             });
         }
@@ -74,9 +74,13 @@ class Client extends AbstractClient
             Context::set('workbunny.webman-rabbitmq.channel', $channel);
             Coroutine::defer(function () use ($channel) {
                 try {
-                    if (in_array($channel->getState(), [ChannelStateEnum::ERROR, ChannelStateEnum::CLOSED, ChannelStateEnum::CLOSING])) {
+                    // 如果通道关闭、错误、正在关闭，则关闭通道
+                    if (in_array($channel->getState(), [
+                        ChannelStateEnum::ERROR, ChannelStateEnum::CLOSED, ChannelStateEnum::CLOSING
+                    ])) {
                         $this->channelsPool->closeConnection($channel);
                     } else {
+                        // 否则，归还通道
                         $this->channelsPool->put($channel);
                     }
                 } catch (\Throwable) {}

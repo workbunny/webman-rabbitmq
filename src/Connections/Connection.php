@@ -141,7 +141,18 @@ class Connection implements ConnectionInterface
     /** @inheritDoc */
     public function publish(BuilderConfig $config, bool $close = false): bool|int
     {
-        $producer = $this->channel();
+        try {
+            $producer = $this->channel();
+        } catch (WebmanRabbitMQChannelException $e) {
+            // 当前连接通道耗尽时，尝试使用新连接
+            if ($e->getCode() === -999999999) {
+                return ConnectionsManagement::connection(function (ConnectionInterface $connection) use ($config, $close) {
+                    $connection->publish($config, $close);
+                });
+            }
+            throw $e;
+        }
+
         try {
             $producer->exchangeDeclare(
                 $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
@@ -169,7 +180,18 @@ class Connection implements ConnectionInterface
     /** @inheritdoc */
     public function consume(BuilderConfig $config): void
     {
-        $consumer = $this->channel();
+        try {
+            $consumer = $this->channel();
+        } catch (WebmanRabbitMQChannelException $e) {
+            // 当前连接通道耗尽时，尝试使用新连接
+            if ($e->getCode() === -999999999) {
+                ConnectionsManagement::connection(function (ConnectionInterface $connection) use ($config) {
+                    $connection->consume($config);
+                });
+                return;
+            }
+            throw $e;
+        }
         $consumer->exchangeDeclare(
             $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
             $config->isAutoDelete(), $config->isInternal(), $config->isNowait(), $config->getArguments()

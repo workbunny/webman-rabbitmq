@@ -65,17 +65,24 @@ RabbitMQ的webman客户端插件；
 - `Builder`：队列抽象结构
   - `BuilderConfig`: 队列配置结构
   - `Builder`继承了`ConnectionManagement`，本质上也是连接池管理器
+  - `Builder`可以指定不同的`connection`配置进行连接，以区分业务/服务
 - `Connection`：抽象的连接对象
   - `Connection`由`ConnectionManagement`管理，连接池为静态，不会因为`Builder`的释放而释放
-  - `Connection`连接池拿取连接后需要手动归还
-  - `min_connections`: 最小连接数
-  - `max_connections`: 最大连接数
-  - `idel_timeout`: 空闲回收时间 [s]
-  - `wait_timeout`: 等待连接超时时间 [s]
+  - `Connection Pool`中通过`get`拿取`Connection`后需要手动调用`release`归还，或者使用`action`通过传入回调函数来执行并自动归还
+  - `Connection`的`publish`/`consume`使用了影子模式（当前`Connection`的`Channel`耗尽时，会自动从`Connection Pool`获取新的连接创建`Channel`）
+    - 影子模式下请尽量将`Connection Pool`和`Channels Pool`的配置`wait_timeout`改小，避免过长时间的等待（等待中会出让控制权，不会阻塞）
+  - 配置信息：
+    - `min_connections`: 最小连接数
+    - `max_connections`: 最大连接数
+    - `idel_timeout`: 空闲回收时间 [s]
+    - `wait_timeout`: 等待连接超时时间 [s]
 - `Channel`：抽象的通道对象
-  - 每一个`Connection`都具备一个`Channel`池，存在协程切换时，自动创建新的`Channel`消费
-  - `idel_timeout`: 空闲回收时间 [s]
-  - `wait_timeout`: 等待连接超时时间 [s]
+  - 每一个`Connection`都具备一个`Channel`池
+    - 多协程时，自动创建新的`Channel`消费，并在协程结束后自动归还/释放
+    - 单协程时，复用`Channel`消费
+  - 配置信息：
+    - `idel_timeout`: 空闲回收时间 [s]
+    - `wait_timeout`: 等待连接超时时间 [s]
 
 ## 使用
 
@@ -115,7 +122,7 @@ use Workbunny\WebmanRabbitMQ\Connections\Connection;
 return [
     'default' => [
         'connection'       => Connection::class,
-        // 连接池，用于支撑影子模式
+        // 连接池
         'connections_pool' => [
             'min_connections'       => 1,
             'max_connections'       => 20,
@@ -175,6 +182,14 @@ return [
    ```
    **注：向延迟队列发布普通消息会抛出一个 WebmanRabbitMQException 异常**
 
+#### 注意
+
+- 不少第三方厂商不支持安装延迟队列插件
+- 当不支持安装延迟队列时，可以通过优先级队列 + `REQUEUE`实现
+  - `Builder`支持通过`REQUEUE`标记进行消息重入队尾
+  - 通过自定义`header`中的时间标记，和逻辑判断，当满足时间条件时则执行，不满足条件则通过`REQUEUE`将数据自动推回队尾
+  - 为了减少数据延迟问题，使用优先级标识将时间较近的消息优先级定义高一些，而时间较长的数据优先级定义低一些
+    - 队列通常支持`0-9`的优先级，合理分配时间段和优先级的匹配关系
 ### 生产
 
 **注：向延迟队列发布普通消息会抛出一个 WebmanRabbitMQPublishException 异常**
@@ -187,20 +202,44 @@ return [
     publish(new TestBuilder(), 'abc'); # return bool
     ```
 
-- 原生发送，需要手动指定`exchange`等
+- `Builder`发送
     ```php
-    use function Workbunny\WebmanRabbitMQ\publish;
     use process\workbunny\rabbitmq\TestBuilder;
-    
-    new TestBuilder()->connection()->getProducer(true)->publish();
+    use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
+    $builder = new TestBuilder();
+    $body = 'abc';
+    return $builder->action(function (ConnectionInterface $connection) use ($builder, $body) {
+        $config = new BuilderConfig($builder->getBuilderConfig()());
+        $config->setBody($body);
+        $connection->publish($config)
+    });
+    ```
+  
+- 原生发送，需要自行指定`exchange`等参数
+    ```php
+    use Workbunny\WebmanRabbitMQ\BuilderConfig;
+    use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
+    use Workbunny\WebmanRabbitMQ\Connections\ConnectionsManagement;
+    $config = new \Workbunny\WebmanRabbitMQ\BuilderConfig();
+    $config->setExchange('your_exchange');
+    $config->setRoutingKey('your_routing_key');
+    $config->setQueue('your_queue');
+    $config->setBody('abc');
+    // 其他设置参数 ...
+  
+    // 使用 your_connection 配置连接发送
+    return ConnectionsManagement::connection(function (ConnectionInterface $connection) use ($config) {
+        $connection->publish($config)
+    }, 'your_connection');
     ```
 
 ## 进阶
 
 ### 1. 自定义`Connection`
 
-- 创建自定义`Connection`需继承实现`ConnectionInterface`；
-- `config/plugin/workbunny/webman-rabbitmq/app.php`修改`connection_class`配置项为自定义`Connection`类；
+- **默认使用`Workbunny\WebmanRabbitMQ\Connections\Connection`，包含影子模式**
+- **创建自定义`Connection`需继承实现`ConnectionInterface`，创建自定义`Connection`会丧失影子模式的功能，除非自行实现**
+- `config/plugin/workbunny/webman-rabbitmq/connections.php`修改`connection`配置项为自定义`Connection`类；
 
 ### 2. 自定义`Builder`
 
@@ -214,8 +253,7 @@ return [
 
 ### 3. 自定义`Client`
 
-**插件默认使用`workerman/rabbitmq`的`CorountieClient`，自定义`Client`在插件使用范围内需配合自定义`Connection`使用**
-
-**通常在需要直接调用原生`RabbitMQ-Client`并拓展其功能时才需要用到自定义开发**
-
-- 创建自定义`Client`需继承实现`AbstractClient`；
+- **默认使用`Workbunny\WebmanRabbitMQ\Clients\Client`，客户端继承并重写自`bunny/byunny`的`BIO`版本的`Client`**
+- **自定义的`Client`需要配合自定义`Connection`进行使用，最终通过`config/plugin/workbunny/webman-rabbitmq/connections.php`配置中的`connection`进行加载**
+- **通常在需要直接调用原生`RabbitMQ-Client`并拓展其功能时才需要用到自定义开发**
+- **创建自定义`Client`需继承实现`Workbunny\WebmanRabbitMQ\Clients\AbstractClient`**

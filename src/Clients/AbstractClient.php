@@ -24,6 +24,11 @@ abstract class AbstractClient extends \Bunny\Client
         LoggerMethods,
         MechanismMethods;
 
+    /**
+     * 心跳定时器
+     *
+     * @var int|null
+     */
     protected ?int $heartbeat = null;
 
     /**
@@ -52,7 +57,6 @@ abstract class AbstractClient extends \Bunny\Client
         });
         parent::__construct($options);
     }
-
 
     public function __destruct()
     {
@@ -126,6 +130,8 @@ abstract class AbstractClient extends \Bunny\Client
 
                 $this->channels[$frame->channel]->onFrameReceived($frame);
             }
+            // 出让协程避免阻塞
+            Timer::sleep(rand(10, 99) / 1000);
         }
     }
 
