@@ -26,6 +26,9 @@ jobs:
     services:
       rabbitmq:
         image: rabbitmq:${{ matrix.rabbitmq-v }}
+        ports:
+          - 5672:5672
+          - 15672:15672
         options: >-
           --health-cmd="rabbitmqctl status"
           --health-interval=10s
@@ -34,7 +37,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
@@ -47,7 +49,7 @@ jobs:
       - run: |
           echo "Waiting for RabbitMQ to be ready..."
           for i in {1..10}; do
-            nc -z rabbitmq 5672 && echo "RabbitMQ is up!" && exit 0
+            nc -z localhost 5672 && echo "RabbitMQ is up!" && exit 0
             sleep 5
           done
           echo "RabbitMQ did not start in time" && exit 1

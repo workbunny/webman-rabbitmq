@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-use Workbunny\WebmanRabbitMQ\Clients\AbstractClient;
+use Composer\InstalledVersions;
 use Workbunny\WebmanRabbitMQ\Connections\Connection;
 
 return [
@@ -14,7 +14,7 @@ return [
             'wait_timeout'          => 10
         ],
         'config' => [
-            'host'               => 'rabbitmq',
+            'host'               => 'localhost',
             'vhost'              => '/',
             'port'               => 5672,
             'username'           => 'guest',
@@ -32,7 +32,7 @@ return [
             ],
             'client_properties' => [
                 'name'     => 'workbunny/webman-rabbitmq',
-                'version'  => \Composer\InstalledVersions::getVersion('workbunny/webman-rabbitmq')
+                'version'  => InstalledVersions::getVersion('workbunny/webman-rabbitmq')
             ],
             // 心跳回调 callable
             'heartbeat_callback' => null,
