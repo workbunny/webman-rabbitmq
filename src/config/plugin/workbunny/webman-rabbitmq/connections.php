@@ -34,6 +34,11 @@ return [
                 'name'     => 'workbunny/webman-rabbitmq',
                 'version'  => InstalledVersions::getVersion('workbunny/webman-rabbitmq')
             ],
+//            'ssl'       => [
+//                'cafile'      => 'ca.pem',
+//                'local_cert'  => 'client.cert',
+//                'local_pk'    => 'client.key',
+//            ],
             // 心跳回调 callable
             'heartbeat_callback' => null,
         ]
