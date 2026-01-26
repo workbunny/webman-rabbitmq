@@ -7,7 +7,7 @@ on:
 
 jobs:
   PHPUnit:
-    name: PHPUnit (PHP ${{ matrix.php }}, RabbitMQ ${{ matrix.rabbitmq }})
+    name: PHPUnit (PHP ${{ matrix.php }}, RabbitMQ ${{ matrix.rabbitmq-v }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -17,7 +17,7 @@ jobs:
           - "8.3"
           - "8.2"
           - "8.1"
-        rabbitmq:
+        rabbitmq-v:
           - "3.13-management"
           - "3.12-management"
           - "3.11-management"
@@ -25,10 +25,7 @@ jobs:
 
     services:
       rabbitmq:
-        image: rabbitmq:${{ matrix.rabbitmq }}
-        ports:
-          - 5672:5672
-          - 15672:15672
+        image: rabbitmq:${{ matrix.rabbitmq-v }}
         options: >-
           --health-cmd="rabbitmqctl status"
           --health-interval=10s
