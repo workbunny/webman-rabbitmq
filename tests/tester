@@ -49,4 +49,5 @@ function create_test_worker(Closure $callable, $eventLoopClass): void
 }
 \Workbunny\WebmanRabbitMQ\Install::install();
 Worker::$logFile = 'tester.log';
+Worker::$pidFile = 'tester.pid';
 Worker::runAll();

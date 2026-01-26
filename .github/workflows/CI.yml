@@ -7,14 +7,8 @@ on:
 
 jobs:
   PHPUnit:
-    name: PHPUnit (PHP ${{ matrix.php }})
+    name: PHPUnit (PHP ${{ matrix.php }}, RabbitMQ ${{ matrix.rabbitmq }})
     runs-on: ubuntu-latest
-    services:
-      rabbitmq:
-        image: rabbitmq:3.13-management
-        ports:
-          - 5672:5672
-          - 15672:15672
     strategy:
       matrix:
         php:
@@ -28,12 +22,37 @@ jobs:
           - "3.12-management"
           - "3.11-management"
           - "3.10-management"
+
+    services:
+      rabbitmq:
+        image: rabbitmq:${{ matrix.rabbitmq }}
+        ports:
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --health-cmd="rabbitmqctl status"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
       - uses: actions/checkout@v3
+
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
           coverage: none
+
       - run: composer install
+
+      # 等待 RabbitMQ 服务健康检查通过
+      - run: |
+          echo "Waiting for RabbitMQ to be ready..."
+          for i in {1..10}; do
+            nc -z rabbitmq 5672 && echo "RabbitMQ is up!" && exit 0
+            sleep 5
+          done
+          echo "RabbitMQ did not start in time" && exit 1
+
       - run: php tests/tester start
