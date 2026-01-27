@@ -83,6 +83,8 @@ RabbitMQ的webman客户端插件；
     - `idel_timeout`: 空闲回收时间 [s]
     - `wait_timeout`: 等待连接超时时间 [s]
 
+**[详细文档](https://workbunny.github.io/webman-rabbitmq/)**
+
 ## 使用
 
 ### 要求
