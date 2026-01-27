@@ -1,11 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ;
 
 use SplFileInfo;
 use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
 use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
-use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQPublishException;
 
 /**
@@ -35,7 +36,6 @@ function publish(AbstractBuilder $builder, string $body, ?string $routingKey = n
     });
 }
 
-
 /**
  * @param string $path
  * @param bool $remove
@@ -59,5 +59,6 @@ function is_empty_dir(string $path, bool $remove = false): bool
     if ($remove) {
         rmdir($path);
     }
+
     return true;
 }

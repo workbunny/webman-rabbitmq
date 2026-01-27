@@ -1,22 +1,23 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ;
 
 class Constants
 {
-    const DIRECT  = 'direct';
-    const FANOUT  = 'fanout';
-    const TOPIC   = 'topic';
-    const HEADER  = 'header';
-    const DELAYED = 'x-delayed-message';
+    public const DIRECT = 'direct';
+    public const FANOUT = 'fanout';
+    public const TOPIC = 'topic';
+    public const HEADER = 'header';
+    public const DELAYED = 'x-delayed-message';
 
-    const ACK = 'ack';
-    const NACK = 'nack';
-    const REQUEUE = 'requeue';
+    public const ACK = 'ack';
+    public const NACK = 'nack';
+    public const REQUEUE = 'requeue';
 
-    const REJECT = 'reject';
+    public const REJECT = 'reject';
 
-    const DELIVERY_MODE_NON_PERSISTENT = 1;
-    const DELIVERY_MODE_PERSISTENT = 2;
+    public const DELIVERY_MODE_NON_PERSISTENT = 1;
+    public const DELIVERY_MODE_PERSISTENT = 2;
 }

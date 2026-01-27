@@ -1,16 +1,18 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Commands;
 
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
 
 class WorkbunnyWebmanRabbitMQBuilder extends AbstractCommand
 {
-    protected static $defaultName        = 'workbunny:rabbitmq-builder';
+    protected static $defaultName = 'workbunny:rabbitmq-builder';
     protected static $defaultDescription = 'Create and initialize a workbunny/webman-rabbitmq Builder. ';
 
     /**
@@ -33,19 +35,19 @@ class WorkbunnyWebmanRabbitMQBuilder extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $name    = $input->getArgument('name');
-        $count   = $input->getArgument('count');
+        $name = $input->getArgument('name');
+        $count = $input->getArgument('count');
         $delayed = $input->getOption('delayed');
-        $mode    = $input->getOption('mode');
+        $mode = $input->getOption('mode');
         list($name, $namespace, $file) = $this->getFileInfo($name, $delayed);
         // check process.php
-        if(!file_exists($process = config_path() . '/plugin/workbunny/webman-rabbitmq/process.php')) {
+        if (!file_exists($process = config_path() . '/plugin/workbunny/webman-rabbitmq/process.php')) {
             return $this->error($output, "Builder {$name} failed to create: plugin/workbunny/webman-rabbitmq/process.php does not exist.");
         }
         // check config
         $config = config('plugin.workbunny.webman-rabbitmq.process', []);
         $processName = str_replace('\\', '.', $className = "$namespace\\$name");
-        if(isset($config[$processName])){
+        if (isset($config[$processName])) {
             return $this->error($output, "Builder {$name} failed to create: Config already exists.");
         }
         // get mode
@@ -53,7 +55,8 @@ class WorkbunnyWebmanRabbitMQBuilder extends AbstractCommand
             return $this->error($output, "Builder {$name} failed to create: Mode {$mode} does not exist.");
         }
         // config set
-        if (file_put_contents($process, preg_replace_callback('/(];)(?!.*\1)/',
+        if (file_put_contents($process, preg_replace_callback(
+            '/(];)(?!.*\1)/',
             function () use ($processName, $className, $count, $mode) {
                 return <<<DOC
     '$processName' => [
@@ -63,8 +66,11 @@ class WorkbunnyWebmanRabbitMQBuilder extends AbstractCommand
     ],
 ];
 DOC;
-            }, file_get_contents($process),1)) !== false) {
-            $this->info($output, "Config updated.");
+            },
+            file_get_contents($process),
+            1
+        )) !== false) {
+            $this->info($output, 'Config updated.');
         }
         // dir create
         if (!is_dir($path = pathinfo($file, PATHINFO_DIRNAME))) {
@@ -73,11 +79,14 @@ DOC;
         // file create
         if (!file_exists($file)) {
             if (file_put_contents($file, $builderClass::classContent(
-                    $namespace, $name, str_ends_with($name, 'Delayed')
-                )) !== false) {
-                $this->info($output, "Builder created.");
+                $namespace,
+                $name,
+                str_ends_with($name, 'Delayed')
+            )) !== false) {
+                $this->info($output, 'Builder created.');
             }
         }
+
         return $this->success($output, "Builder {$name} created successfully.");
     }
 }

@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /**
  * @author workbunny/Chaz6chez
  * @email chaz6chez1993@outlook.com
  */
+
 namespace Workbunny\WebmanRabbitMQ\Channels;
 
 use Bunny\ChannelStateEnum;
@@ -32,7 +35,7 @@ class Channel extends \Bunny\Channel
     }
 
     /** @inheritDoc */
-    public function close($replyCode = 0, $replyText = ""): bool
+    public function close($replyCode = 0, $replyText = ''): bool
     {
         if ($this->state === ChannelStateEnum::CLOSED) {
             return true;

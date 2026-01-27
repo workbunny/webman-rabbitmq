@@ -23,7 +23,7 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^10.0",
-    "guzzlehttp/guzzle": "^7.9",
+    "friendsofphp/php-cs-fixer": "^3.0",
     "symfony/var-dumper": "^6.0 | ^7.0",
     "revolt/event-loop": "^1.0"
   },
@@ -45,6 +45,12 @@
     "revolt/event-loop": "supported Event/Fiber",
     "ext-swoole": "supported Event/Swoole",
     "ext-swow": "supported Event/Swow"
+  },
+  "scripts": {
+    "tester": "php tests/tester start",
+    "fmt": "./vendor/bin/php-cs-fixer fix",
+    "doc-install": "@php -r \"shell_exec('curl -sSLf -o /usr/local/bin/phpDocumentor https://phpdoc.org/phpDocumentor.phar && chmod +x /usr/local/bin/phpDocumentor');\"",
+    "doc": "phpDocumentor"
   },
   "extra": {
     "branch-alias": {

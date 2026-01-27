@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 use Composer\InstalledVersions;
 use Workbunny\WebmanRabbitMQ\Connections\Connection;
@@ -11,7 +13,7 @@ return [
             'min_connections'       => 1,
             'max_connections'       => 10,
             'idle_timeout'          => 60,
-            'wait_timeout'          => 10
+            'wait_timeout'          => 10,
         ],
         'config' => [
             'host'               => 'localhost',
@@ -28,11 +30,11 @@ return [
             // 通道池
             'channels_pool'      => [
                 'idle_timeout'     => 60,
-                'wait_timeout'     => 10
+                'wait_timeout'     => 10,
             ],
             'client_properties' => [
                 'name'     => 'workbunny/webman-rabbitmq',
-                'version'  => InstalledVersions::getVersion('workbunny/webman-rabbitmq')
+                'version'  => InstalledVersions::getVersion('workbunny/webman-rabbitmq'),
             ],
 //            'ssl'       => [
 //                'cafile'      => 'ca.pem',
@@ -41,6 +43,6 @@ return [
 //            ],
             // 心跳回调 callable
             'heartbeat_callback' => null,
-        ]
-    ]
+        ],
+    ],
 ];

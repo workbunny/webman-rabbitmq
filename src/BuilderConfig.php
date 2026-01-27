@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ;
 
@@ -19,7 +21,7 @@ class BuilderConfig
     protected string $_body = '';
     protected array $_headers = [
         'content-type'  => 'text/plain',
-        'delivery-mode' => Constants::DELIVERY_MODE_PERSISTENT
+        'delivery-mode' => Constants::DELIVERY_MODE_PERSISTENT,
     ];
     protected string $_exchange = '';
     protected string $_exchangeType = Constants::DIRECT;
@@ -60,6 +62,7 @@ class BuilderConfig
             $property->setAccessible(true);
             $result[$property->getName()] = $property->getValue($this);
         }
+
         return $result;
     }
 
@@ -273,12 +276,12 @@ class BuilderConfig
         $this->_noAck = $noAck;
     }
 
-    public function setCallback(callable $callback) : void
+    public function setCallback(callable $callback): void
     {
         $this->_callback = $callback;
     }
 
-    public function getCallback() : callable
+    public function getCallback(): callable
     {
         return $this->_callback;
     }

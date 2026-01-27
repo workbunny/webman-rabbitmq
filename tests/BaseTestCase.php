@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Workbunny\Tests;
 
@@ -10,7 +12,7 @@ class BaseTestCase extends TestCase
     protected string $rabbitHost = 'http://rabbitmq:15672'; // RabbitMQ 管理插件地址
     protected string $rabbitUser = 'guest';                  // 用户名
     protected string $rabbitPass = 'guest';                  // 密码
-    protected string $vhost      = '/';                      // 默认 vhost
+    protected string $vhost = '/';                      // 默认 vhost
 
     protected array $config = [];
 
@@ -26,12 +28,14 @@ class BaseTestCase extends TestCase
     protected function exec(string $command): array
     {
         exec($command, $output, $resultCode);
+
         return [$output, $resultCode];
     }
 
     protected function fileIsset(string $name, bool $delayed): bool
     {
         list(, , $file) = AbstractCommand::getFileInfo($name, $delayed);
+
         return file_exists($file);
     }
 
@@ -49,13 +53,14 @@ class BaseTestCase extends TestCase
         $opts = [
             'http' => [
                 'method' => $method,
-                'header' => "Authorization: Basic " . base64_encode("{$this->rabbitUser}:{$this->rabbitPass}") . "\r\n" .
+                'header' => 'Authorization: Basic ' . base64_encode("{$this->rabbitUser}:{$this->rabbitPass}") . "\r\n" .
                     "Content-Type: application/json\r\n",
-                'content' => $data ? json_encode($data) : ''
-            ]
+                'content' => $data ? json_encode($data) : '',
+            ],
         ];
         $context = stream_context_create($opts);
         $result = file_get_contents($url, false, $context);
+
         return $result ? json_decode($result, true) : [];
     }
 
@@ -64,8 +69,9 @@ class BaseTestCase extends TestCase
      */
     protected function exchangeExists(string $exchange): bool
     {
-        $path = "/api/exchanges/" . urlencode($this->vhost) . "/" . urlencode($exchange);
+        $path = '/api/exchanges/' . urlencode($this->vhost) . '/' . urlencode($exchange);
         $result = $this->request($path);
+
         return !empty($result) && isset($result['name']) && $result['name'] === $exchange;
     }
 
@@ -74,8 +80,9 @@ class BaseTestCase extends TestCase
      */
     protected function queueExists(string $queue): bool
     {
-        $path = "/api/queues/" . urlencode($this->vhost) . "/" . urlencode($queue);
+        $path = '/api/queues/' . urlencode($this->vhost) . '/' . urlencode($queue);
         $result = $this->request($path);
+
         return !empty($result) && isset($result['name']) && $result['name'] === $queue;
     }
 
@@ -84,8 +91,9 @@ class BaseTestCase extends TestCase
      */
     protected function queueHasMessages(string $queue): bool
     {
-        $path = "/api/queues/" . urlencode($this->vhost) . "/" . urlencode($queue);
+        $path = '/api/queues/' . urlencode($this->vhost) . '/' . urlencode($queue);
         $result = $this->request($path);
+
         return !empty($result) && isset($result['messages']) && $result['messages'] > 0;
     }
 
@@ -94,11 +102,12 @@ class BaseTestCase extends TestCase
      */
     protected function getQueueMessages(string $queue, int $count = 1): array
     {
-        $path = "/api/queues/" . urlencode($this->vhost) . "/" . urlencode($queue) . "/get";
+        $path = '/api/queues/' . urlencode($this->vhost) . '/' . urlencode($queue) . '/get';
+
         return $this->request($path, 'POST', [
-            'count' => $count,
-            'ackmode' => 'ack_requeue_false',
-            'encoding' => 'auto'
+            'count'    => $count,
+            'ackmode'  => 'ack_requeue_false',
+            'encoding' => 'auto',
         ]);
     }
 
@@ -108,13 +117,15 @@ class BaseTestCase extends TestCase
      */
     protected function listConnections(): array
     {
-        $path = "/api/connections";
+        $path = '/api/connections';
+
         return $this->request($path);
     }
 
     protected function listChannels(): array
     {
-        $path = "/api/channels";
+        $path = '/api/channels';
+
         return $this->request($path);
     }
 }

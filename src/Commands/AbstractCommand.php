@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Commands;
@@ -19,12 +20,14 @@ abstract class AbstractCommand extends Command
     protected function error(OutputInterface $output, string $message): int
     {
         $output->writeln("❌ $message");
+
         return self::FAILURE;
     }
 
     protected function success(OutputInterface $output, string $message): int
     {
         $output->writeln("✅ $message");
+
         return self::SUCCESS;
     }
 
@@ -36,8 +39,9 @@ abstract class AbstractCommand extends Command
     public static function getClassName(string $name, bool $isDelayed): string
     {
         $class = preg_replace_callback('/:([a-zA-Z])/', function ($matches) {
-                return strtoupper($matches[1]);
-            }, ucfirst($name)) . 'Builder';
+            return strtoupper($matches[1]);
+        }, ucfirst($name)) . 'Builder';
+
         return $isDelayed ? $class . 'Delayed' : $class;
     }
 
@@ -58,6 +62,7 @@ abstract class AbstractCommand extends Command
             $file = base_path() . "/$path/$name.php";
             $namespace = str_replace('/', '\\', $path);
         }
+
         return [$name, $namespace, $file];
     }
 }

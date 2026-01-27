@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Clients;
@@ -50,9 +51,9 @@ class Client extends AbstractClient
                 } else {
                     $this->state = ClientStateEnum::ERROR;
                     throw new WebmanRabbitMQChannelException(
-                        "channel.open unexpected response of type " . gettype($response) .
-                        (is_object($response) ? "(" . get_class($response) . ")" : "") .
-                        "."
+                        'channel.open unexpected response of type ' . gettype($response) .
+                        (is_object($response) ? '(' . get_class($response) . ')' : '') .
+                        '.'
                     );
                 }
             });
@@ -60,7 +61,8 @@ class Client extends AbstractClient
                 try {
                     $channel->close();
                     $this->removeChannel($channel->getChannelId());
-                } catch (\Throwable) {}
+                } catch (\Throwable) {
+                }
             });
         }
         $channel = Context::get('workbunny.webman-rabbitmq.channel');
@@ -69,24 +71,27 @@ class Client extends AbstractClient
                 /** @var Channel $channel */
                 $channel = $this->channelsPool->get();
             } catch (Coroutine\Exception\PoolException | \Throwable) {
-                throw new WebmanRabbitMQChannelException("No available channel.", -999999999);
+                throw new WebmanRabbitMQChannelException('No available channel.', -999999999);
             }
             Context::set('workbunny.webman-rabbitmq.channel', $channel);
             Coroutine::defer(function () use ($channel) {
                 try {
                     // 如果通道关闭、错误、正在关闭，则关闭通道
                     if (in_array($channel->getState(), [
-                        ChannelStateEnum::ERROR, ChannelStateEnum::CLOSED, ChannelStateEnum::CLOSING
+                        ChannelStateEnum::ERROR, ChannelStateEnum::CLOSED, ChannelStateEnum::CLOSING,
                     ])) {
                         $this->channelsPool->closeConnection($channel);
                     } else {
                         // 否则，归还通道
                         $this->channelsPool->put($channel);
                     }
-                } catch (\Throwable) {}
+                } catch (\Throwable) {
+                }
             });
+
             return $channel;
         }
+
         return $channel;
     }
 }

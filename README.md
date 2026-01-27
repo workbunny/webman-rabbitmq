@@ -64,7 +64,6 @@ RabbitMQ的webman客户端插件；
 
 - `Builder`：队列抽象结构
   - `BuilderConfig`: 队列配置结构
-  - `Builder`继承了`ConnectionManagement`，本质上也是连接池管理器
   - `Builder`可以指定不同的`connection`配置进行连接，以区分业务/服务
 - `Connection`：抽象的连接对象
   - `Connection`由`ConnectionManagement`管理，连接池为静态，不会因为`Builder`的释放而释放

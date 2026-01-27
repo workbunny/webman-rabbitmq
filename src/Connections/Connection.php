@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Connections;
 
@@ -11,7 +13,6 @@ use Workbunny\WebmanRabbitMQ\Clients\Client;
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
-use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQRequeueException;
 use Workbunny\WebmanRabbitMQ\Traits\ConfigMethods;
 use Workerman\Timer;
@@ -19,7 +20,6 @@ use Workerman\Worker;
 
 class Connection implements ConnectionInterface
 {
-
     use ConfigMethods;
 
     /**
@@ -57,9 +57,7 @@ class Connection implements ConnectionInterface
         $this->reconnect(force: true);
     }
 
-    /**
-     * @return Client
-     */
+    /** @inheritDoc */
     public function getClient(): Client
     {
         return $this->client;
@@ -81,13 +79,7 @@ class Connection implements ConnectionInterface
         }
     }
 
-    /**
-     * @inheritDoc
-     * @param array $options
-     * @param bool $force
-     * @return void
-     * @throws WebmanRabbitMQConnectException
-     */
+    /** @inheritDoc */
     public function reconnect(array $options = [], bool $force = false): void
     {
         if ($force and $this->isConnected()) {
@@ -120,7 +112,8 @@ class Connection implements ConnectionInterface
                 $this->client->disconnect($options['replyCode'] ?? 0, $options['replyText'] ?? '');
                 $this->isConnected = false;
             }
-        } catch (Throwable) {}
+        } catch (Throwable) {
+        }
     }
 
     /** @inheritDoc */
@@ -135,6 +128,7 @@ class Connection implements ConnectionInterface
         if (!$this->isConnected()) {
             $this->reconnect();
         }
+
         return $this->client->channel();
     }
 
@@ -155,20 +149,39 @@ class Connection implements ConnectionInterface
 
         try {
             $producer->exchangeDeclare(
-                $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
-                $config->isAutoDelete(), $config->isInternal(), $config->isNowait(), $config->getArguments()
-            );
-            $producer->queueDeclare(
-                $config->getQueue(), $config->isPassive(), $config->isDurable(), $config->isExclusive(),
-                $config->isAutoDelete(), $config->isNowait(), $config->getArguments()
-            );
-            $producer->queueBind(
-                $config->getQueue(), $config->getExchange(), $config->getRoutingKey(), $config->isNowait(),
+                $config->getExchange(),
+                $config->getExchangeType(),
+                $config->isPassive(),
+                $config->isDurable(),
+                $config->isAutoDelete(),
+                $config->isInternal(),
+                $config->isNowait(),
                 $config->getArguments()
             );
+            $producer->queueDeclare(
+                $config->getQueue(),
+                $config->isPassive(),
+                $config->isDurable(),
+                $config->isExclusive(),
+                $config->isAutoDelete(),
+                $config->isNowait(),
+                $config->getArguments()
+            );
+            $producer->queueBind(
+                $config->getQueue(),
+                $config->getExchange(),
+                $config->getRoutingKey(),
+                $config->isNowait(),
+                $config->getArguments()
+            );
+
             return $producer->publish(
-                $config->getBody(), $config->getHeaders(), $config->getExchange(), $config->getRoutingKey(),
-                $config->isMandatory(), $config->isImmediate()
+                $config->getBody(),
+                $config->getHeaders(),
+                $config->getExchange(),
+                $config->getRoutingKey(),
+                $config->isMandatory(),
+                $config->isImmediate()
             );
         } finally {
             if ($close) {
@@ -188,73 +201,101 @@ class Connection implements ConnectionInterface
                 ConnectionsManagement::connection(function (ConnectionInterface $connection) use ($config) {
                     $connection->consume($config);
                 });
+
                 return;
             }
             throw $e;
         }
         $consumer->exchangeDeclare(
-            $config->getExchange(), $config->getExchangeType(), $config->isPassive(), $config->isDurable(),
-            $config->isAutoDelete(), $config->isInternal(), $config->isNowait(), $config->getArguments()
-        );
-        $consumer->queueDeclare(
-            $config->getQueue(), $config->isPassive(), $config->isDurable(), $config->isExclusive(),
-            $config->isAutoDelete(), $config->isNowait(), $config->getArguments()
-        );
-        $consumer->queueBind(
-            $config->getQueue(), $config->getExchange(), $config->getRoutingKey(), $config->isNowait(),
+            $config->getExchange(),
+            $config->getExchangeType(),
+            $config->isPassive(),
+            $config->isDurable(),
+            $config->isAutoDelete(),
+            $config->isInternal(),
+            $config->isNowait(),
             $config->getArguments()
         );
-        $consumer->consume(function (Message $message) use ($config, $consumer) {
-            // 如果事件循环开始重启或停止时停止消费
-            if (in_array($status = Worker::getStatus(), [
-                Worker::STATUS_SHUTDOWN, Worker::STATUS_RELOADING
-            ])) {
-                $this->logger->notice("Consumer stopping [worker status $status]");
-                return;
-            }
-            try {
-                $tag = \call_user_func($config->getCallback(), $message, $consumer, $this);
-                if (!in_array($tag, [Constants::ACK, Constants::NACK, Constants::REQUEUE, Constants::REJECT])) {
-                    $tag = Constants::ACK;
+        $consumer->queueDeclare(
+            $config->getQueue(),
+            $config->isPassive(),
+            $config->isDurable(),
+            $config->isExclusive(),
+            $config->isAutoDelete(),
+            $config->isNowait(),
+            $config->getArguments()
+        );
+        $consumer->queueBind(
+            $config->getQueue(),
+            $config->getExchange(),
+            $config->getRoutingKey(),
+            $config->isNowait(),
+            $config->getArguments()
+        );
+        $consumer->consume(
+            function (Message $message) use ($config, $consumer) {
+                // 如果事件循环开始重启或停止时停止消费
+                if (in_array($status = Worker::getStatus(), [
+                    Worker::STATUS_SHUTDOWN, Worker::STATUS_RELOADING,
+                ])) {
+                    $this->logger->notice("Consumer stopping [worker status $status]");
+
+                    return;
                 }
-            } catch (Throwable $throwable) {
-                $tag = Constants::REQUEUE;
-                $this->logger->notice("Consume Throwable", [
-                    'message' => $throwable->getMessage(),
-                    'code'    => $throwable->getCode(),
-                    'file'    => $throwable->getFile() . ':' . $throwable->getLine(),
-                ]);
-            }
-            // requeue原则保证重试，不保证可能存在多次消费，因为原数据可能ack失败
-            if ($tag === Constants::REQUEUE) {
-                $headers = $message->headers;
-                $headers['workbunny-requeue-count'] = ($headers['workbunny-requeue-count'] ?? 0) + 1;
-                $headers['workbunny-requeue-first-time'] = $headers['workbunny-requeue-first-time'] ?? microtime(true);
-                if (!$consumer->publish(
-                    $message->content, $headers, $message->exchange, $message->routingKey,
-                    $config->isMandatory(), $config->isImmediate()
-                )) {
-                    $c = clone $config;
-                    $c->setHeaders($headers);
-                    throw new WebmanRabbitMQRequeueException('Consume requeue-publish failed.', 0, $c);
+                try {
+                    $tag = $config->getCallback()($message, $consumer, $this);
+                    if (!in_array($tag, [Constants::ACK, Constants::NACK, Constants::REQUEUE, Constants::REJECT])) {
+                        $tag = Constants::ACK;
+                    }
+                } catch (Throwable $throwable) {
+                    $tag = Constants::REQUEUE;
+                    $this->logger->notice('Consume Throwable', [
+                        'message' => $throwable->getMessage(),
+                        'code'    => $throwable->getCode(),
+                        'file'    => $throwable->getFile() . ':' . $throwable->getLine(),
+                    ]);
                 }
-            }
-            $call = $tag === Constants::REQUEUE ? Constants::ACK : $tag;
-            $res = $consumer->$call($message);
-            if (!$res) {
-                $this->logger->notice("Consume $tag failed [timer retrying].");
-                // ACK失败则定时器重试，直到成功
-                $id = Timer::delay(5, function (string $tag, string $call, Message $message) use (&$id) {
-                    try {
-                        $res = $this->channel()->$call($message);
-                        if ($res) {
-                            Timer::del($id);
+                // requeue原则保证重试，不保证可能存在多次消费，因为原数据可能ack失败
+                if ($tag === Constants::REQUEUE) {
+                    $headers = $message->headers;
+                    $headers['workbunny-requeue-count'] = ($headers['workbunny-requeue-count'] ?? 0) + 1;
+                    $headers['workbunny-requeue-first-time'] = $headers['workbunny-requeue-first-time'] ?? microtime(true);
+                    if (!$consumer->publish(
+                        $message->content,
+                        $headers,
+                        $message->exchange,
+                        $message->routingKey,
+                        $config->isMandatory(),
+                        $config->isImmediate()
+                    )) {
+                        $c = clone $config;
+                        $c->setHeaders($headers);
+                        throw new WebmanRabbitMQRequeueException('Consume requeue-publish failed.', 0, $c);
+                    }
+                }
+                $call = $tag === Constants::REQUEUE ? Constants::ACK : $tag;
+                $res = $consumer->$call($message);
+                if (!$res) {
+                    $this->logger->notice("Consume $tag failed [timer retrying].");
+                    // ACK失败则定时器重试，直到成功
+                    $id = Timer::delay(5, function (string $tag, string $call, Message $message) use (&$id) {
+                        try {
+                            $res = $this->channel()->$call($message);
+                            if ($res) {
+                                Timer::del($id);
+                            }
+                        } catch (Throwable) {
                         }
-                    } catch (Throwable) {}
-                }, [$tag, $call, $message]);
-            }
-        }, $config->getQueue(), $config->getConsumerTag(), $config->isNoLocal(), $config->isNoAck(),
-            $config->isExclusive(), $config->isNowait(), $config->getArguments()
+                    }, [$tag, $call, $message]);
+                }
+            },
+            $config->getQueue(),
+            $config->getConsumerTag(),
+            $config->isNoLocal(),
+            $config->isNoAck(),
+            $config->isExclusive(),
+            $config->isNowait(),
+            $config->getArguments()
         );
     }
 }

@@ -1,17 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Workbunny\Tests;
 
 use Bunny\ChannelStateEnum;
-use Webman\Context;
-use Workbunny\WebmanRabbitMQ\Channels\Channel;
-use Workbunny\WebmanRabbitMQ\Connections\Connection;
 use Workbunny\WebmanRabbitMQ\Connections\ConnectionsManagement;
 use Workerman\Coroutine;
-use Workerman\Coroutine\Pool;
 use Workerman\Timer;
-use Workerman\Worker;
-
 
 class ConnectionTest extends BaseTestCase
 {

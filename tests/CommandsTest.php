@@ -1,10 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Workbunny\Tests;
 
 final class CommandsTest extends BaseTestCase
 {
-
     /**
      * @return void
      */
@@ -16,10 +17,10 @@ final class CommandsTest extends BaseTestCase
         list($result, $status) = $this->exec("php tests/command workbunny:rabbitmq-builder $name");
         $this->assertEquals(0, $status);
         $this->assertEquals([
-            "ℹ️ Run in debug mode!" ,
-            "ℹ️ Config updated." ,
-            "ℹ️ Builder created." ,
-            "✅ Builder TestBuilder created successfully."
+            'ℹ️ Run in debug mode!' ,
+            'ℹ️ Config updated.' ,
+            'ℹ️ Builder created.' ,
+            '✅ Builder TestBuilder created successfully.',
         ], $result);
         $this->assertTrue($this->fileIsset($name, false));
         // remove
@@ -27,10 +28,10 @@ final class CommandsTest extends BaseTestCase
         list($result, $status) = $this->exec("php tests/command workbunny:rabbitmq-remove $name");
         $this->assertEquals(0, $status);
         $this->assertEquals([
-            "ℹ️ Run in debug mode!" ,
-            "ℹ️ Config updated." ,
-            "ℹ️ Builder removed." ,
-            "✅ Builder TestBuilder removed successfully."
+            'ℹ️ Run in debug mode!' ,
+            'ℹ️ Config updated.' ,
+            'ℹ️ Builder removed.' ,
+            '✅ Builder TestBuilder removed successfully.',
         ], $result);
         $this->assertFalse($this->fileIsset($name, false));
     }
@@ -46,10 +47,10 @@ final class CommandsTest extends BaseTestCase
         list($result, $status) = $this->exec("php tests/command workbunny:rabbitmq-builder $name");
         $this->assertEquals(0, $status);
         $this->assertEquals([
-            "ℹ️ Run in debug mode!" ,
-            "ℹ️ Config updated." ,
-            "ℹ️ Builder created." ,
-            "✅ Builder TestBuilder created successfully."
+            'ℹ️ Run in debug mode!' ,
+            'ℹ️ Config updated.' ,
+            'ℹ️ Builder created.' ,
+            '✅ Builder TestBuilder created successfully.',
         ], $result);
         $this->assertTrue($this->fileIsset($name, false));
         // remove
@@ -57,11 +58,11 @@ final class CommandsTest extends BaseTestCase
         list($result, $status) = $this->exec("php tests/command workbunny:rabbitmq-remove $name");
         $this->assertEquals(0, $status);
         $this->assertEquals([
-            "ℹ️ Run in debug mode!" ,
-            "ℹ️ Config updated." ,
-            "ℹ️ Builder removed." ,
-            "ℹ️ Empty dir removed.",
-            "✅ Builder TestBuilder removed successfully."
+            'ℹ️ Run in debug mode!' ,
+            'ℹ️ Config updated.' ,
+            'ℹ️ Builder removed.' ,
+            'ℹ️ Empty dir removed.',
+            '✅ Builder TestBuilder removed successfully.',
         ], $result);
         $this->assertFalse($this->fileIsset($name, false));
     }
@@ -77,10 +78,10 @@ final class CommandsTest extends BaseTestCase
         list($result, $status) = $this->exec("php tests/command workbunny:rabbitmq-builder $name -d");
         $this->assertEquals(0, $status);
         $this->assertEquals([
-            "ℹ️ Run in debug mode!" ,
-            "ℹ️ Config updated." ,
-            "ℹ️ Builder created." ,
-            "✅ Builder TestBuilderDelayed created successfully."
+            'ℹ️ Run in debug mode!' ,
+            'ℹ️ Config updated.' ,
+            'ℹ️ Builder created.' ,
+            '✅ Builder TestBuilderDelayed created successfully.',
         ], $result);
         $this->assertTrue($this->fileIsset($name, true));
         // remove
@@ -88,10 +89,10 @@ final class CommandsTest extends BaseTestCase
         list($result, $status) = $this->exec("php tests/command workbunny:rabbitmq-remove $name -d");
         $this->assertEquals(0, $status);
         $this->assertEquals([
-            "ℹ️ Run in debug mode!" ,
-            "ℹ️ Config updated." ,
-            "ℹ️ Builder removed." ,
-            "✅ Builder TestBuilderDelayed removed successfully."
+            'ℹ️ Run in debug mode!' ,
+            'ℹ️ Config updated.' ,
+            'ℹ️ Builder removed.' ,
+            '✅ Builder TestBuilderDelayed removed successfully.',
         ], $result);
         $this->assertFalse($this->fileIsset($name, true));
     }
@@ -107,10 +108,10 @@ final class CommandsTest extends BaseTestCase
         list($result, $status) = $this->exec("php tests/command workbunny:rabbitmq-builder $name -d");
         $this->assertEquals(0, $status);
         $this->assertEquals([
-            "ℹ️ Run in debug mode!" ,
-            "ℹ️ Config updated." ,
-            "ℹ️ Builder created." ,
-            "✅ Builder TestBuilderDelayed created successfully."
+            'ℹ️ Run in debug mode!' ,
+            'ℹ️ Config updated.' ,
+            'ℹ️ Builder created.' ,
+            '✅ Builder TestBuilderDelayed created successfully.',
         ], $result);
         $this->assertTrue($this->fileIsset($name, true));
         // remove
@@ -118,11 +119,11 @@ final class CommandsTest extends BaseTestCase
         list($result, $status) = $this->exec("php tests/command workbunny:rabbitmq-remove $name -d");
         $this->assertEquals(0, $status);
         $this->assertEquals([
-            "ℹ️ Run in debug mode!" ,
-            "ℹ️ Config updated." ,
-            "ℹ️ Builder removed." ,
-            "ℹ️ Empty dir removed.",
-            "✅ Builder TestBuilderDelayed removed successfully."
+            'ℹ️ Run in debug mode!' ,
+            'ℹ️ Config updated.' ,
+            'ℹ️ Builder removed.' ,
+            'ℹ️ Empty dir removed.',
+            '✅ Builder TestBuilderDelayed removed successfully.',
         ], $result);
         $this->assertFalse($this->fileIsset($name, true));
     }

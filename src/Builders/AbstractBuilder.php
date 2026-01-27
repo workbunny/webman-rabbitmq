@@ -1,29 +1,29 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Builders;
 
 use Closure;
 use Psr\Log\LoggerInterface;
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
-use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
+use Workbunny\WebmanRabbitMQ\Connections\ConnectionsManagement;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workbunny\WebmanRabbitMQ\Traits\BuilderConfigManagement;
 use Workbunny\WebmanRabbitMQ\Traits\ConfigMethods;
-use Workbunny\WebmanRabbitMQ\Traits\ConnectionsManagement;
 use Workerman\Worker;
 
 abstract class AbstractBuilder
 {
+    use ConfigMethods;
 
-    use ConfigMethods,
-        BuilderConfigManagement,
-        ConnectionsManagement;
+    use BuilderConfigManagement;
 
     /**
      * @var class-string[]
      */
     protected static array $modes = [
-        'queue' => QueueBuilder::class
+        'queue' => QueueBuilder::class,
     ];
 
     /**
@@ -49,7 +49,7 @@ abstract class AbstractBuilder
             ? (is_string($logger) ? new $logger() : $logger)
             : null;
         $this->setBuilderConfig(new BuilderConfig());
-        self::initialize($this->connection, $this->logger);
+        ConnectionsManagement::initialize($this->connection, $this->logger);
     }
 
     /**
@@ -75,6 +75,7 @@ abstract class AbstractBuilder
         if (!is_a($className, AbstractBuilder::class, true)) {
             throw new WebmanRabbitMQException("Class [{$className}] not AbstractBuilder.");
         }
+
         return static::$modes;
     }
 
@@ -94,7 +95,7 @@ abstract class AbstractBuilder
      */
     public function action(Closure $action): mixed
     {
-        return self::connection($action, $this->connection);
+        return ConnectionsManagement::action($action, $this->connection);
     }
 
     /**

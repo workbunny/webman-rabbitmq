@@ -1,14 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Workbunny\WebmanRabbitMQ\Traits;
+namespace Workbunny\WebmanRabbitMQ\Connections;
 
 use Psr\Log\LoggerInterface;
-use Workbunny\WebmanRabbitMQ\Connections\Connection;
-use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
 use Workerman\Coroutine\Pool;
 
-trait ConnectionsManagement
+class ConnectionsManagement
 {
     /**
      * 连接池
@@ -40,6 +38,7 @@ trait ConnectionsManagement
 
     /**
      * 归还
+     *
      * @param ConnectionInterface|null $connectionObject
      * @param string $connection
      * @return void
@@ -56,6 +55,16 @@ trait ConnectionsManagement
     }
 
     /**
+     * @param callable $action
+     * @param string $connection
+     * @return mixed
+     */
+    public static function action(callable $action, string $connection = 'default'): mixed
+    {
+        return self::connection($action, $connection);
+    }
+
+    /**
      * 运行
      *
      * @param callable $action
@@ -68,9 +77,7 @@ trait ConnectionsManagement
             $instance = self::get($connection);
             return $action($instance);
         } finally {
-            if (isset($instance)) {
-                self::release($instance, $connection);
-            }
+            self::release($instance ?? null, $connection);
         }
     }
 

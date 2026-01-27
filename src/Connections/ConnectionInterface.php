@@ -1,14 +1,18 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Connections;
 
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
 use Workbunny\WebmanRabbitMQ\Channels\Channel;
 use Workbunny\WebmanRabbitMQ\Clients\AbstractClient;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelException;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQPublishException;
 
 interface ConnectionInterface
 {
-
     /**
      * 获取原始rabbitmq-client
      *
@@ -34,6 +38,8 @@ interface ConnectionInterface
      * 获取一个可用通道
      *
      * @return Channel|null
+     * @throws WebmanRabbitMQConnectException
+     * @throws WebmanRabbitMQChannelException
      */
     public function channel(): ?Channel;
 
@@ -43,6 +49,9 @@ interface ConnectionInterface
      * @param BuilderConfig $config
      * @param bool $close
      * @return mixed
+     * @throws WebmanRabbitMQConnectException
+     * @throws WebmanRabbitMQChannelException
+     * @throws WebmanRabbitMQPublishException
      */
     public function publish(BuilderConfig $config, bool $close = false): mixed;
 
@@ -58,6 +67,7 @@ interface ConnectionInterface
      * 发送心跳
      *
      * @return void
+     * @throws WebmanRabbitMQConnectException
      */
     public function heartbeat(): void;
 
@@ -67,6 +77,7 @@ interface ConnectionInterface
      * @param array{replyCode: int, replyText: string} $options
      * @param bool $force 强制重连
      * @return void
+     * @throws WebmanRabbitMQConnectException
      */
     public function reconnect(array $options = [], bool $force = true): void;
 
@@ -75,6 +86,7 @@ interface ConnectionInterface
      *
      * @param array{replyCode: int, replyText: string} $options
      * @return void
+     * @throws WebmanRabbitMQConnectException
      */
     public function disconnect(array $options = []): void;
 }
