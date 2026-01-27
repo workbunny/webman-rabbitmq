@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Builders;
 
@@ -13,15 +15,15 @@ use Workerman\Worker;
 
 abstract class AbstractBuilder
 {
+    use ConfigMethods;
 
-    use ConfigMethods,
-        BuilderConfigManagement;
+    use BuilderConfigManagement;
 
     /**
      * @var class-string[]
      */
     protected static array $modes = [
-        'queue' => QueueBuilder::class
+        'queue' => QueueBuilder::class,
     ];
 
     /**
@@ -73,6 +75,7 @@ abstract class AbstractBuilder
         if (!is_a($className, AbstractBuilder::class, true)) {
             throw new WebmanRabbitMQException("Class [{$className}] not AbstractBuilder.");
         }
+
         return static::$modes;
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Clients;
@@ -19,10 +20,10 @@ use Workerman\Worker;
 
 abstract class AbstractClient extends \Bunny\Client
 {
-    use ClientMethods,
-        ConfigMethods,
-        LoggerMethods,
-        MechanismMethods;
+    use ClientMethods;
+    use ConfigMethods;
+    use LoggerMethods;
+    use MechanismMethods;
 
     /**
      * 心跳定时器
@@ -42,18 +43,18 @@ abstract class AbstractClient extends \Bunny\Client
         $this->setLogger($logger);
         // 注册认证机制
         static::registerMechanismHandler('PLAIN', function (string $mechanism, MethodConnectionStartFrame $start) {
-            return $this->connectionStartOk([], $mechanism, sprintf("\0%s\0%s", $this->options["user"], $this->options["password"]), "en_US");
+            return $this->connectionStartOk([], $mechanism, sprintf("\0%s\0%s", $this->options['user'], $this->options['password']), 'en_US');
         });
         static::registerMechanismHandler('AMQPLAIN', function (string $mechanism, MethodConnectionStartFrame $start) {
             $responseBuffer = new Buffer();
             $this->writer->appendTable([
-                "LOGIN" => $this->options["user"],
-                "PASSWORD" => $this->options["password"],
+                'LOGIN'    => $this->options['user'],
+                'PASSWORD' => $this->options['password'],
             ], $responseBuffer);
 
             $responseBuffer->discard(4);
 
-            return $this->connectionStartOk([], $mechanism, $responseBuffer->read($responseBuffer->getLength()), "en_US");
+            return $this->connectionStartOk([], $mechanism, $responseBuffer->read($responseBuffer->getLength()), 'en_US');
         });
         parent::__construct($options);
     }
@@ -82,7 +83,7 @@ abstract class AbstractClient extends \Bunny\Client
     }
 
     /** @inheritDoc */
-    public function disconnect($replyCode = 0, $replyText = ""): void
+    public function disconnect($replyCode = 0, $replyText = ''): void
     {
         if ($this->isConnected()) {
             $this->connectionClose($replyCode, $replyText, 0, 0);
@@ -97,7 +98,6 @@ abstract class AbstractClient extends \Bunny\Client
             $this->closeStream();
         }
         $this->init();
-
     }
 
     /** @inheritDoc */
@@ -108,6 +108,7 @@ abstract class AbstractClient extends \Bunny\Client
         Worker::$globalEvent->onReadable($this->getStream(), [$this, 'onDataAvailable']);
         $this->heartbeat = Timer::add($this->options['heartbeat'] ?? 50, [$this, 'heartbeat']);
         $this->running = true;
+
         return $res;
     }
 
@@ -120,7 +121,6 @@ abstract class AbstractClient extends \Bunny\Client
         while (($frame = $this->reader->consumeFrame($this->readBuffer)) !== null) {
             if ($frame->channel === 0) {
                 $this->onFrameReceived($frame);
-
             } else {
                 if (!isset($this->channels[$frame->channel])) {
                     throw new WebmanRabbitMQChannelException(

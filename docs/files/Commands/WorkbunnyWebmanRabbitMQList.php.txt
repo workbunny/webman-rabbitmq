@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Commands;
@@ -13,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class WorkbunnyWebmanRabbitMQList extends AbstractCommand
 {
-    protected static $defaultName        = 'workbunny:rabbitmq-list';
+    protected static $defaultName = 'workbunny:rabbitmq-list';
     protected static $defaultDescription = 'Show workbunny/webman-rabbitmq Builders list. ';
 
     protected function configure()
@@ -38,7 +39,7 @@ class WorkbunnyWebmanRabbitMQList extends AbstractCommand
             $key = str_replace(
                 '/',
                 '.',
-                str_replace(base_path() . '/' , '', str_replace('.php', '', $file->getPathname()))
+                str_replace(base_path() . '/', '', str_replace('.php', '', $file->getPathname()))
             );
             $name = str_replace("$basePath/", '', str_replace('.php', '', $file->getPathname()));
             $rows[] = [
@@ -46,7 +47,7 @@ class WorkbunnyWebmanRabbitMQList extends AbstractCommand
                 $file->getRealPath(),
                 $configs[$key]['handler'] ?? '--',
                 $configs[$key]['count'] ?? '--',
-                $configs[$key]['mode'] ?? '--'
+                $configs[$key]['mode'] ?? '--',
             ];
         }
 
@@ -77,6 +78,7 @@ class WorkbunnyWebmanRabbitMQList extends AbstractCommand
                 }
             }
         }
+
         return $files;
     }
 }

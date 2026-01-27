@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /**
  * @author workbunny/Chaz6chez
  * @email chaz6chez1993@outlook.com
@@ -7,14 +9,10 @@
 namespace Workbunny\WebmanRabbitMQ\Traits;
 
 use Bunny\ChannelStateEnum;
-use Bunny\Exception\ClientException;
-use Bunny\Protocol\MethodChannelOpenOkFrame;
 use Bunny\Protocol\MethodConnectionStartFrame;
 use React\Promise\PromiseInterface;
 use Workbunny\WebmanRabbitMQ\Channels\Channel;
-use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
-use Workerman\Timer;
 
 trait ClientMethods
 {
@@ -44,6 +42,7 @@ trait ClientMethods
                 unset($this->channels[$id]);
             }
         }
+
         return $this->channels;
     }
 
@@ -51,7 +50,7 @@ trait ClientMethods
     protected function read(): void
     {
         if (!$this->stream) {
-            throw new WebmanRabbitMQException("Stream is not connected.");
+            throw new WebmanRabbitMQException('Stream is not connected.');
         }
         parent::read();
     }
@@ -70,5 +69,4 @@ trait ClientMethods
      * 回收
      */
     abstract protected function __destruct();
-
 }

@@ -1,16 +1,18 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Builders;
 
+use Bunny\Async\Client as BunnyClient;
+use Bunny\Channel as BunnyChannel;
+use Bunny\Message as BunnyMessage;
 use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
 use Workbunny\WebmanRabbitMQ\Connections\ConnectionsManagement;
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workerman\Timer;
 use Workerman\Worker;
-use Bunny\Channel as BunnyChannel;
-use Bunny\Async\Client as BunnyClient;
-use Bunny\Message as BunnyMessage;
 
 abstract class QueueBuilder extends AbstractBuilder
 {
@@ -18,13 +20,13 @@ abstract class QueueBuilder extends AbstractBuilder
      * 队列配置
      *
      * @var array = [
-     *  'name'           => 'example',
-     *  'delayed'        => false,
-     *  'prefetch_count' => 1,
-     *  'prefetch_size'  => 0,
-     *  'is_global'      => false,
-     *  'routing_key'    => '',
-     * ]
+     *            'name'           => 'example',
+     *            'delayed'        => false,
+     *            'prefetch_count' => 1,
+     *            'prefetch_size'  => 0,
+     *            'is_global'      => false,
+     *            'routing_key'    => '',
+     *            ]
      */
     protected array $queueConfig = [];
 
@@ -51,9 +53,9 @@ abstract class QueueBuilder extends AbstractBuilder
         $this->getBuilderConfig()->setPrefetchSize($this->queueConfig['prefetch_size'] ?? 0);
         $this->getBuilderConfig()->setGlobal($this->queueConfig['is_global'] ?? false);
         $this->getBuilderConfig()->setCallback([$this, 'handler']);
-        if($this->queueConfig['delayed'] ?? false){
+        if ($this->queueConfig['delayed'] ?? false) {
             $this->getBuilderConfig()->setArguments([
-                'x-delayed-type' => $this->getBuilderConfig()->getExchangeType()
+                'x-delayed-type' => $this->getBuilderConfig()->getExchangeType(),
             ]);
             $this->getBuilderConfig()->setExchangeType(Constants::DELAYED);
         }
@@ -69,8 +71,8 @@ abstract class QueueBuilder extends AbstractBuilder
         } catch (WebmanRabbitMQException $exception) {
             $this->logger?->notice("Queue $worker->id exception, retry after $this->restartInterval seconds. ", [
                 'message' => $exception->getMessage(),
-                'code' => $exception->getCode(),
-                'file' => $exception->getFile() . ':' . $exception->getLine(),
+                'code'    => $exception->getCode(),
+                'file'    => $exception->getFile() . ':' . $exception->getLine(),
             ]);
             if (isset($connection)) {
                 ConnectionsManagement::destroy($this->connection);
@@ -106,6 +108,7 @@ abstract class QueueBuilder extends AbstractBuilder
     {
         $isDelay = $isDelay ? 'true' : 'false';
         $name = str_replace('\\', '.', "$namespace.$className");
+
         return <<<doc
 <?php declare(strict_types=1);
 

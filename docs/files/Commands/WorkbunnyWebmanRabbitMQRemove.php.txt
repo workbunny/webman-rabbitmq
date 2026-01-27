@@ -1,17 +1,19 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Commands;
 
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+
 use function Workbunny\WebmanRabbitMQ\is_empty_dir;
 
 class WorkbunnyWebmanRabbitMQRemove extends AbstractCommand
 {
-    protected static $defaultName        = 'workbunny:rabbitmq-remove';
+    protected static $defaultName = 'workbunny:rabbitmq-remove';
     protected static $defaultDescription = 'Remove a workbunny/webman-rabbitmq Builder. ';
 
     /**
@@ -38,32 +40,38 @@ class WorkbunnyWebmanRabbitMQRemove extends AbstractCommand
         $close = $input->getOption('close');
         list($name, $namespace, $file) = $this->getFileInfo($name, $delayed);
         $file = $close ? '' : $file;
-        if(!file_exists($process = config_path() . '/plugin/workbunny/webman-rabbitmq/process.php')) {
+        if (!file_exists($process = config_path() . '/plugin/workbunny/webman-rabbitmq/process.php')) {
             return $this->error($output, "Builder {$name} failed to remove: plugin/workbunny/webman-rabbitmq/process.php does not exist.");
         }
         // remove config
         $config = config('plugin.workbunny.webman-rabbitmq.process', []);
         $processName = str_replace('\\', '.', "$namespace\\$name");
-        if(isset($config[$processName])){
-            if(file_put_contents($process, preg_replace_callback("/    '$processName' => [[\s\S]*?],\r\n/",
+        if (isset($config[$processName])) {
+            if (file_put_contents(
+                $process,
+                preg_replace_callback(
+                    "/    '$processName' => [[\s\S]*?],\r\n/",
                     function () {
                         return '';
-                    }, file_get_contents($process),1)
+                    },
+                    file_get_contents($process),
+                    1
+                )
             ) !== false) {
-                $this->info($output, "Config updated.");
+                $this->info($output, 'Config updated.');
             }
         }
         // remove file
-        if(file_exists($file)){
+        if (file_exists($file)) {
             unlink($file);
-            $this->info($output, "Builder removed.");
+            $this->info($output, 'Builder removed.');
         }
         // remove empty dir
-        if(dirname($file) !== base_path() . DIRECTORY_SEPARATOR . self::$baseProcessPath) {
+        if (dirname($file) !== base_path() . DIRECTORY_SEPARATOR . self::$baseProcessPath) {
             is_empty_dir(dirname($file), true);
-            $this->info($output, "Empty dir removed.");
+            $this->info($output, 'Empty dir removed.');
         }
+
         return $this->success($output, "Builder $name removed successfully.");
     }
-
 }
