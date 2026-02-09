@@ -1,0 +1,252 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Workbunny\WebmanRabbitMQ\Connection\Traits;
+
+use Bunny\ChannelStateEnum;
+use Bunny\ClientStateEnum;
+use Bunny\Constants;
+use Bunny\Protocol\AbstractFrame;
+use Bunny\Protocol\Buffer;
+use Bunny\Protocol\MethodBasicGetEmptyFrame;
+use Bunny\Protocol\MethodBasicGetOkFrame;
+use Bunny\Protocol\MethodChannelOpenOkFrame;
+use Bunny\Protocol\MethodConnectionStartFrame;
+use Bunny\Protocol\MethodConnectionTuneFrame;
+use Protocols\AMQP;
+use Webman\Context;
+use Workbunny\WebmanRabbitMQ\Connection\Channel;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelException;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
+use Workerman\Connection\AsyncTcpConnection;
+use Workerman\Coroutine;
+use Workerman\Coroutine\Pool;
+use Workerman\Timer;
+use Workerman\Worker;
+
+trait InitMethods
+{
+    use MechanismMethods;
+
+    /** @var AsyncTcpConnection|null raw tcp connection */
+    protected ?AsyncTcpConnection $tcpConnection = null;
+
+    /** @var int frame max */
+    protected int $frameMax = 0xFFFF;
+
+    /** @var Pool|null channels pool */
+    protected ?Pool $channels = null;
+
+    /** @var array<int, Channel>  */
+    protected array $channelMap = [];
+
+    /** @var int channel count limit */
+    protected int $channelLimit = 0xFFFF;
+
+    /** @var int server and client heartbeat interval */
+    protected int $heartbeatInterval = 60;
+
+    /** @var int heartbeat timer id */
+    protected int $heartbeat = 0;
+
+    /** @var float last heartbeat send time */
+    public float $lastHeartbeatSendTime = 0.0;
+
+    /** @var float last heartbeat receive time */
+    public float $lastHeartbeatRecvTime = 0.0;
+
+    /** @var int channelId counter */
+    protected int $channelId = 0;
+
+    /**
+     * @param int $channelId
+     * @return Channel|null
+     */
+    public function channelMapGet(int $channelId): ?Channel
+    {
+        return $this->channelMap[$channelId] ?? null;
+    }
+
+    /**
+     * @param int $channelId
+     * @return void
+     */
+    public function channelMapRemove(int $channelId): void
+    {
+        unset($this->channelMap[$channelId]);
+    }
+
+    /**
+     * get the channels pool
+     *
+     * @return Pool
+     */
+    public function channels(): Pool
+    {
+        if (!$this->channels) {
+            $this->channels = new Pool($this->channelLimit, $this->getConfig('channels', []));
+            $this->channels->setConnectionCreator(function () {
+                $this->channel(true)->channelOpen($channelId = $this->channelId++);
+                // await channel.openOk
+                $this->await(MethodChannelOpenOkFrame::class, function (MethodChannelOpenOkFrame $frame) use ($channelId) {
+                    return intval($frame->channel) === $channelId;
+                });
+                // channel
+                return $this->channelMap[$channelId] = new Channel($this, $channelId);
+            });
+            $this->channels->setConnectionCloser(function (Channel $channel) {
+                try {
+                    $channel->close();
+                    unset($this->channelMap[$channel->id()]);
+                } catch (\Throwable) {
+                }
+            });
+        }
+        return $this->channels;
+    }
+
+    /**
+     * get ready channel
+     *
+     * @param bool $master
+     * @return Channel
+     * @throws WebmanRabbitMQChannelException
+     */
+    public function channel(bool $master = false): Channel
+    {
+        if ($master) {
+            return $this->channelMap[Constants::CONNECTION_CHANNEL];
+        }
+        $channel = Context::get('workbunny.webman-rabbitmq.channel');
+        if (!$channel) {
+            try {
+                /** @var Channel $channel */
+                $channel = $this->channels()->get();
+            } catch (Coroutine\Exception\PoolException|\Throwable) {
+                throw new WebmanRabbitMQChannelException('No available channel.', -999999999);
+            }
+            Context::set('workbunny.webman-rabbitmq.channel', $channel);
+            Coroutine::defer(function () use ($channel) {
+                try {
+                    // non-ready, close it or put it back
+                    if (in_array($channel->getState(), [
+                        ChannelStateEnum::ERROR, ChannelStateEnum::CLOSED, ChannelStateEnum::CLOSING,
+                    ])) {
+                        $this->channels()->closeConnection($channel);
+                    } else {
+                        $this->channels()->put($channel);
+                    }
+                } catch (\Throwable) {
+                }
+            });
+
+            return $channel;
+        } else {
+            // check current coroutine context.channel state
+            if ($channel->getState() === ChannelStateEnum::READY) {
+                return $channel;
+            }
+            // not ready, close it or put it back
+            try {
+                if (in_array($channel->getState(), [ChannelStateEnum::ERROR, ChannelStateEnum::CLOSED, ChannelStateEnum::CLOSING])) {
+                    $this->channels()->closeConnection($channel);
+                } else {
+                    $this->channels()->put($channel);
+                }
+            } catch (\Throwable) {
+            }
+            // reset context
+            Context::set('workbunny.webman-rabbitmq.channel', null);
+            // transfer control to other coroutines
+            Timer::sleep(0);
+            // get new channel - recursion
+            $channel = $this->channel();
+        }
+
+        return $channel;
+    }
+
+    /**
+     * init/get tcp client
+     *
+     * @return AsyncTcpConnection
+     */
+    public function connection(): AsyncTcpConnection
+    {
+        if (!$this->tcpConnection) {
+            $uri = "AMQP://{$this->getConfig('host', '127.0.0.1')}:{$this->getConfig('port', 5672)}";
+            $this->tcpConnection = new AsyncTcpConnection($uri, $this->getConfig('context', []));
+            if ($this->getConfig('context.ssl', [])) {
+                $this->tcpConnection->transport = 'ssl';
+            }
+            $this->tcpConnection->onConnect = function (AsyncTcpConnection $connection) {
+                $this->state = ClientStateEnum::CONNECTING;
+                // protocol header
+                $buffer = new Buffer();
+                AMQP::writer()->appendProtocolHeader($buffer);
+                $this->frameSend($buffer);
+                // await connection.start
+                /** @var MethodConnectionStartFrame $start */
+                $start = $this->await(MethodConnectionStartFrame::class);
+                // check mechanism
+                if (!str_contains($start->mechanisms, $mechanism = $this->getConfig('mechanism', 'PLAIN'))) {
+                    throw new WebmanRabbitMQConnectException("Server does not support $mechanism mechanism (supported: {$start->mechanisms}).");
+                }
+                // mechanism
+                if (!$handler = static::getMechanismHandler($mechanism)) {
+                    throw new WebmanRabbitMQConnectException("Client does not support $mechanism mechanism. ");
+                }
+                $handler($mechanism, $start);
+                /** @var MethodConnectionTuneFrame $tune */
+                $tune = $this->await(MethodConnectionTuneFrame::class);
+                $this->channelLimit = max(min($tune->channelMax, $this->channelLimit), 1);
+                $this->frameMax = max(min($tune->frameMax, $this->frameMax), 1);
+                // client heartbeat interval follow server
+                $this->heartbeatInterval = max(min($tune->heartbeat, $this->heartbeatInterval), 1);
+                $this->connectionTuneOk($this->channelLimit, $this->frameMax, $this->heartbeatInterval);
+                $this->connectionOpen($this->getConfig('vhost', '/'));
+                // set master channel.
+                // master channel == connection,
+                // master channel has channel-methods, connection has connection-methods
+                $this->channelMap[Constants::CONNECTION_CHANNEL] = new Channel($this, Constants::CONNECTION_CHANNEL);;
+                $this->state = ClientStateEnum::CONNECTED;
+                // set heartbeat
+                $this->heartbeat = Timer::repeat($this->heartbeatInterval, function () use ($connection) {
+                    $this->connectionHeartbeat();
+                    $this->lastHeartbeatSendTime = microtime(true);
+                });
+                // wakeup event
+                $this->wakeup('connection.connected', true);
+
+            };
+            // onMessage
+            $this->tcpConnection->onMessage = function (AsyncTcpConnection $connection, AbstractFrame|Buffer $data) {
+                if ($data instanceof Buffer) {
+                    Worker::safeEcho('AMQP protocol Error: Invalid frame type.');
+                    $connection->close();
+                    return;
+                }
+                // attempt to wakeup await*
+                $this->wakeup($data::class, $data);
+                // connection recv
+                if ($data->channel === Constants::CONNECTION_CHANNEL) {
+                    $this->onFrameReceived($data);
+                    return;
+                }
+                // channel recv
+                if ($channel = $this->channelMap[$data->channel] ?? null) {
+                    $channel->onFrameReceived($data);
+                }
+            };
+            $this->tcpConnection->onClose = function () {
+                throw new WebmanRabbitMQConnectException('Connection closed.');
+            };
+            // onError
+            $this->tcpConnection->onError = function (AsyncTcpConnection $connection, $code, $msg) {
+                throw new WebmanRabbitMQConnectException($msg, $code);
+            };
+        }
+        return $this->tcpConnection;
+    }
+}
