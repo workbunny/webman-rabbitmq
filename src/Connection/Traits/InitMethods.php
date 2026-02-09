@@ -9,8 +9,6 @@ use Bunny\ClientStateEnum;
 use Bunny\Constants;
 use Bunny\Protocol\AbstractFrame;
 use Bunny\Protocol\Buffer;
-use Bunny\Protocol\MethodBasicGetEmptyFrame;
-use Bunny\Protocol\MethodBasicGetOkFrame;
 use Bunny\Protocol\MethodChannelOpenOkFrame;
 use Bunny\Protocol\MethodConnectionStartFrame;
 use Bunny\Protocol\MethodConnectionTuneFrame;
@@ -70,6 +68,7 @@ trait InitMethods
         if (!$this->channelIds) {
             throw new WebmanRabbitMQChannelFulledException('No available channel.');
         }
+
         return array_pop($this->channelIds);
     }
 
@@ -110,6 +109,7 @@ trait InitMethods
                 $this->await(MethodChannelOpenOkFrame::class, function (MethodChannelOpenOkFrame $frame) use ($channelId) {
                     return intval($frame->channel) === $channelId;
                 });
+
                 // channel
                 return $this->channelUsedList[$channelId] = new Channel($this, $channelId);
             });
@@ -121,6 +121,7 @@ trait InitMethods
                 }
             });
         }
+
         return $this->channels;
     }
 
@@ -231,7 +232,8 @@ trait InitMethods
                 // set master channel.
                 // master channel == connection,
                 // master channel has channel-methods, connection has connection-methods
-                $this->channelUsedList[Constants::CONNECTION_CHANNEL] = new Channel($this, Constants::CONNECTION_CHANNEL);;
+                $this->channelUsedList[Constants::CONNECTION_CHANNEL] = new Channel($this, Constants::CONNECTION_CHANNEL);
+                ;
                 $this->state = ClientStateEnum::CONNECTED;
                 // set heartbeat
                 $this->heartbeat = Timer::repeat($this->heartbeatInterval, function () use ($connection) {
@@ -240,13 +242,13 @@ trait InitMethods
                 });
                 // wakeup event
                 $this->wakeup('connection.connected', true);
-
             };
             // onMessage
             $this->tcpConnection->onMessage = function (AsyncTcpConnection $connection, AbstractFrame|Buffer $data) {
                 if ($data instanceof Buffer) {
                     Worker::safeEcho('AMQP protocol Error: Invalid frame type.');
                     $connection->close();
+
                     return;
                 }
                 // attempt to wakeup await*
@@ -254,6 +256,7 @@ trait InitMethods
                 // connection recv
                 if ($data->channel === Constants::CONNECTION_CHANNEL) {
                     $this->onFrameReceived($data);
+
                     return;
                 }
                 // channel recv
@@ -269,6 +272,7 @@ trait InitMethods
                 throw new WebmanRabbitMQConnectException($msg, $code);
             };
         }
+
         return $this->tcpConnection;
     }
 }

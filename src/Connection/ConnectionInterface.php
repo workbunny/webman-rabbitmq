@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Workbunny\WebmanRabbitMQ\Connection;
 
 use Bunny\Protocol\AbstractFrame;
-use Bunny\Protocol\ProtocolReader;
-use Bunny\Protocol\ProtocolWriter;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelFulledException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
 use Workerman\Connection\AsyncTcpConnection;

@@ -4,16 +4,10 @@ declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Builders;
 
-use Bunny\Message;
-use Throwable;
-use Workbunny\WebmanRabbitMQ\BuilderConfig;
 use Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface;
 use Workbunny\WebmanRabbitMQ\ConnectionsManagement;
 use Workbunny\WebmanRabbitMQ\Constants;
-use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelException;
-use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelFulledException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
-use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQRequeueException;
 use Workerman\Timer;
 use Workerman\Worker;
 

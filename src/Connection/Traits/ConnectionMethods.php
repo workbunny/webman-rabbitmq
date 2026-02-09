@@ -8,11 +8,6 @@ declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Connection\Traits;
 
-use Bunny\Constants;
-use Bunny\Exception\ClientException;
-use Bunny\Protocol\AbstractFrame;
-use Bunny\Protocol\ContentBodyFrame;
-use Bunny\Protocol\ContentHeaderFrame;
 use Bunny\Protocol\HeartbeatFrame;
 use Bunny\Protocol\MethodAccessRequestFrame;
 use Bunny\Protocol\MethodConnectionCloseFrame;
@@ -21,13 +16,9 @@ use Bunny\Protocol\MethodConnectionOpenFrame;
 use Bunny\Protocol\MethodConnectionSecureOkFrame;
 use Bunny\Protocol\MethodConnectionStartOkFrame;
 use Bunny\Protocol\MethodConnectionTuneOkFrame;
-use Bunny\Protocol\MethodFrame;
-use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
-use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 
 trait ConnectionMethods
 {
-
     /**
      * send AMQP connection.heartbeat frame
      *
@@ -36,6 +27,7 @@ trait ConnectionMethods
     public function connectionHeartbeat(): bool
     {
         $f = new HeartbeatFrame();
+
         return $this->frameSend($f);
     }
 
@@ -55,6 +47,7 @@ trait ConnectionMethods
         $f->mechanism = $mechanism;
         $f->response = $response;
         $f->locale = $locale;
+
         return $this->frameSend($f);
     }
 
@@ -68,6 +61,7 @@ trait ConnectionMethods
     {
         $f = new MethodConnectionSecureOkFrame();
         $f->response = $response;
+
         return $this->frameSend($f);
     }
 
@@ -85,6 +79,7 @@ trait ConnectionMethods
         $f->channelMax = $channelMax;
         $f->frameMax = $frameMax;
         $f->heartbeat = $heartbeat;
+
         return $this->frameSend($f);
     }
 
@@ -102,6 +97,7 @@ trait ConnectionMethods
         $f->virtualHost = $virtualHost;
         $f->capabilities = $capabilities;
         $f->insist = $insist;
+
         return $this->frameSend($f);
     }
 
@@ -121,6 +117,7 @@ trait ConnectionMethods
         $f->replyText = $replyText;
         $f->closeClassId = $closeClassId;
         $f->closeMethodId = $closeMethodId;
+
         return $this->frameSend($f);
     }
 
@@ -132,6 +129,7 @@ trait ConnectionMethods
     public function connectionCloseOk(): bool
     {
         $f = new MethodConnectionCloseOkFrame();
+
         return $this->frameSend($f);
     }
 
@@ -148,10 +146,13 @@ trait ConnectionMethods
      * @return bool
      */
     public function accessRequest(
-        string $realm = '/data', bool $exclusive = false, bool $passive = true, bool $active = true,
-        bool $write = true, bool $read = true
-    ): bool
-    {
+        string $realm = '/data',
+        bool $exclusive = false,
+        bool $passive = true,
+        bool $active = true,
+        bool $write = true,
+        bool $read = true
+    ): bool {
         $f = new MethodAccessRequestFrame();
         $f->realm = $realm;
         $f->exclusive = $exclusive;
@@ -159,6 +160,7 @@ trait ConnectionMethods
         $f->active = $active;
         $f->write = $write;
         $f->read = $read;
+
         return $this->frameSend($f);
     }
 }

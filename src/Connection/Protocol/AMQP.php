@@ -9,18 +9,20 @@ use Bunny\Protocol\AbstractFrame;
 use Bunny\Protocol\Buffer;
 use Bunny\Protocol\ProtocolReader;
 use Bunny\Protocol\ProtocolWriter;
+
+use function Workbunny\WebmanRabbitMQ\binary_dump;
+
 use Workerman\Connection\ConnectionInterface;
 use Workerman\Worker;
-use function Workbunny\WebmanRabbitMQ\binary_dump;
 
 class AMQP
 {
     public static bool $debug = false;
 
-    /** @var ProtocolReader|null  */
+    /** @var ProtocolReader|null */
     protected static ?ProtocolReader $protocolReader = null;
 
-    /** @var ProtocolWriter|null  */
+    /** @var ProtocolWriter|null */
     protected static ?ProtocolWriter $protocolWriter = null;
 
     /**
@@ -63,10 +65,12 @@ class AMQP
             if ($pos === false) {
                 return 0;
             }
+
             return $pos + strlen($end);
         } catch (\Throwable $throwable) {
             Worker::safeEcho("AMQP protocol input Error: {$throwable->getMessage()}\n");
             $connection->close();
+
             return -1;
         }
     }
@@ -99,10 +103,12 @@ $b\n
 doc
                     , true);
             }
+
             return $res;
         } catch (\Throwable $throwable) {
             Worker::safeEcho("AMQP protocol decode Error: {$throwable->getMessage()}\n");
             $connection->close();
+
             return null;
         }
     }
@@ -123,7 +129,7 @@ doc
             }
             $res = $buffer->read($buffer->getLength());
             if (!$res) {
-                throw new \InvalidArgumentException("Invalid frame");
+                throw new \InvalidArgumentException('Invalid frame');
             }
             if (self::$debug) {
                 $b = binary_dump($res);
@@ -134,12 +140,14 @@ doc
 
 $b\n
 doc
-                , true);
+                    , true);
             }
+
             return $res;
         } catch (\Throwable $throwable) {
             Worker::safeEcho("AMQP protocol encode Error: {$throwable->getMessage()}\n");
             $connection->close();
+
             return null;
         }
     }

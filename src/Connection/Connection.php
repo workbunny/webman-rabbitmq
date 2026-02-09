@@ -12,25 +12,21 @@ use Bunny\Protocol\HeartbeatFrame;
 use Bunny\Protocol\MethodConnectionCloseFrame;
 use Bunny\Protocol\MethodConnectionCloseOkFrame;
 use Bunny\Protocol\MethodConnectionStartFrame;
-use Bunny\Protocol\MethodFrame;
-use Bunny\Protocol\ProtocolReader;
-use Bunny\Protocol\ProtocolWriter;
 use Protocols\AMQP;
 use Psr\Log\LoggerInterface;
 use Workbunny\WebmanRabbitMQ\Connection\Traits\ConnectionMethods;
 use Workbunny\WebmanRabbitMQ\Connection\Traits\InitMethods;
 use Workbunny\WebmanRabbitMQ\Connection\Traits\LoggerMethods;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
-use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workbunny\WebmanRabbitMQ\Traits\ConfigMethods;
 use Workerman\Coroutine;
 
 class Connection implements ConnectionInterface
 {
-    use ConfigMethods,
-        LoggerMethods,
-        InitMethods,
-        ConnectionMethods;
+    use ConfigMethods;
+    use LoggerMethods;
+    use InitMethods;
+    use ConnectionMethods;
 
     /** @var int state */
     protected int $state = ClientStateEnum::NOT_CONNECTED;
@@ -69,7 +65,7 @@ class Connection implements ConnectionInterface
             $responseBuffer = new Buffer();
             AMQP::writer()->appendTable([
                 'LOGIN'    => $this->getConfig('user', 'guest'),
-                'PASSWORD' =>  $this->getConfig('password', 'guest'),
+                'PASSWORD' => $this->getConfig('password', 'guest'),
             ], $responseBuffer);
 
             $responseBuffer->discard(4);
@@ -124,7 +120,7 @@ class Connection implements ConnectionInterface
         $this->awaits[$frameClassOrEvent][] = [
             'checker'    => $checker,
             'coroutine'  => $co,
-            'timestamp'  => microtime(true)
+            'timestamp'  => microtime(true),
         ];
 
         return $co::suspend();
@@ -155,6 +151,7 @@ class Connection implements ConnectionInterface
                 }
                 // remove event
                 unset($this->awaits[$frameClassOrEvent]);
+
                 return;
             }
 
@@ -165,6 +162,7 @@ class Connection implements ConnectionInterface
             if ($checker = $await['checker']) {
                 if (!$checker($return)) {
                     array_unshift($this->awaits[$frameClassOrEvent], $await);
+
                     return;
                 }
             }
@@ -236,16 +234,16 @@ class Connection implements ConnectionInterface
                 'replyCode' => $frame->replyCode,
                 'replyText' => $frame->replyText,
                 'message'   => 'Connection closed by server. ',
-                'code'      => Constants::STATUS_CONNECTION_FORCED
+                'code'      => Constants::STATUS_CONNECTION_FORCED,
             ]);
-            throw new WebmanRabbitMQConnectException("Connection closed by server: " . $frame->replyText, $frame->replyCode);
+            throw new WebmanRabbitMQConnectException('Connection closed by server: ' . $frame->replyText, $frame->replyCode);
         }
         if ($frame instanceof HeartbeatFrame) {
             $this->lastHeartbeatRecvTime = microtime(true);
+
             return;
         }
         // master channel receive
         $this->masterChannel?->onFrameReceived($frame);
     }
-
 }

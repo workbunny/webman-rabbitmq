@@ -24,8 +24,8 @@ use Workerman\Worker;
 
 abstract class AbstractBuilder
 {
-    use ConfigMethods,
-        BuilderConfigManagement;
+    use ConfigMethods;
+    use BuilderConfigManagement;
 
     /**
      * @var class-string[]
@@ -175,6 +175,7 @@ abstract class AbstractBuilder
             ConnectionsManagement::connection(function (ConnectionInterface $connection) use ($config) {
                 $this->consume($connection, $config);
             });
+
             return;
         }
         $consumer->exchangeDeclare(

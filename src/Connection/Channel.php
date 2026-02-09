@@ -151,6 +151,7 @@ class Channel
     public function returnCallbackRegister(Closure $callback): static
     {
         $this->returnCallback = $callback;
+
         return $this;
     }
 
@@ -162,6 +163,7 @@ class Channel
     public function returnCallbackUnregister(): static
     {
         $this->returnCallback = null;
+
         return $this;
     }
 
@@ -181,8 +183,8 @@ class Channel
      * Nack send
      *
      * @param Message $message
-     * @param boolean $multiple
-     * @param boolean $requeue
+     * @param bool $multiple
+     * @param bool $requeue
      * @return bool
      */
     public function nack(Message $message, bool $multiple = false, bool $requeue = true): bool
@@ -214,10 +216,13 @@ class Channel
      * @return int|null
      */
     public function publish(
-        string $exchange, array $headers = [], array|string $body = '', string $routingKey = '',
-        bool   $mandatory = false, bool $immediate = false
-    ): null|int
-    {
+        string $exchange,
+        array $headers = [],
+        array|string $body = '',
+        string $routingKey = '',
+        bool   $mandatory = false,
+        bool $immediate = false
+    ): null|int {
         return $this->basicPublish($this->id(), $exchange, $headers, $body, $routingKey, $mandatory, $immediate);
     }
 
@@ -236,7 +241,7 @@ class Channel
         $this->getCallbacks[] = $callback;
         if (!$nowait) {
             $id = spl_object_id($callback);
-            /** @var MethodBasicGetEmptyFrame|MethodBasicGetOkFrame $frame */
+            /* @var MethodBasicGetEmptyFrame|MethodBasicGetOkFrame $frame */
             $this->connection->await("basic.get.$id");
         }
     }
@@ -254,15 +259,21 @@ class Channel
      * @param array $arguments
      * @return MethodBasicConsumeOkFrame
      */
-    public function consume(Closure $callback,
-                            string   $queue = '', string $consumerTag = '', bool $noLocal = false, bool $noAck = false,
-                            bool     $exclusive = false, bool $nowait = false, array $arguments = []
-    ): MethodBasicConsumeOkFrame
-    {
+    public function consume(
+        Closure $callback,
+        string   $queue = '',
+        string $consumerTag = '',
+        bool $noLocal = false,
+        bool $noAck = false,
+        bool     $exclusive = false,
+        bool $nowait = false,
+        array $arguments = []
+    ): MethodBasicConsumeOkFrame {
         $this->basicConsume($this->id(), $queue, $consumerTag, $noLocal, $noAck, $exclusive, $nowait, $arguments);
         /** @var MethodBasicConsumeOkFrame $frame */
         $frame = $this->connection->await(MethodBasicConsumeOkFrame::class);
         $this->deliverCallbacks[$frame->consumerTag] = $callback;
+
         return $frame;
     }
 
@@ -279,6 +290,7 @@ class Channel
             $res = $this->connection->await(MethodBasicCancelOkFrame::class);
         }
         unset($this->deliverCallbacks[$consumerTag]);
+
         return $res;
     }
 
@@ -309,6 +321,7 @@ class Channel
         }
         $this->setState(ChannelStateEnum::CLOSED);
         $this->connection->channels()->closeConnection($this);
+
         return $res;
     }
 
@@ -320,13 +333,14 @@ class Channel
     public function select(): MethodTxSelectOkFrame
     {
         if ($this->getMode() !== ChannelModeEnum::REGULAR) {
-            throw new WebmanRabbitMQException("Channel not in regular mode, cannot change to transactional mode.");
+            throw new WebmanRabbitMQException('Channel not in regular mode, cannot change to transactional mode.');
         }
 
         $this->txSelect($this->id());
         /** @var MethodTxSelectOkFrame $frame */
         $frame = $this->connection->await(MethodTxSelectOkFrame::class);
         $this->setMode(ChannelModeEnum::TRANSACTIONAL);
+
         return $frame;
     }
 
@@ -360,6 +374,7 @@ class Channel
         $this->txRollback($this->id());
         /** @var MethodTxRollbackOkFrame $res */
         $res = $this->connection->await(MethodTxRollbackOkFrame::class);
+
         return $res;
     }
 
@@ -373,7 +388,7 @@ class Channel
     public function confirm(Closure $action, bool $nowait = false): MethodBasicAckFrame|MethodBasicNackFrame
     {
         if ($this->mode !== ChannelModeEnum::REGULAR) {
-            throw new WebmanRabbitMQException("Channel not in regular mode, cannot change to transactional mode.");
+            throw new WebmanRabbitMQException('Channel not in regular mode, cannot change to transactional mode.');
         }
 
         $this->confirmSelect($this->id());
@@ -383,6 +398,7 @@ class Channel
         $action();
         /** @var MethodBasicAckFrame|MethodBasicNackFrame $frame */
         $frame = $this->connection->await('confirm.select');
+
         return $frame;
     }
 
@@ -401,6 +417,7 @@ class Channel
         // closing or closed
         if (($frame instanceof MethodChannelCloseFrame) or ($frame instanceof MethodChannelCloseOkFrame)) {
             $this->connection->channels()->closeConnection($this);
+
             return;
         }
         // wait deliver / get / return
@@ -416,6 +433,7 @@ class Channel
             $this->currentContentHeaderFrame = null;
             $this->currentContentBodyBuffer->discard($this->currentContentBodyBuffer->getLength());
             $this->setState(ChannelStateEnum::AWAITING_HEADER);
+
             return;
         }
         // wait header
@@ -435,6 +453,7 @@ class Channel
                 $this->setState(ChannelStateEnum::READY);
                 $this->onBodyFramesComplete();
             }
+
             return;
         }
         // confirm recv - ack or nack
@@ -471,7 +490,7 @@ class Channel
                     $this->connection->wakeup("basic.get.$id", true);
                 }
                 break;
-            // deliver
+                // deliver
             case $this->currentContentStartFrame instanceof MethodBasicDeliverFrame:
                 /** @var MethodBasicDeliverFrame $frame */
                 $frame = $this->currentContentStartFrame;
@@ -488,7 +507,7 @@ class Channel
                     $callback($message, $this, $this->connection);
                 }
                 break;
-            // return
+                // return
             case $this->currentContentStartFrame instanceof MethodBasicReturnFrame:
                 /** @var MethodBasicReturnFrame $frame */
                 $frame = $this->currentContentStartFrame;
@@ -511,5 +530,4 @@ class Channel
         $this->currentContentStartFrame = null;
         $this->currentContentHeaderFrame = null;
     }
-
 }

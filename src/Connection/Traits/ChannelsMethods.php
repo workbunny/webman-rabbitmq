@@ -62,6 +62,7 @@ trait ChannelsMethods
         $f = new MethodChannelOpenFrame();
         $f->channel = $channel;
         $f->outOfBand = $outOfBand;
+
         return $this->frameSend($f);
     }
 
@@ -77,6 +78,7 @@ trait ChannelsMethods
         $f = new MethodChannelFlowFrame();
         $f->channel = $channel;
         $f->active = $active;
+
         return $this->frameSend($f);
     }
 
@@ -92,6 +94,7 @@ trait ChannelsMethods
         $f = new MethodChannelFlowOkFrame();
         $f->channel = $channel;
         $f->active = $active;
+
         return $this->frameSend($f);
     }
 
@@ -113,6 +116,7 @@ trait ChannelsMethods
         $f->replyText = $replyText;
         $f->closeClassId = $closeClassId;
         $f->closeMethodId = $closeMethodId;
+
         return $this->frameSend($f);
     }
 
@@ -126,6 +130,7 @@ trait ChannelsMethods
     {
         $f = new MethodChannelCloseOkFrame();
         $f->channel = $channel;
+
         return $this->frameSend($f);
     }
 
@@ -145,10 +150,15 @@ trait ChannelsMethods
      */
     public function exchangeDeclare(
         int    $channel,
-        string $exchange, string $exchangeType = 'direct', bool $passive = false, bool $durable = false,
-        bool   $autoDelete = false, bool $internal = false, bool $nowait = false, array $arguments = []
-    ): bool|MethodExchangeDeclareOkFrame
-    {
+        string $exchange,
+        string $exchangeType = 'direct',
+        bool $passive = false,
+        bool $durable = false,
+        bool   $autoDelete = false,
+        bool $internal = false,
+        bool $nowait = false,
+        array $arguments = []
+    ): bool|MethodExchangeDeclareOkFrame {
         $f = new MethodExchangeDeclareFrame();
         $f->channel = $channel;
         $f->exchange = $exchange;
@@ -165,8 +175,10 @@ trait ChannelsMethods
             $f = $this->connection->await(MethodExchangeDeclareOkFrame::class, function (MethodQueueDeclareOkFrame $frame) use ($channel) {
                 return $frame->channel === $channel;
             });
+
             return $f;
         }
+
         return $res;
     }
 
@@ -192,8 +204,10 @@ trait ChannelsMethods
             $f = $this->connection->await(MethodExchangeDeleteOkFrame::class, function (MethodExchangeDeleteOkFrame $frame) use ($channel) {
                 return $frame->channel === $channel;
             });
+
             return $f;
         }
+
         return $res;
     }
 
@@ -209,9 +223,13 @@ trait ChannelsMethods
      * @return bool|MethodExchangeBindOkFrame
      */
     public function exchangeBind(
-        int $channel, string $destination, string $source, string $routingKey = '', bool $nowait = false, array $arguments = []
-    ): bool|MethodExchangeBindOkFrame
-    {
+        int $channel,
+        string $destination,
+        string $source,
+        string $routingKey = '',
+        bool $nowait = false,
+        array $arguments = []
+    ): bool|MethodExchangeBindOkFrame {
         $f = new MethodExchangeBindFrame();
         $f->channel = $channel;
         $f->destination = $destination;
@@ -225,8 +243,10 @@ trait ChannelsMethods
             $f = $this->connection->await(MethodExchangeBindOkFrame::class, function (MethodExchangeBindOkFrame $frame) use ($channel) {
                 return $frame->channel === $channel;
             });
+
             return $f;
         }
+
         return $res;
     }
 
@@ -242,9 +262,13 @@ trait ChannelsMethods
      * @return bool|MethodExchangeUnbindOkFrame
      */
     public function exchangeUnbind(
-        int $channel, string $destination, string $source, string $routingKey = '', bool $nowait = false, array $arguments = []
-    ): bool|MethodExchangeUnbindOkFrame
-    {
+        int $channel,
+        string $destination,
+        string $source,
+        string $routingKey = '',
+        bool $nowait = false,
+        array $arguments = []
+    ): bool|MethodExchangeUnbindOkFrame {
         $f = new MethodExchangeUnbindFrame();
         $f->channel = $channel;
         $f->destination = $destination;
@@ -258,8 +282,10 @@ trait ChannelsMethods
             $f = $this->connection->await(MethodExchangeUnbindOkFrame::class, function (MethodExchangeUnbindOkFrame $frame) use ($channel) {
                 return $frame->channel === $channel;
             });
+
             return $f;
         }
+
         return $res;
     }
 
@@ -278,11 +304,14 @@ trait ChannelsMethods
      */
     public function queueDeclare(
         int    $channel,
-        string $queue = '', bool $passive = false, bool $durable = false,
-        bool   $exclusive = false, bool $autoDelete = false,
-        bool   $nowait = false, array $arguments = []
-    ): bool|MethodQueueDeclareOkFrame
-    {
+        string $queue = '',
+        bool $passive = false,
+        bool $durable = false,
+        bool   $exclusive = false,
+        bool $autoDelete = false,
+        bool   $nowait = false,
+        array $arguments = []
+    ): bool|MethodQueueDeclareOkFrame {
         $f = new MethodQueueDeclareFrame();
         $f->channel = $channel;
         $f->queue = $queue;
@@ -298,8 +327,10 @@ trait ChannelsMethods
             $f = $this->connection->await(MethodQueueDeclareOkFrame::class, function (MethodQueueDeclareOkFrame $frame) use ($channel) {
                 return $frame->channel === $channel;
             });
+
             return $f;
         }
+
         return $res;
     }
 
@@ -316,10 +347,12 @@ trait ChannelsMethods
      */
     public function queueBind(
         int $channel,
-        string $queue, string $exchange, string $routingKey = '',
-        bool $nowait = false, array $arguments = []
-    ): bool|MethodQueueBindOkFrame
-    {
+        string $queue,
+        string $exchange,
+        string $routingKey = '',
+        bool $nowait = false,
+        array $arguments = []
+    ): bool|MethodQueueBindOkFrame {
         $f = new MethodQueueBindFrame();
         $f->channel = $channel;
         $f->queue = $queue;
@@ -333,8 +366,10 @@ trait ChannelsMethods
             $f = $this->connection->await(MethodQueueBindOkFrame::class, function (MethodQueueBindOkFrame $f) use ($channel) {
                 return $f->channel === $channel;
             });
+
             return $f;
         }
+
         return $res;
     }
 
@@ -350,15 +385,18 @@ trait ChannelsMethods
      */
     public function queueUnbind(
         int $channel,
-        string $queue, string $exchange, string $routingKey = '', array $arguments = []
-    ) : bool
-    {
+        string $queue,
+        string $exchange,
+        string $routingKey = '',
+        array $arguments = []
+    ): bool {
         $f = new MethodQueueUnbindFrame();
         $f->channel = $channel;
         $f->queue = $queue;
         $f->exchange = $exchange;
         $f->routingKey = $routingKey;
         $f->arguments = $arguments;
+
         return $this->frameSend($f);
     }
 
@@ -382,8 +420,10 @@ trait ChannelsMethods
             $f = $this->connection->await(MethodQueuePurgeOkFrame::class, function (MethodQueuePurgeOkFrame $frame) use ($channel) {
                 return $frame->channel === $channel;
             });
+
             return $f;
         }
+
         return $res;
     }
 
@@ -399,10 +439,11 @@ trait ChannelsMethods
      */
     public function queueDelete(
         int $channel,
-        string $queue = '', bool $ifUnused = false,
-        bool $ifEmpty = false, bool $nowait = false
-    ): bool|MethodQueueDeleteOkFrame
-    {
+        string $queue = '',
+        bool $ifUnused = false,
+        bool $ifEmpty = false,
+        bool $nowait = false
+    ): bool|MethodQueueDeleteOkFrame {
         $f = new MethodQueueDeleteFrame();
         $f->channel = $channel;
         $f->queue = $queue;
@@ -415,8 +456,10 @@ trait ChannelsMethods
             $f = $this->connection->await(MethodQueueDeleteOkFrame::class, function (MethodQueueDeleteOkFrame $frame) use ($channel) {
                 return $frame->channel === $channel;
             });
+
             return $f;
         }
+
         return $res;
     }
 
@@ -436,6 +479,7 @@ trait ChannelsMethods
         $f->prefetchSize = $prefetchSize;
         $f->prefetchCount = $prefetchCount;
         $f->global = $global;
+
         return $this->frameSend($f);
     }
 
@@ -453,12 +497,15 @@ trait ChannelsMethods
      * @return bool|MethodBasicConsumeOkFrame
      */
     public function basicConsume(
-        int $channel, string $queue = '', string $consumerTag = '',
-        bool $noLocal = false, bool $noAck = false,
-        bool $exclusive = false, bool $nowait = false,
+        int $channel,
+        string $queue = '',
+        string $consumerTag = '',
+        bool $noLocal = false,
+        bool $noAck = false,
+        bool $exclusive = false,
+        bool $nowait = false,
         array $arguments = []
-    ): bool|MethodBasicConsumeOkFrame
-    {
+    ): bool|MethodBasicConsumeOkFrame {
         $f = new MethodBasicConsumeFrame();
         $f->channel = $channel;
         $f->queue = $queue;
@@ -474,8 +521,10 @@ trait ChannelsMethods
             $f = $this->connection->await(MethodBasicConsumeOkFrame::class, function (MethodBasicConsumeOkFrame $frame) use ($channel) {
                 return $frame->channel === $channel;
             });
+
             return $f;
         }
+
         return $res;
     }
 
@@ -499,8 +548,10 @@ trait ChannelsMethods
             $f = $this->connection->await(MethodBasicCancelOkFrame::class, function (MethodBasicCancelOkFrame $frame) use ($channel) {
                 return $frame->channel === $channel;
             });
+
             return $f;
         }
+
         return $res;
     }
 
@@ -518,10 +569,13 @@ trait ChannelsMethods
      */
     public function basicPublish(
         int $channel,
-        string $exchange, array $headers = [], string|array $body = '',
-        string $routingKey = '', bool $mandatory = false, bool $immediate = false
-    ): null|int
-    {
+        string $exchange,
+        array $headers = [],
+        string|array $body = '',
+        string $routingKey = '',
+        bool $mandatory = false,
+        bool $immediate = false
+    ): null|int {
         $body = is_string($body) ? [$body] : $body;
 
         $f = new MethodBasicPublishFrame();
@@ -535,12 +589,14 @@ trait ChannelsMethods
                 $result = 0;
                 foreach ($body as $chunk) {
                     if ($this->frameSend(new ContentBodyFrame($channel, strlen($chunk), $chunk))) {
-                        $result ++;
+                        $result++;
                     }
                 }
+
                 return $result;
             }
         }
+
         return null;
     }
 
@@ -558,6 +614,7 @@ trait ChannelsMethods
         $f->channel = $channel;
         $f->queue = $queue;
         $f->noAck = $noAck;
+
         return $this->frameSend($f);
     }
 
@@ -575,6 +632,7 @@ trait ChannelsMethods
         $f->channel = $channel;
         $f->deliveryTag = $deliveryTag;
         $f->multiple = $multiple;
+
         return $this->frameSend($f);
     }
 
@@ -592,6 +650,7 @@ trait ChannelsMethods
         $f->channel = $channel;
         $f->deliveryTag = $deliveryTag;
         $f->requeue = $requeue;
+
         return $this->frameSend($f);
     }
 
@@ -607,6 +666,7 @@ trait ChannelsMethods
         $f = new MethodBasicRecoverFrame();
         $f->channel = $channel;
         $f->requeue = $requeue;
+
         return $this->frameSend($f);
     }
 
@@ -626,6 +686,7 @@ trait ChannelsMethods
         $f->deliveryTag = $deliveryTag;
         $f->multiple = $multiple;
         $f->requeue = $requeue;
+
         return $this->frameSend($f);
     }
 
@@ -639,6 +700,7 @@ trait ChannelsMethods
     {
         $f = new MethodTxSelectFrame();
         $f->channel = $channel;
+
         return $this->frameSend($f);
     }
 
@@ -652,6 +714,7 @@ trait ChannelsMethods
     {
         $f = new MethodTxCommitFrame();
         $f->channel = $channel;
+
         return $this->frameSend($f);
     }
 
@@ -665,6 +728,7 @@ trait ChannelsMethods
     {
         $f = new MethodTxRollbackFrame();
         $f->channel = $channel;
+
         return $this->frameSend($f);
     }
 
@@ -678,7 +742,7 @@ trait ChannelsMethods
     {
         $f = new MethodConfirmSelectFrame();
         $f->channel = $channel;
+
         return $this->frameSend($f);
     }
-
 }
