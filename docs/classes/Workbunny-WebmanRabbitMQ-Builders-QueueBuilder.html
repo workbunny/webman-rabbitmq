@@ -178,7 +178,14 @@
 <dd>Command 获取需要创建的类文件内容</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-BuilderConfigManagement.html#method_getBuilderConfig">getBuilderConfig()</a>
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#method_consume">consume()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>消费</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Builders-Traits-BuilderConfigManagement.html#method_getBuilderConfig">getBuilderConfig()</a>
     <span>
                                 &nbsp;: <a href="classes/Workbunny-WebmanRabbitMQ-BuilderConfig.html"><abbr title="\Workbunny\WebmanRabbitMQ\BuilderConfig">BuilderConfig</abbr></a>    </span>
 </dt>
@@ -237,6 +244,13 @@
 <dd>Builder 停止时</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#method_publish">publish()</a>
+    <span>
+                                &nbsp;: bool|int    </span>
+</dt>
+<dd>发布</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#method_registerMode">registerMode()</a>
     <span>
                                 &nbsp;: array&lt;string|int, class-string&gt;    </span>
@@ -244,7 +258,7 @@
 <dd>注册模式</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-BuilderConfigManagement.html#method_setBuilderConfig">setBuilderConfig()</a>
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Builders-Traits-BuilderConfigManagement.html#method_setBuilderConfig">setBuilderConfig()</a>
     <span>
                                 &nbsp;: void    </span>
 </dt>
@@ -318,9 +332,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Builders/AbstractBuilder.php"><a href="files/builders-abstractbuilder.html"><abbr title="Builders/AbstractBuilder.php">AbstractBuilder.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">97</span>
+    <span class="phpdocumentor-element-found-in__line">102</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#source-view.97" class="phpdocumentor-element-found-in__source" data-line="97" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#source-view.102" class="phpdocumentor-element-found-in__source" data-line="102" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">运行</p>
@@ -443,17 +457,70 @@
             -public
                                                         "
 >
-    <h4 class="phpdocumentor-element__name" id="method_getBuilderConfig">
-        getBuilderConfig()
-        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-BuilderConfigManagement.html#method_getBuilderConfig" class="headerlink"><i class="fas fa-link"></i></a>
+    <h4 class="phpdocumentor-element__name" id="method_consume">
+        consume()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#method_consume" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h4>
     <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="Traits/BuilderConfigManagement.php"><a href="files/traits-builderconfigmanagement.html"><abbr title="Traits/BuilderConfigManagement.php">BuilderConfigManagement.php</abbr></a></abbr>
+    <abbr class="phpdocumentor-element-found-in__file" title="Builders/AbstractBuilder.php"><a href="files/builders-abstractbuilder.html"><abbr title="Builders/AbstractBuilder.php">AbstractBuilder.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">170</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#source-view.170" class="phpdocumentor-element-found-in__source" data-line="170" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
+    </aside>
+
+        <p class="phpdocumentor-summary">消费</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">consume</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface">ConnectionInterface</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$connection</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type"><a href="classes/Workbunny-WebmanRabbitMQ-BuilderConfig.html"><abbr title="\Workbunny\WebmanRabbitMQ\BuilderConfig">BuilderConfig</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$config</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$connection</span>
+                : <span class="phpdocumentor-argument-list__argument__type"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface">ConnectionInterface</abbr></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$config</span>
+                : <span class="phpdocumentor-argument-list__argument__type"><a href="classes/Workbunny-WebmanRabbitMQ-BuilderConfig.html"><abbr title="\Workbunny\WebmanRabbitMQ\BuilderConfig">BuilderConfig</abbr></a></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_getBuilderConfig">
+        getBuilderConfig()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Builders-Traits-BuilderConfigManagement.html#method_getBuilderConfig" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Builders/Traits/BuilderConfigManagement.php"><a href="files/builders-traits-builderconfigmanagement.html"><abbr title="Builders/Traits/BuilderConfigManagement.php">BuilderConfigManagement.php</abbr></a></abbr>
     :
     <span class="phpdocumentor-element-found-in__line">19</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#source-view.19" class="phpdocumentor-element-found-in__source" data-line="19" data-modal="source-view" data-src="files/Traits/BuilderConfigManagement.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#source-view.19" class="phpdocumentor-element-found-in__source" data-line="19" data-modal="source-view" data-src="files/Builders/Traits/BuilderConfigManagement.php.txt"></a>
     </aside>
 
     
@@ -490,9 +557,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Builders/AbstractBuilder.php"><a href="files/builders-abstractbuilder.html"><abbr title="Builders/AbstractBuilder.php">AbstractBuilder.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">86</span>
+    <span class="phpdocumentor-element-found-in__line">91</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#source-view.86" class="phpdocumentor-element-found-in__source" data-line="86" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#source-view.91" class="phpdocumentor-element-found-in__source" data-line="91" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
     </aside>
 
     
@@ -620,9 +687,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Builders/AbstractBuilder.php"><a href="files/builders-abstractbuilder.html"><abbr title="Builders/AbstractBuilder.php">AbstractBuilder.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">62</span>
+    <span class="phpdocumentor-element-found-in__line">67</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#source-view.62" class="phpdocumentor-element-found-in__source" data-line="62" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#source-view.67" class="phpdocumentor-element-found-in__source" data-line="67" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">获取模式</p>
@@ -670,9 +737,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Builders/AbstractBuilder.php"><a href="files/builders-abstractbuilder.html"><abbr title="Builders/AbstractBuilder.php">AbstractBuilder.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">133</span>
+    <span class="phpdocumentor-element-found-in__line">308</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#source-view.133" class="phpdocumentor-element-found-in__source" data-line="133" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#source-view.308" class="phpdocumentor-element-found-in__source" data-line="308" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">消息处理</p>
@@ -904,6 +971,63 @@
         class="phpdocumentor-element
             -method
             -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_publish">
+        publish()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#method_publish" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Builders/AbstractBuilder.php"><a href="files/builders-abstractbuilder.html"><abbr title="Builders/AbstractBuilder.php">AbstractBuilder.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">114</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#source-view.114" class="phpdocumentor-element-found-in__source" data-line="114" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
+    </aside>
+
+        <p class="phpdocumentor-summary">发布</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">publish</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface">ConnectionInterface</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$connection</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type"><a href="classes/Workbunny-WebmanRabbitMQ-BuilderConfig.html"><abbr title="\Workbunny\WebmanRabbitMQ\BuilderConfig">BuilderConfig</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$config</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool|int</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$connection</span>
+                : <span class="phpdocumentor-argument-list__argument__type"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface">ConnectionInterface</abbr></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$config</span>
+                : <span class="phpdocumentor-argument-list__argument__type"><a href="classes/Workbunny-WebmanRabbitMQ-BuilderConfig.html"><abbr title="\Workbunny\WebmanRabbitMQ\BuilderConfig">BuilderConfig</abbr></a></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type">bool|int</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
                                     -static                    "
 >
     <h4 class="phpdocumentor-element__name" id="method_registerMode">
@@ -914,9 +1038,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Builders/AbstractBuilder.php"><a href="files/builders-abstractbuilder.html"><abbr title="Builders/AbstractBuilder.php">AbstractBuilder.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">74</span>
+    <span class="phpdocumentor-element-found-in__line">79</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#source-view.74" class="phpdocumentor-element-found-in__source" data-line="74" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#source-view.79" class="phpdocumentor-element-found-in__source" data-line="79" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">注册模式</p>
@@ -965,15 +1089,15 @@
 >
     <h4 class="phpdocumentor-element__name" id="method_setBuilderConfig">
         setBuilderConfig()
-        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-BuilderConfigManagement.html#method_setBuilderConfig" class="headerlink"><i class="fas fa-link"></i></a>
+        <a href="classes/Workbunny-WebmanRabbitMQ-Builders-Traits-BuilderConfigManagement.html#method_setBuilderConfig" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h4>
     <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="Traits/BuilderConfigManagement.php"><a href="files/traits-builderconfigmanagement.html"><abbr title="Traits/BuilderConfigManagement.php">BuilderConfigManagement.php</abbr></a></abbr>
+    <abbr class="phpdocumentor-element-found-in__file" title="Builders/Traits/BuilderConfigManagement.php"><a href="files/builders-traits-builderconfigmanagement.html"><abbr title="Builders/Traits/BuilderConfigManagement.php">BuilderConfigManagement.php</abbr></a></abbr>
     :
     <span class="phpdocumentor-element-found-in__line">27</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#source-view.27" class="phpdocumentor-element-found-in__source" data-line="27" data-modal="source-view" data-src="files/Traits/BuilderConfigManagement.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#source-view.27" class="phpdocumentor-element-found-in__source" data-line="27" data-modal="source-view" data-src="files/Builders/Traits/BuilderConfigManagement.php.txt"></a>
     </aside>
 
     
@@ -1165,7 +1289,8 @@
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#method___construct">__construct()</a></li>
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#method_action">action()</a></li>
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#method_classContent">classContent()</a></li>
-                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-BuilderConfigManagement.html#method_getBuilderConfig">getBuilderConfig()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#method_consume">consume()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Builders-Traits-BuilderConfigManagement.html#method_getBuilderConfig">getBuilderConfig()</a></li>
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#method_getBuilderName">getBuilderName()</a></li>
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ConfigMethods.html#method_getConfig">getConfig()</a></li>
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ConfigMethods.html#method_getConfigs">getConfigs()</a></li>
@@ -1174,8 +1299,9 @@
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#method_onWorkerReload">onWorkerReload()</a></li>
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#method_onWorkerStart">onWorkerStart()</a></li>
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#method_onWorkerStop">onWorkerStop()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#method_publish">publish()</a></li>
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#method_registerMode">registerMode()</a></li>
-                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-BuilderConfigManagement.html#method_setBuilderConfig">setBuilderConfig()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Builders-Traits-BuilderConfigManagement.html#method_setBuilderConfig">setBuilderConfig()</a></li>
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ConfigMethods.html#method_setConfig">setConfig()</a></li>
                                     </ul>
             </li>

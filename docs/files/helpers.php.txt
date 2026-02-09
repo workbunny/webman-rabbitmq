@@ -6,10 +6,8 @@ namespace Workbunny\WebmanRabbitMQ;
 
 use SplFileInfo;
 use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
-use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
+use Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQPublishException;
-use Workerman\Coroutine;
-use Workerman\Coroutine\Parallel;
 
 /**
  * 生产
@@ -32,46 +30,8 @@ function publish(AbstractBuilder $builder, string $body, ?string $routingKey = n
     $config->setHeaders($headers ?? $config->getHeaders());
     $config->setRoutingKey($routingKey ?? $config->getRoutingKey());
 
-    return $builder->action(function (ConnectionInterface $connection) use ($config) {
-        dump($connection, Coroutine::getCurrent()->id());
-        return $connection->publish($config);
-    });
-}
-
-/**
- * 并行生产
- *
- * @param AbstractBuilder $builder
- * @param array<string, string|null, array|null> $multiData
- * @return array<int, array<bool, string|null>> = [
- *   [true, null],
- *   [false, 'Invalid publish. '],
- *   [false, null],
- * ]
- */
-function parallel_publish(AbstractBuilder $builder, array $multiData): array
-{
-    $config = new BuilderConfig($builder->getBuilderConfig()());
-    return $builder->action(function (ConnectionInterface $connection) use ($config, $multiData) {
-        $p = new Parallel();
-        $result = [];
-        foreach ($multiData as $key => [$body, $routingKey, $headers]) {
-            $p->add(function () use ($connection, $config, $key, $body, $routingKey, $headers, &$result) {
-                if (
-                    ($config->getExchangeType() !== Constants::DELAYED and $headers['x-delay'] ?? 0) or
-                    ($config->getExchangeType() === Constants::DELAYED and !($headers['x-delay'] ?? 0))
-                ) {
-                    $result[$key] = [false, 'Invalid publish. '];
-                    return;
-                }
-                $config->setBody($body);
-                $config->setHeaders($headers ?? $config->getHeaders());
-                $config->setRoutingKey($routingKey ?? $config->getRoutingKey());
-                $result[$key] = [$connection->publish($config), null];
-            });
-        }
-        $p->wait();
-        return $result;
+    return $builder->action(function (ConnectionInterface $connection) use ($builder, $config) {
+        return $builder->publish($connection, $config);
     });
 }
 

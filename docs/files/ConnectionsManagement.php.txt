@@ -120,6 +120,7 @@ class ConnectionsManagement
 
             $connection = new $connectionClass($config['config'], $logger);
             $connection->reconnect();
+
             return $connection;
         });
         $pool->setConnectionCloser(function (ConnectionInterface $connection) {

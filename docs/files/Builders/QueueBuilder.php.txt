@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Builders;
 
-use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
-use Workbunny\WebmanRabbitMQ\Connections\ConnectionsManagement;
+use Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface;
+use Workbunny\WebmanRabbitMQ\ConnectionsManagement;
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workerman\Timer;
@@ -63,7 +63,7 @@ abstract class QueueBuilder extends AbstractBuilder
     {
         try {
             $this->action(function (ConnectionInterface $connection) {
-                $connection->consume($this->getBuilderConfig());
+                $this->consume($connection, $this->getBuilderConfig());
             });
         } catch (WebmanRabbitMQException $exception) {
             $this->logger?->notice("Queue $worker->id exception, retry after $this->restartInterval seconds. ", [
