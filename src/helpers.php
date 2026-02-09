@@ -6,7 +6,7 @@ namespace Workbunny\WebmanRabbitMQ;
 
 use SplFileInfo;
 use Workbunny\WebmanRabbitMQ\Builders\AbstractBuilder;
-use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
+use Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQPublishException;
 
 /**
@@ -15,10 +15,9 @@ use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQPublishException;
  * @param string $body
  * @param string|null $routingKey
  * @param array|null $headers
- * @param bool $close 执行完是否关闭channel
  * @return bool
  */
-function publish(AbstractBuilder $builder, string $body, ?string $routingKey = null, ?array $headers = null, bool $close = false): bool
+function publish(AbstractBuilder $builder, string $body, ?string $routingKey = null, ?array $headers = null): bool
 {
     $config = new BuilderConfig($builder->getBuilderConfig()());
     if (
@@ -31,8 +30,8 @@ function publish(AbstractBuilder $builder, string $body, ?string $routingKey = n
     $config->setHeaders($headers ?? $config->getHeaders());
     $config->setRoutingKey($routingKey ?? $config->getRoutingKey());
 
-    return $builder->action(function (ConnectionInterface $connection) use ($config, $close) {
-        return $connection->publish($config);
+    return $builder->action(function (ConnectionInterface $connection) use ($builder, $config) {
+        return $builder->publish($connection, $config);
     });
 }
 
@@ -61,4 +60,56 @@ function is_empty_dir(string $path, bool $remove = false): bool
     }
 
     return true;
+}
+
+/**
+ * produce a hex+ASCII dump of a binary string.
+ *
+ * @param string $binary Binary input string to dump.
+ * @param int $bytesPerLine Number of bytes to show per line (default 16).
+ * @param bool $showAscii Whether to include the ASCII column (default true).
+ * @param bool $uppercase Whether hex letters are uppercase (default true).
+ * @return string Formatted multi-line hex dump.
+ */
+function binary_dump(string $binary, int $bytesPerLine = 16, bool $showAscii = true, bool $uppercase = true): string
+{
+    $total = strlen($binary);
+    $output = '';
+    $formatHexByte = $uppercase ? '%02X' : '%02x';
+    // ensure a sensible minimum
+    if ($bytesPerLine < 1) {
+        $bytesPerLine = 16;
+    }
+    for ($offset = 0; $offset < $total; $offset += $bytesPerLine) {
+        // offset column (8 hex digits)
+        $line = sprintf('%08X  ', $offset);
+        $chunkLen = min($bytesPerLine, $total - $offset);
+        $hexPart = '';
+        $asciiPart = '';
+        for ($i = 0; $i < $chunkLen; $i++) {
+            $byte = ord($binary[$offset + $i]);
+            // append hex for this byte plus a trailing space
+            $hexPart .= sprintf($formatHexByte . ' ', $byte);
+            // add an extra space after the 8th byte for readability (if applicable)
+            if ($i === 7 && $bytesPerLine > 8) {
+                $hexPart .= ' ';
+            }
+            // build ASCII column: printable ASCII 32..126, otherwise '.'
+            if ($showAscii) {
+                $asciiPart .= ($byte >= 32 && $byte <= 126) ? chr($byte) : '.';
+            }
+        }
+        // pad hex part so the ASCII column lines up even for short final lines.
+        // each byte normally contributes "XX " (3 chars). If bytesPerLine > 8 we added one extra space.
+        $expectedHexLen = ($bytesPerLine * 3) + ($bytesPerLine > 8 ? 1 : 0);
+        $hexPart = str_pad($hexPart, $expectedHexLen, ' ');
+        if ($showAscii) {
+            $line .= "$hexPart|$asciiPart|\n";
+        } else {
+            $line .= rtrim($hexPart) . "\n";
+        }
+        $output .= $line;
+    }
+
+    return $output;
 }

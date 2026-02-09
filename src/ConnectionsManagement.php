@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Workbunny\WebmanRabbitMQ\Connections;
+namespace Workbunny\WebmanRabbitMQ;
 
 use Psr\Log\LoggerInterface;
+use Workbunny\WebmanRabbitMQ\Connection\Connection;
+use Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
 use Workerman\Coroutine\Pool;
 
@@ -100,18 +102,13 @@ class ConnectionsManagement
      * 初始化
      * @param string $connection
      * @param LoggerInterface|null $logger
-     * @param string|null $tag copy mode
      * @return void
      */
-    public static function initialize(string $connection = 'default', ?LoggerInterface $logger = null, ?string $tag = null): void
+    public static function initialize(string $connection = 'default', ?LoggerInterface $logger = null): void
     {
         $has = self::pool($connection);
-        if ($tag === null and $has) {
+        if ($has) {
             return;
-        }
-        // copy mode
-        if ($tag and !$has) {
-            throw new WebmanRabbitMQConnectException("Please initialize the connection [$connection] pool first");
         }
         $config = self::config($connection);
         $pool = new Pool($config['connections_pool']['max_connections'] ?? 1, $config['connections_pool'] ?? []);
@@ -121,17 +118,13 @@ class ConnectionsManagement
                 throw new WebmanRabbitMQConnectException('Connection class must be a subclass of ' . ConnectionInterface::class);
             }
 
-            return new $connectionClass($config, $connection, $logger);
+            $connection = new $connectionClass($config['config'], $logger);
+            $connection->reconnect();
+            return $connection;
         });
         $pool->setConnectionCloser(function (ConnectionInterface $connection) {
             $connection->disconnect();
         });
-        // copy mode
-        if ($tag) {
-            self::initialize("$connection#$tag", $logger, $tag);
-
-            return;
-        }
         self::$pools[$connection] = $pool;
     }
 

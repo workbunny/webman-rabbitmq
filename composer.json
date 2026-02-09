@@ -17,8 +17,8 @@
   "require": {
     "php": "^8.1",
     "workerman/webman-framework": "^2.0",
-    "workerman/rabbitmq": "^2.0",
     "webman/console": "^2.0",
+    "bunny/bunny": "^0.5",
     "psr/log": "^3.0"
   },
   "require-dev": {

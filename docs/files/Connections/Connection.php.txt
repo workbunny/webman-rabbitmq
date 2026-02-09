@@ -13,6 +13,7 @@ use Workbunny\WebmanRabbitMQ\Clients\Client;
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQRequeueException;
 use Workbunny\WebmanRabbitMQ\Traits\ConfigMethods;
 use Workerman\Timer;
@@ -123,7 +124,7 @@ class Connection implements ConnectionInterface
     }
 
     /** @inheritDoc */
-    public function channel(): ?Channel
+    public function channel(): Channel
     {
         if (!$this->isConnected()) {
             $this->reconnect();
@@ -136,7 +137,7 @@ class Connection implements ConnectionInterface
     public function publish(BuilderConfig $config, bool $close = false): bool|int
     {
         try {
-            $producer = $this->channel();
+            $channel = $this->channel();
         } catch (WebmanRabbitMQChannelException $e) {
             // 当前连接通道耗尽时，尝试使用新连接
             if ($e->getCode() === -999999999) {
@@ -146,9 +147,8 @@ class Connection implements ConnectionInterface
             }
             throw $e;
         }
-
         try {
-            $producer->exchangeDeclare(
+            $channel->exchangeDeclare(
                 $config->getExchange(),
                 $config->getExchangeType(),
                 $config->isPassive(),
@@ -158,7 +158,7 @@ class Connection implements ConnectionInterface
                 $config->isNowait(),
                 $config->getArguments()
             );
-            $producer->queueDeclare(
+            $channel->queueDeclare(
                 $config->getQueue(),
                 $config->isPassive(),
                 $config->isDurable(),
@@ -167,7 +167,7 @@ class Connection implements ConnectionInterface
                 $config->isNowait(),
                 $config->getArguments()
             );
-            $producer->queueBind(
+            $channel->queueBind(
                 $config->getQueue(),
                 $config->getExchange(),
                 $config->getRoutingKey(),
@@ -175,7 +175,7 @@ class Connection implements ConnectionInterface
                 $config->getArguments()
             );
 
-            return $producer->publish(
+            return $channel->publish(
                 $config->getBody(),
                 $config->getHeaders(),
                 $config->getExchange(),
@@ -185,7 +185,7 @@ class Connection implements ConnectionInterface
             );
         } finally {
             if ($close) {
-                $producer->close();
+                $channel->close();
             }
         }
     }
@@ -205,6 +205,8 @@ class Connection implements ConnectionInterface
                 return;
             }
             throw $e;
+        } catch (Throwable $throwable) {
+            throw new WebmanRabbitMQException($throwable->getMessage(), $throwable->getCode(), $throwable);
         }
         $consumer->exchangeDeclare(
             $config->getExchange(),
@@ -238,7 +240,7 @@ class Connection implements ConnectionInterface
                 if (in_array($status = Worker::getStatus(), [
                     Worker::STATUS_SHUTDOWN, Worker::STATUS_RELOADING,
                 ])) {
-                    $this->logger->notice("Consumer stopping [worker status $status]");
+                    $this->logger?->notice("Consumer stopping [worker status $status]");
 
                     return;
                 }
@@ -249,7 +251,7 @@ class Connection implements ConnectionInterface
                     }
                 } catch (Throwable $throwable) {
                     $tag = Constants::REQUEUE;
-                    $this->logger->notice('Consume Throwable', [
+                    $this->logger?->notice('Consume Throwable', [
                         'message' => $throwable->getMessage(),
                         'code'    => $throwable->getCode(),
                         'file'    => $throwable->getFile() . ':' . $throwable->getLine(),
@@ -276,7 +278,7 @@ class Connection implements ConnectionInterface
                 $call = $tag === Constants::REQUEUE ? Constants::ACK : $tag;
                 $res = $consumer->$call($message);
                 if (!$res) {
-                    $this->logger->notice("Consume $tag failed [timer retrying].");
+                    $this->logger?->notice("Consume $tag failed [timer retrying].");
                     // ACK失败则定时器重试，直到成功
                     $id = Timer::delay(5, function (string $tag, string $call, Message $message) use (&$id) {
                         try {

@@ -18,6 +18,7 @@ use Protocols\AMQP;
 use Webman\Context;
 use Workbunny\WebmanRabbitMQ\Connection\Channel;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelException;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelFulledException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
 use Workerman\Connection\AsyncTcpConnection;
 use Workerman\Coroutine;
@@ -38,8 +39,11 @@ trait InitMethods
     /** @var Pool|null channels pool */
     protected ?Pool $channels = null;
 
-    /** @var array<int, Channel>  */
-    protected array $channelMap = [];
+    /** @var array<int, Channel> Used channels */
+    protected array $channelUsedList = [];
+
+    /** @var array<int> Idle channel id */
+    protected array $channelIds = [];
 
     /** @var int channel count limit */
     protected int $channelLimit = 0xFFFF;
@@ -56,25 +60,39 @@ trait InitMethods
     /** @var float last heartbeat receive time */
     public float $lastHeartbeatRecvTime = 0.0;
 
-    /** @var int channelId counter */
-    protected int $channelId = 0;
-
     /**
-     * @param int $channelId
-     * @return Channel|null
+     * get free channel's id
+     *
+     * @return int
      */
-    public function channelMapGet(int $channelId): ?Channel
+    public function getChannelId(): int
     {
-        return $this->channelMap[$channelId] ?? null;
+        if (!$this->channelIds) {
+            throw new WebmanRabbitMQChannelFulledException('No available channel.');
+        }
+        return array_pop($this->channelIds);
     }
 
     /**
+     * release channel
+     *
      * @param int $channelId
      * @return void
      */
-    public function channelMapRemove(int $channelId): void
+    public function channelRemove(int $channelId): void
     {
-        unset($this->channelMap[$channelId]);
+        $this->channelIds[] = $channelId;
+        unset($this->channelUsedList[$channelId]);
+    }
+
+    /**
+     * get used channels
+     *
+     * @return array
+     */
+    public function channelUsed(): array
+    {
+        return $this->channelUsedList;
     }
 
     /**
@@ -87,18 +105,18 @@ trait InitMethods
         if (!$this->channels) {
             $this->channels = new Pool($this->channelLimit, $this->getConfig('channels', []));
             $this->channels->setConnectionCreator(function () {
-                $this->channel(true)->channelOpen($channelId = $this->channelId++);
+                $this->channel(true)->channelOpen($channelId = $this->getChannelId());
                 // await channel.openOk
                 $this->await(MethodChannelOpenOkFrame::class, function (MethodChannelOpenOkFrame $frame) use ($channelId) {
                     return intval($frame->channel) === $channelId;
                 });
                 // channel
-                return $this->channelMap[$channelId] = new Channel($this, $channelId);
+                return $this->channelUsedList[$channelId] = new Channel($this, $channelId);
             });
             $this->channels->setConnectionCloser(function (Channel $channel) {
                 try {
                     $channel->close();
-                    unset($this->channelMap[$channel->id()]);
+                    $this->channelRemove($channel->id());
                 } catch (\Throwable) {
                 }
             });
@@ -116,7 +134,7 @@ trait InitMethods
     public function channel(bool $master = false): Channel
     {
         if ($master) {
-            return $this->channelMap[Constants::CONNECTION_CHANNEL];
+            return $this->channelUsedList[Constants::CONNECTION_CHANNEL];
         }
         $channel = Context::get('workbunny.webman-rabbitmq.channel');
         if (!$channel) {
@@ -201,6 +219,10 @@ trait InitMethods
                 /** @var MethodConnectionTuneFrame $tune */
                 $tune = $this->await(MethodConnectionTuneFrame::class);
                 $this->channelLimit = max(min($tune->channelMax, $this->channelLimit), 1);
+                // init channel ids
+                foreach (range(1, $this->channelLimit) as $i) {
+                    $this->channelIds[] = $i;
+                }
                 $this->frameMax = max(min($tune->frameMax, $this->frameMax), 1);
                 // client heartbeat interval follow server
                 $this->heartbeatInterval = max(min($tune->heartbeat, $this->heartbeatInterval), 1);
@@ -209,7 +231,7 @@ trait InitMethods
                 // set master channel.
                 // master channel == connection,
                 // master channel has channel-methods, connection has connection-methods
-                $this->channelMap[Constants::CONNECTION_CHANNEL] = new Channel($this, Constants::CONNECTION_CHANNEL);;
+                $this->channelUsedList[Constants::CONNECTION_CHANNEL] = new Channel($this, Constants::CONNECTION_CHANNEL);;
                 $this->state = ClientStateEnum::CONNECTED;
                 // set heartbeat
                 $this->heartbeat = Timer::repeat($this->heartbeatInterval, function () use ($connection) {

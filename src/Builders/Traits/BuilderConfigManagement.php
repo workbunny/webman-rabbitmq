@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Workbunny\WebmanRabbitMQ\Traits;
+namespace Workbunny\WebmanRabbitMQ\Builders\Traits;
 
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
 

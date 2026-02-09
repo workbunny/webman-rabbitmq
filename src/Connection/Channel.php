@@ -287,10 +287,10 @@ class Channel
      *
      * @param int $replyCode
      * @param string $replyText
-     * @param bool $await
+     * @param bool $nowait
      * @return MethodChannelCloseOkFrame|bool|null
      */
-    public function close(int $replyCode = 0, string $replyText = '', bool $await = false): MethodChannelCloseOkFrame|bool|null
+    public function close(int $replyCode = 0, string $replyText = '', bool $nowait = false): MethodChannelCloseOkFrame|bool|null
     {
         if (in_array($this->getState(), [ChannelStateEnum::CLOSING, ChannelStateEnum::CLOSED])) {
             return null;
@@ -302,10 +302,14 @@ class Channel
         $f->closeClassId = 0;
         $f->closeMethodId = 0;
         $res = $this->frameSend($f);
-        if (!$await) {
-            return $res;
+        if (!$nowait and $res) {
+            $res = $this->connection->await(MethodChannelCloseOkFrame::class, function (MethodChannelCloseFrame $frame) {
+                return $frame->channel === $this->id;
+            });
         }
-        return $res ? $this->connection->await(MethodChannelCloseOkFrame::class) : false;
+        $this->setState(ChannelStateEnum::CLOSED);
+        $this->connection->channels()->closeConnection($this);
+        return $res;
     }
 
     /**

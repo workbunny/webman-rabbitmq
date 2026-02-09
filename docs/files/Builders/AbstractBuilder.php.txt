@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Builders;
 
+use Bunny\Message as BunnyMessage;
 use Closure;
 use Psr\Log\LoggerInterface;
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
-use Workbunny\WebmanRabbitMQ\Connections\ConnectionsManagement;
+use Workbunny\WebmanRabbitMQ\Connection\Channel;
+use Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface;
+use Workbunny\WebmanRabbitMQ\ConnectionsManagement;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workbunny\WebmanRabbitMQ\Traits\BuilderConfigManagement;
 use Workbunny\WebmanRabbitMQ\Traits\ConfigMethods;
@@ -40,14 +43,12 @@ abstract class AbstractBuilder
 
     public function __construct()
     {
-        $this->setConfig(\config("plugin.workbunny.webman-rabbitmq.rabbitmq.connections.$this->connection", []));
-        if (!$this->getConfigs()) {
-            throw new WebmanRabbitMQException("RabbitMQ config not found [$this->connection].");
-        }
         $logger = \config('plugin.workbunny.webman-rabbitmq.app.logger');
         $this->logger = is_a($logger, LoggerInterface::class, true)
             ? (is_string($logger) ? new $logger() : $logger)
             : null;
+
+        $this->setConfig(ConnectionsManagement::config($this->connection));
         $this->setBuilderConfig(new BuilderConfig());
         ConnectionsManagement::initialize($this->connection, $this->logger);
     }
@@ -123,12 +124,22 @@ abstract class AbstractBuilder
     abstract public function onWorkerReload(Worker $worker): void;
 
     /**
+     * 消息处理
+     * @param BunnyMessage $message
+     * @param Channel $channel
+     * @param ConnectionInterface $connection
+     * @return string
+     */
+    abstract public function handler(BunnyMessage $message, Channel $channel, ConnectionInterface $connection): string;
+
+    /**
      * Command 获取需要创建的类文件内容
      *
      * @param string $namespace
      * @param string $className
      * @param bool $isDelay
+     * @param string $connection
      * @return string
      */
-    abstract public static function classContent(string $namespace, string $className, bool $isDelay): string;
+    abstract public static function classContent(string $namespace, string $className, bool $isDelay, string $connection = 'default'): string;
 }

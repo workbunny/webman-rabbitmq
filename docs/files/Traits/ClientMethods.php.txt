@@ -9,13 +9,200 @@ declare(strict_types=1);
 namespace Workbunny\WebmanRabbitMQ\Traits;
 
 use Bunny\ChannelStateEnum;
-use Bunny\Protocol\MethodConnectionStartFrame;
-use React\Promise\PromiseInterface;
+use Bunny\Protocol\AbstractFrame;
+use Bunny\Protocol\HeartbeatFrame;
+use SplQueue;
 use Workbunny\WebmanRabbitMQ\Channels\Channel;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
+use Workerman\Coroutine;
+use Workerman\Timer;
 
 trait ClientMethods
 {
+    /**
+     * @var int
+     */
+    protected int $framesConsumer = 0;
+
+    /**
+     * heartbeat timer
+     *
+     * @var int
+     */
+    protected int $heartbeat = 0;
+
+    /**
+     * frames to be consumed
+     *
+     * @var SplQueue<array{frame: AbstractFrame, started_at: float}>
+     */
+    protected SplQueue $frames;
+
+    /**
+     * awaits event
+     *  When an await call is invoked,
+     *  the coroutine yields and is enqueued in the wait queue to be resumed when the appropriate conditions are met.
+     *
+     * @var SplQueue<Coroutine>
+     */
+    protected SplQueue $awaits;
+
+    /**
+     * write wait
+     *  When the current connection's write buffer is temporarily not writable,
+     *  write events are placed into the write‑wait queue.
+     *
+     * @var SplQueue<Coroutine>
+     */
+    protected SplQueue $writeWait;
+
+    /**
+     * Append frame to queue
+     *
+     * @param AbstractFrame $frame
+     * @return void
+     */
+    public function framesPush(AbstractFrame $frame): void
+    {
+        $this->frames->push([
+            'frame'      => $frame,
+            'started_at' => microtime(true),
+        ]);
+    }
+
+    /**
+     * Consume frame
+     *
+     * @param class-string<AbstractFrame>|class-string<AbstractFrame>[]|null $frameClass The frame you expect to process
+     * @param callable $callback
+     * @return AbstractFrame|null
+     */
+    public function framesConsume(null|string|array $frameClass, callable $callback): ?AbstractFrame
+    {
+        $frameClass = is_string($frameClass) ? [$frameClass] : $frameClass;
+        if (!$this->frames->isEmpty()) {
+            $data = $this->frames->shift();
+            $this->frames->unshift($data);
+            $frame = $data['frame'];
+            if ($frameClass === null or in_array($frame::class, $frameClass)) {
+                try {
+                    return $callback($frame, $data['started_at']);
+                } finally {
+                    if (!$this->frames->isEmpty()) {
+                        $this->frames->shift();
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Set frames consumer
+     *
+     * @param callable|null $callback
+     * @param int $ms
+     * @return void
+     */
+    public function framesConsumerSet(?callable $callback = null, int $ms = 0): void
+    {
+        if ($callback === null) {
+            if ($this->framesConsumer) {
+                Timer::del($this->framesConsumer);
+            }
+            $this->framesConsumer = 0;
+
+            return;
+        }
+        $this->framesConsumer = Timer::repeat($ms > 0 ? ($ms / 1000) : 0, function () use ($callback) {
+            if (
+                $callback and
+                $this->isConnected() and
+                $this->awaits->isEmpty()
+            ) {
+                $this->framesConsume(null, $callback);
+            }
+        });
+    }
+
+    /**
+     * @param class-string<AbstractFrame>|class-string<AbstractFrame>[] $frame
+     * @return void
+     */
+    public function awaitsRegister(string|array $frame): void
+    {
+        $frame = is_string($frame) ? [$frame] : $frame;
+        foreach ($frame as $f) {
+            if (!is_a($f, AbstractFrame::class, true)) {
+                throw new WebmanRabbitMQException("Frame {$f} is not a valid frame class.");
+            }
+        }
+        $co = Coroutine::getCurrent();
+        $this->awaits->push([$frame, $co]);
+        $co::suspend();
+    }
+
+    /**
+     * @return void
+     */
+    public function writeWaitRegister(): void
+    {
+        $co = Coroutine::getCurrent();
+        $this->writeWait->push($co);
+        $co::suspend();
+    }
+
+    /**
+     * @return void
+     */
+    public function writeWaitResume(): void
+    {
+        $count = $this->writeWait->count();
+        if ($count > 0) {
+            for ($i = 0; $i < $count; $i++) {
+                $co = $this->writeWait->shift();
+                $co?->resume([
+                    'timestamp' => microtime(true),
+                ]);
+            }
+        }
+    }
+
+    /**
+     * set heartbeat
+     *
+     * @param callable|null $callback
+     * @param int $s
+     * @return void
+     */
+    public function heartbeatSet(?callable $callback, int $s): void
+    {
+        if ($callback === null) {
+            if ($this->heartbeat) {
+                Timer::del($this->heartbeat);
+            }
+            $this->heartbeat = 0;
+
+            return;
+        }
+        $this->heartbeat = Timer::repeat($s, $callback);
+    }
+
+    /**
+     * @return void
+     */
+    public function heartbeat(): void
+    {
+        if ($this->isConnected()) {
+            $this->writer->appendFrame(new HeartbeatFrame(), $this->writeBuffer);
+            $this->flushWriteBuffer();
+            if (is_callable($callback = $this->getConfig('heartbeat_callback', null))) {
+                $callback($this);
+            }
+        }
+    }
+
     /**
      * 获取通道数量限制
      *
@@ -39,34 +226,59 @@ trait ClientMethods
          */
         foreach ($this->channels as $id => $channel) {
             if ($channel->getState() === ChannelStateEnum::CLOSED) {
-                unset($this->channels[$id]);
+                $this->removeChannel($id);
             }
         }
 
         return $this->channels;
     }
 
-    /** @inheritdoc  */
-    protected function read(): void
+    /** @inheritDoc */
+    public function init(): void
     {
-        if (!$this->stream) {
-            throw new WebmanRabbitMQException('Stream is not connected.');
+        parent::init();
+        $this->awaits = new SplQueue();
+        $this->awaits->setIteratorMode(SplQueue::IT_MODE_KEEP);
+        $this->writeWait = new SplQueue();
+        $this->writeWait->setIteratorMode(SplQueue::IT_MODE_KEEP);
+        $this->frames = new SplQueue();
+        $this->frames->setIteratorMode(SplQueue::IT_MODE_KEEP);
+    }
+
+    /** @inheritDoc */
+    final public function __destruct()
+    {
+        try {
+            $this->disconnect();
+        } catch (\Throwable|\Error) {
         }
-        parent::read();
     }
 
     /**
-     * 重写authResponse方法
-     *  1. 支持PLAIN及AMQPLAIN两种机制
-     *
-     * @param MethodConnectionStartFrame $start
-     * @return bool|PromiseInterface
-     * @inheritdoc
+     * @deprecated
+     * @param $maxSeconds
+     * @return void
      */
-    abstract protected function authResponse(MethodConnectionStartFrame $start);
+    final public function run($maxSeconds = null): void
+    {
+        throw new WebmanRabbitMQException('Not supported run()');
+    }
 
     /**
-     * 回收
+     * @deprecated
+     * @return void
      */
-    abstract protected function __destruct();
+    final public function stop(): void
+    {
+        throw new WebmanRabbitMQException('Not supported stop()');
+    }
+
+    /**
+     * @deprecated
+     * @return mixed
+     */
+    final public function feedReadBuffer(): mixed
+    {
+        throw new WebmanRabbitMQException('Not supported feedReadBuffer()');
+    }
 }

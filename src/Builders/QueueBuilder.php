@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Builders;
 
-use Bunny\Async\Client as BunnyClient;
-use Bunny\Channel as BunnyChannel;
-use Bunny\Message as BunnyMessage;
-use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
-use Workbunny\WebmanRabbitMQ\Connections\ConnectionsManagement;
+use Bunny\Message;
+use Throwable;
+use Workbunny\WebmanRabbitMQ\BuilderConfig;
+use Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface;
+use Workbunny\WebmanRabbitMQ\ConnectionsManagement;
 use Workbunny\WebmanRabbitMQ\Constants;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelException;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelFulledException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQRequeueException;
 use Workerman\Timer;
 use Workerman\Worker;
 
@@ -66,7 +69,7 @@ abstract class QueueBuilder extends AbstractBuilder
     {
         try {
             $this->action(function (ConnectionInterface $connection) {
-                $connection->consume($this->getBuilderConfig());
+                $this->consume($connection, $this->getBuilderConfig());
             });
         } catch (WebmanRabbitMQException $exception) {
             $this->logger?->notice("Queue $worker->id exception, retry after $this->restartInterval seconds. ", [
@@ -95,16 +98,8 @@ abstract class QueueBuilder extends AbstractBuilder
         $this->logger?->notice("Consumer $worker->id [queue: $queue] reload.");
     }
 
-    /**
-     * @param BunnyMessage $message
-     * @param BunnyChannel $channel
-     * @param BunnyClient $client
-     * @return string
-     */
-    abstract public function handler(BunnyMessage $message, BunnyChannel $channel, BunnyClient $client): string;
-
     /** @inheritDoc */
-    public static function classContent(string $namespace, string $className, bool $isDelay): string
+    public static function classContent(string $namespace, string $className, bool $isDelay, string $connection = 'default'): string
     {
         $isDelay = $isDelay ? 'true' : 'false';
         $name = str_replace('\\', '.', "$namespace.$className");
@@ -114,16 +109,16 @@ abstract class QueueBuilder extends AbstractBuilder
 
 namespace $namespace;
 
-use Bunny\Channel as BunnyChannel;
-use Bunny\Async\Client as BunnyClient;
 use Bunny\Message as BunnyMessage;
+use Workbunny\WebmanRabbitMQ\Channels\Channel;
+use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\Builders\QueueBuilder;
 
 class $className extends QueueBuilder
 {
     /** @inheritdoc  */
-    protected ?string \$connection = 'rabbitmq';
+    protected ?string \$connection = '$connection';
     
     /**
      * @var array = [
@@ -157,7 +152,7 @@ class $className extends QueueBuilder
     protected ?string \$exchangeName = '$name';
     
     /** @inheritDoc */
-    public function handler(BunnyMessage \$message, BunnyChannel \$channel, BunnyClient \$client): string 
+    public function handler(BunnyMessage \$message, Channel \$channel, ConnectionInterface \$connection): string 
     {
         // TODO 请重写消费逻辑
         echo "请重写 $className::handler\\n";

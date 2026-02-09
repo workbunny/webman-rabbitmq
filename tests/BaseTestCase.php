@@ -47,8 +47,6 @@ class BaseTestCase extends TestCase
      */
     protected function request(string $path, string $method = 'GET', array $data = []): array
     {
-        // HTTP-API存在延迟，这里延迟10秒等待数据可查
-        sleep(10);
         $url = $this->rabbitHost . $path;
         $opts = [
             'http' => [
@@ -100,13 +98,13 @@ class BaseTestCase extends TestCase
     /**
      * 获取队列中的消息（测试用）
      */
-    protected function getQueueMessages(string $queue, int $count = 1): array
+    protected function getQueueMessages(string $queue, int $count = 1, bool $ack = true): array
     {
         $path = '/api/queues/' . urlencode($this->vhost) . '/' . urlencode($queue) . '/get';
 
         return $this->request($path, 'POST', [
             'count'    => $count,
-            'ackmode'  => 'ack_requeue_false',
+            'ackmode'  => $ack ? 'ack_requeue_false' : 'ack_requeue_true',
             'encoding' => 'auto',
         ]);
     }

@@ -11,15 +11,17 @@ use Bunny\Protocol\ProtocolReader;
 use Bunny\Protocol\ProtocolWriter;
 use Workerman\Connection\ConnectionInterface;
 use Workerman\Worker;
+use function Workbunny\WebmanRabbitMQ\binary_dump;
 
 class AMQP
 {
+    public static bool $debug = false;
 
+    /** @var ProtocolReader|null  */
     protected static ?ProtocolReader $protocolReader = null;
 
+    /** @var ProtocolWriter|null  */
     protected static ?ProtocolWriter $protocolWriter = null;
-
-    protected static bool $protocolAlready = false;
 
     /**
      * @return ProtocolReader
@@ -64,6 +66,7 @@ class AMQP
             return $pos + strlen($end);
         } catch (\Throwable $throwable) {
             Worker::safeEcho("AMQP protocol input Error: {$throwable->getMessage()}\n");
+            $connection->close();
             return -1;
         }
     }
@@ -85,6 +88,17 @@ class AMQP
             if (!$res) {
                 throw new \InvalidArgumentException("Invalid frame [$buffer]");
             }
+            if (self::$debug) {
+                $b = binary_dump($buffer);
+                $t = microtime(true);
+                $c = $res::class;
+                Worker::safeEcho(<<<doc
+<<- AMQP <g>Decode</g> on <g>$t</g> [<g>$c</g>]:
+
+$b\n
+doc
+                    , true);
+            }
             return $res;
         } catch (\Throwable $throwable) {
             Worker::safeEcho("AMQP protocol decode Error: {$throwable->getMessage()}\n");
@@ -102,10 +116,31 @@ class AMQP
      */
     public static function encode(AbstractFrame|Buffer $data, ConnectionInterface $connection): ?string
     {
-        $buffer = $data;
-        if ($data instanceof AbstractFrame) {
-            self::writer()->appendFrame($data, $buffer = new Buffer());
+        try {
+            $buffer = $data;
+            if ($data instanceof AbstractFrame) {
+                self::writer()->appendFrame($data, $buffer = new Buffer());
+            }
+            $res = $buffer->read($buffer->getLength());
+            if (!$res) {
+                throw new \InvalidArgumentException("Invalid frame");
+            }
+            if (self::$debug) {
+                $b = binary_dump($res);
+                $t = microtime(true);
+                $c = $data::class;
+                Worker::safeEcho(<<<doc
+->> AMQP <g>Encode</g> on <g>$t</g> [<g>$c</g>]:
+
+$b\n
+doc
+                , true);
+            }
+            return $res;
+        } catch (\Throwable $throwable) {
+            Worker::safeEcho("AMQP protocol encode Error: {$throwable->getMessage()}\n");
+            $connection->close();
+            return null;
         }
-        return $buffer->read($buffer->getLength());
     }
 }

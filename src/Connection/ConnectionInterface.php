@@ -7,8 +7,10 @@ namespace Workbunny\WebmanRabbitMQ\Connection;
 use Bunny\Protocol\AbstractFrame;
 use Bunny\Protocol\ProtocolReader;
 use Bunny\Protocol\ProtocolWriter;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelFulledException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
 use Workerman\Connection\AsyncTcpConnection;
+use Workerman\Coroutine\Pool;
 
 interface ConnectionInterface
 {
@@ -18,6 +20,21 @@ interface ConnectionInterface
      * @return AsyncTcpConnection|mixed
      */
     public function connection(): mixed;
+
+    /**
+     * get free channel
+     *
+     * @return Channel
+     * @throws WebmanRabbitMQChannelFulledException if all channels are used
+     */
+    public function channel(): Channel;
+
+    /**
+     * get channels pool
+     *
+     * @return Pool|null
+     */
+    public function channels(): ?Pool;
 
     /**
      * master channel

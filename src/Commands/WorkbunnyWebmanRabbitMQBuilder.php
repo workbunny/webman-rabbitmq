@@ -26,6 +26,7 @@ class WorkbunnyWebmanRabbitMQBuilder extends AbstractCommand
         $this->addArgument('count', InputArgument::OPTIONAL, 'Number of processes started by builder. ', 1);
         $this->addOption('mode', 'm', InputOption::VALUE_REQUIRED, 'Builder mode: queue or your custom mode.', 'queue');
         $this->addOption('delayed', 'd', InputOption::VALUE_NONE, 'Delay mode builder. ');
+        $this->addOption('connection', 'c', InputOption::VALUE_REQUIRED, 'Connection name.', 'default');
     }
 
     /**
@@ -39,6 +40,7 @@ class WorkbunnyWebmanRabbitMQBuilder extends AbstractCommand
         $count = $input->getArgument('count');
         $delayed = $input->getOption('delayed');
         $mode = $input->getOption('mode');
+        $connection = $input->getOption('connection');
         list($name, $namespace, $file) = $this->getFileInfo($name, $delayed);
         // check process.php
         if (!file_exists($process = config_path() . '/plugin/workbunny/webman-rabbitmq/process.php')) {
@@ -81,7 +83,8 @@ DOC;
             if (file_put_contents($file, $builderClass::classContent(
                 $namespace,
                 $name,
-                str_ends_with($name, 'Delayed')
+                str_ends_with($name, 'Delayed'),
+                $connection
             )) !== false) {
                 $this->info($output, 'Builder created.');
             }

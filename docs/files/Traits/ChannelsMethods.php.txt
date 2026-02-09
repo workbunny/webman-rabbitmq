@@ -1,8 +1,12 @@
 <?php
 
 declare(strict_types=1);
+/**
+ * @author workbunny/Chaz6chez
+ * @email chaz6chez1993@outlook.com
+ */
 
-namespace Workbunny\WebmanRabbitMQ\Clients;
+namespace Workbunny\WebmanRabbitMQ\Traits;
 
 use Bunny\ChannelStateEnum;
 use Bunny\ClientStateEnum;
@@ -12,8 +16,9 @@ use Workbunny\WebmanRabbitMQ\Channels\Channel;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelException;
 use Workerman\Coroutine;
 use Workerman\Coroutine\Pool;
+use Workerman\Timer;
 
-class Client extends AbstractClient
+trait ChannelsMethods
 {
     /**
      * @var Pool|null
@@ -27,27 +32,13 @@ class Client extends AbstractClient
      */
     public function channelsPool(): ?Pool
     {
-        return $this->channelsPool;
-    }
-
-    /**
-     * 获取通道
-     *
-     * @return Channel
-     * @throws WebmanRabbitMQChannelException
-     */
-    public function channel(): Channel
-    {
         if (!$this->channelsPool) {
             $this->channelsPool = new Pool($this->getChannelLimit(), $this->getConfig('channels_pool', []));
             $this->channelsPool->setConnectionCreator(function () {
                 $channelId = $this->findChannelId();
-
-                $this->channels[$channelId] = new Channel($this, $channelId);
                 $response = $this->channelOpen($channelId);
-
                 if ($response instanceof MethodChannelOpenOkFrame) {
-                    return $this->channels[$channelId];
+                    return $this->channels[$channelId] = new Channel($this, $channelId);
                 } else {
                     $this->state = ClientStateEnum::ERROR;
                     throw new WebmanRabbitMQChannelException(
@@ -65,31 +56,62 @@ class Client extends AbstractClient
                 }
             });
         }
+        return $this->channelsPool;
+    }
+
+    /**
+     * 获取通道
+     *
+     * @return Channel
+     * @throws WebmanRabbitMQChannelException
+     */
+    public function channel(): Channel
+    {
+
         $channel = Context::get('workbunny.webman-rabbitmq.channel');
         if (!$channel) {
             try {
                 /** @var Channel $channel */
-                $channel = $this->channelsPool->get();
+                $channel = $this->channelsPool()->get();
             } catch (Coroutine\Exception\PoolException | \Throwable) {
                 throw new WebmanRabbitMQChannelException('No available channel.', -999999999);
             }
             Context::set('workbunny.webman-rabbitmq.channel', $channel);
             Coroutine::defer(function () use ($channel) {
                 try {
-                    // 如果通道关闭、错误、正在关闭，则关闭通道
+                    // non-ready, close it or put it back
                     if (in_array($channel->getState(), [
                         ChannelStateEnum::ERROR, ChannelStateEnum::CLOSED, ChannelStateEnum::CLOSING,
                     ])) {
-                        $this->channelsPool->closeConnection($channel);
+                        $this->channelsPool()->closeConnection($channel);
                     } else {
-                        // 否则，归还通道
-                        $this->channelsPool->put($channel);
+                        $this->channelsPool()->put($channel);
                     }
                 } catch (\Throwable) {
                 }
             });
 
             return $channel;
+        } else {
+            // check current coroutine context.channel state
+            if ($channel->getState() === ChannelStateEnum::READY) {
+                return $channel;
+            }
+            // not ready, close it or put it back
+            try {
+                if (in_array($channel->getState(), [ChannelStateEnum::ERROR, ChannelStateEnum::CLOSED, ChannelStateEnum::CLOSING])) {
+                    self::channelsPool()->closeConnection($channel);
+                } else {
+                    self::channelsPool()->put($channel);
+                }
+            } catch (\Throwable) {
+            }
+            // reset context
+            Context::set('workbunny.webman-rabbitmq.channel', null);
+            // transfer control to other coroutines
+            Timer::sleep(0);
+            // get new channel
+            $channel = $this->channel();
         }
 
         return $channel;

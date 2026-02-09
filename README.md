@@ -140,7 +140,6 @@ return [
             'timeout'            => 10,
             // 重启间隔
             'restart_interval'   => 5,
-            'heartbeat'          => 5,
             // 通道池
             'channels_pool'      => [
                 'idle_timeout'     => 60,

@@ -281,6 +281,11 @@ Search.appendIndex(
             "summary": "Builder\u0020\u91CD\u52A0\u8F7D\u65F6",
             "url": "classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#method_onWorkerReload"
         },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Builders\\AbstractBuilder\u003A\u003Ahandler\u0028\u0029",
+            "name": "handler",
+            "summary": "\u6D88\u606F\u5904\u7406",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#method_handler"
+        },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Builders\\AbstractBuilder\u003A\u003AclassContent\u0028\u0029",
             "name": "classContent",
             "summary": "Command\u0020\u83B7\u53D6\u9700\u8981\u521B\u5EFA\u7684\u7C7B\u6587\u4EF6\u5185\u5BB9",
@@ -311,70 +316,10 @@ Search.appendIndex(
             "summary": "Builder\u0020\u91CD\u52A0\u8F7D\u65F6",
             "url": "classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#method_onWorkerReload"
         },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Builders\\QueueBuilder\u003A\u003Ahandler\u0028\u0029",
-            "name": "handler",
-            "summary": "",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#method_handler"
-        },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Builders\\QueueBuilder\u003A\u003AclassContent\u0028\u0029",
             "name": "classContent",
             "summary": "Command\u0020\u83B7\u53D6\u9700\u8981\u521B\u5EFA\u7684\u7C7B\u6587\u4EF6\u5185\u5BB9",
             "url": "classes/Workbunny-WebmanRabbitMQ-Builders-QueueBuilder.html#method_classContent"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Clients\\AbstractClient",
-            "name": "AbstractClient",
-            "summary": "",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Clients\\AbstractClient\u003A\u003A__construct\u0028\u0029",
-            "name": "__construct",
-            "summary": "",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method___construct"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Clients\\AbstractClient\u003A\u003A__destruct\u0028\u0029",
-            "name": "__destruct",
-            "summary": "",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method___destruct"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Clients\\AbstractClient\u003A\u003Aheartbeat\u0028\u0029",
-            "name": "heartbeat",
-            "summary": "",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_heartbeat"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Clients\\AbstractClient\u003A\u003Adisconnect\u0028\u0029",
-            "name": "disconnect",
-            "summary": "",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_disconnect"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Clients\\AbstractClient\u003A\u003Aconnect\u0028\u0029",
-            "name": "connect",
-            "summary": "",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_connect"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Clients\\AbstractClient\u003A\u003AonDataAvailable\u0028\u0029",
-            "name": "onDataAvailable",
-            "summary": "",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_onDataAvailable"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Clients\\AbstractClient\u003A\u003AisRunning\u0028\u0029",
-            "name": "isRunning",
-            "summary": "",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_isRunning"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Clients\\Client",
-            "name": "Client",
-            "summary": "",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Clients-Client.html"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Clients\\Client\u003A\u003AchannelsPool\u0028\u0029",
-            "name": "channelsPool",
-            "summary": "\u83B7\u53D6\u901A\u9053\u6C60",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Clients-Client.html#method_channelsPool"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Clients\\Client\u003A\u003Achannel\u0028\u0029",
-            "name": "channel",
-            "summary": "\u83B7\u53D6\u901A\u9053",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Clients-Client.html#method_channel"
         },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Commands\\AbstractCommand",
             "name": "AbstractCommand",
@@ -421,160 +366,55 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Workbunny-WebmanRabbitMQ-Commands-WorkbunnyWebmanRabbitMQRemove.html"
         },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\Connection",
-            "name": "Connection",
-            "summary": "",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-Connection.html"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\Connection\u003A\u003A__construct\u0028\u0029",
-            "name": "__construct",
-            "summary": "\u521D\u59CB\u5316\u8FDE\u63A5",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-Connection.html#method___construct"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\Connection\u003A\u003AgetClient\u0028\u0029",
-            "name": "getClient",
-            "summary": "\u83B7\u53D6\u539F\u59CBrabbitmq\u002Dclient",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-Connection.html#method_getClient"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\Connection\u003A\u003AisConnected\u0028\u0029",
-            "name": "isConnected",
-            "summary": "\u662F\u5426\u5DF2\u8FDE\u63A5",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-Connection.html#method_isConnected"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\Connection\u003A\u003Aheartbeat\u0028\u0029",
-            "name": "heartbeat",
-            "summary": "\u53D1\u9001\u5FC3\u8DF3",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-Connection.html#method_heartbeat"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\Connection\u003A\u003Areconnect\u0028\u0029",
-            "name": "reconnect",
-            "summary": "\u8FDE\u63A5\/\u91CD\u8FDE",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-Connection.html#method_reconnect"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\Connection\u003A\u003Adisconnect\u0028\u0029",
-            "name": "disconnect",
-            "summary": "\u5173\u95ED\u8FDE\u63A5",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-Connection.html#method_disconnect"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\Connection\u003A\u003Achannels\u0028\u0029",
-            "name": "channels",
-            "summary": "\u83B7\u53D6\u6240\u6709\u901A\u9053",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-Connection.html#method_channels"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\Connection\u003A\u003Achannel\u0028\u0029",
-            "name": "channel",
-            "summary": "\u83B7\u53D6\u4E00\u4E2A\u53EF\u7528\u901A\u9053",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-Connection.html#method_channel"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\Connection\u003A\u003Apublish\u0028\u0029",
-            "name": "publish",
-            "summary": "\u53D1\u5E03\u6D88\u606F",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-Connection.html#method_publish"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\Connection\u003A\u003Aconsume\u0028\u0029",
-            "name": "consume",
-            "summary": "\u6D88\u8D39\u6D88\u606F",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-Connection.html#method_consume"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionInterface",
-            "name": "ConnectionInterface",
-            "summary": "",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionInterface.html"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionInterface\u003A\u003AgetClient\u0028\u0029",
-            "name": "getClient",
-            "summary": "\u83B7\u53D6\u539F\u59CBrabbitmq\u002Dclient",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionInterface.html#method_getClient"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionInterface\u003A\u003AisConnected\u0028\u0029",
-            "name": "isConnected",
-            "summary": "\u662F\u5426\u5DF2\u8FDE\u63A5",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionInterface.html#method_isConnected"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionInterface\u003A\u003Achannels\u0028\u0029",
-            "name": "channels",
-            "summary": "\u83B7\u53D6\u6240\u6709\u901A\u9053",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionInterface.html#method_channels"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionInterface\u003A\u003Achannel\u0028\u0029",
-            "name": "channel",
-            "summary": "\u83B7\u53D6\u4E00\u4E2A\u53EF\u7528\u901A\u9053",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionInterface.html#method_channel"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionInterface\u003A\u003Apublish\u0028\u0029",
-            "name": "publish",
-            "summary": "\u53D1\u5E03\u6D88\u606F",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionInterface.html#method_publish"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionInterface\u003A\u003Aconsume\u0028\u0029",
-            "name": "consume",
-            "summary": "\u6D88\u8D39\u6D88\u606F",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionInterface.html#method_consume"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionInterface\u003A\u003Aheartbeat\u0028\u0029",
-            "name": "heartbeat",
-            "summary": "\u53D1\u9001\u5FC3\u8DF3",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionInterface.html#method_heartbeat"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionInterface\u003A\u003Areconnect\u0028\u0029",
-            "name": "reconnect",
-            "summary": "\u8FDE\u63A5\/\u91CD\u8FDE",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionInterface.html#method_reconnect"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionInterface\u003A\u003Adisconnect\u0028\u0029",
-            "name": "disconnect",
-            "summary": "\u5173\u95ED\u8FDE\u63A5",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionInterface.html#method_disconnect"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionsManagement",
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\ConnectionsManagement",
             "name": "ConnectionsManagement",
             "summary": "",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionsManagement.html"
+            "url": "classes/Workbunny-WebmanRabbitMQ-ConnectionsManagement.html"
         },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionsManagement\u003A\u003Aget\u0028\u0029",
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\ConnectionsManagement\u003A\u003Aget\u0028\u0029",
             "name": "get",
             "summary": "\u83B7\u53D6\u8FDE\u63A5\n\u0020\u002D\u0020\u624B\u52A8\u4F7F\u7528\u5B8C\u540E\u8BF7\u8C03\u7528release\u65B9\u6CD5\u5F52\u8FD8\u8FDE\u63A5",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionsManagement.html#method_get"
+            "url": "classes/Workbunny-WebmanRabbitMQ-ConnectionsManagement.html#method_get"
         },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionsManagement\u003A\u003Arelease\u0028\u0029",
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\ConnectionsManagement\u003A\u003Arelease\u0028\u0029",
             "name": "release",
             "summary": "\u5F52\u8FD8",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionsManagement.html#method_release"
+            "url": "classes/Workbunny-WebmanRabbitMQ-ConnectionsManagement.html#method_release"
         },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionsManagement\u003A\u003Aaction\u0028\u0029",
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\ConnectionsManagement\u003A\u003Aaction\u0028\u0029",
             "name": "action",
             "summary": "",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionsManagement.html#method_action"
+            "url": "classes/Workbunny-WebmanRabbitMQ-ConnectionsManagement.html#method_action"
         },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionsManagement\u003A\u003Aconnection\u0028\u0029",
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\ConnectionsManagement\u003A\u003Aconnection\u0028\u0029",
             "name": "connection",
             "summary": "\u8FD0\u884C",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionsManagement.html#method_connection"
+            "url": "classes/Workbunny-WebmanRabbitMQ-ConnectionsManagement.html#method_connection"
         },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionsManagement\u003A\u003Adestroy\u0028\u0029",
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\ConnectionsManagement\u003A\u003Adestroy\u0028\u0029",
             "name": "destroy",
             "summary": "",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionsManagement.html#method_destroy"
+            "url": "classes/Workbunny-WebmanRabbitMQ-ConnectionsManagement.html#method_destroy"
         },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionsManagement\u003A\u003Ainitialize\u0028\u0029",
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\ConnectionsManagement\u003A\u003Ainitialize\u0028\u0029",
             "name": "initialize",
             "summary": "\u521D\u59CB\u5316",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionsManagement.html#method_initialize"
+            "url": "classes/Workbunny-WebmanRabbitMQ-ConnectionsManagement.html#method_initialize"
         },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionsManagement\u003A\u003Aconfig\u0028\u0029",
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\ConnectionsManagement\u003A\u003Aconfig\u0028\u0029",
             "name": "config",
             "summary": "",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionsManagement.html#method_config"
+            "url": "classes/Workbunny-WebmanRabbitMQ-ConnectionsManagement.html#method_config"
         },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionsManagement\u003A\u003Apool\u0028\u0029",
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\ConnectionsManagement\u003A\u003Apool\u0028\u0029",
             "name": "pool",
             "summary": "\u83B7\u53D6\u8FDE\u63A5\u6C60",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionsManagement.html#method_pool"
+            "url": "classes/Workbunny-WebmanRabbitMQ-ConnectionsManagement.html#method_pool"
         },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections\\ConnectionsManagement\u003A\u003Apools\u0028\u0029",
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\ConnectionsManagement\u003A\u003Apools\u0028\u0029",
             "name": "pools",
             "summary": "\u83B7\u53D6\u6240\u6709\u8FDE\u63A5\u6C60",
-            "url": "classes/Workbunny-WebmanRabbitMQ-Connections-ConnectionsManagement.html#method_pools"
+            "url": "classes/Workbunny-WebmanRabbitMQ-ConnectionsManagement.html#method_pools"
         },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Constants",
             "name": "Constants",
@@ -691,10 +531,20 @@ Search.appendIndex(
             "summary": "\u751F\u4EA7",
             "url": "namespaces/workbunny-webmanrabbitmq.html#function_publish"
         },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\parallel_publish\u0028\u0029",
+            "name": "parallel_publish",
+            "summary": "\u5E76\u884C\u751F\u4EA7",
+            "url": "namespaces/workbunny-webmanrabbitmq.html#function_parallel_publish"
+        },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\is_empty_dir\u0028\u0029",
             "name": "is_empty_dir",
             "summary": "",
             "url": "namespaces/workbunny-webmanrabbitmq.html#function_is_empty_dir"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\binary_dump\u0028\u0029",
+            "name": "binary_dump",
+            "summary": "produce\u0020a\u0020hex\u002BASCII\u0020dump\u0020of\u0020a\u0020binary\u0020string.",
+            "url": "namespaces/workbunny-webmanrabbitmq.html#function_binary_dump"
         },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\BuilderConfigManagement",
             "name": "BuilderConfigManagement",
@@ -711,10 +561,65 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Workbunny-WebmanRabbitMQ-Traits-BuilderConfigManagement.html#method_setBuilderConfig"
         },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ChannelsMethods",
+            "name": "ChannelsMethods",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ChannelsMethods\u003A\u003AchannelsPool\u0028\u0029",
+            "name": "channelsPool",
+            "summary": "\u83B7\u53D6\u901A\u9053\u6C60",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#method_channelsPool"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ChannelsMethods\u003A\u003Achannel\u0028\u0029",
+            "name": "channel",
+            "summary": "\u83B7\u53D6\u901A\u9053",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#method_channel"
+        },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ClientMethods",
             "name": "ClientMethods",
             "summary": "",
             "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ClientMethods\u003A\u003AframesPush\u0028\u0029",
+            "name": "framesPush",
+            "summary": "Append\u0020frame\u0020to\u0020queue",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_framesPush"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ClientMethods\u003A\u003AframesConsume\u0028\u0029",
+            "name": "framesConsume",
+            "summary": "Consume\u0020frame",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_framesConsume"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ClientMethods\u003A\u003AframesConsumerSet\u0028\u0029",
+            "name": "framesConsumerSet",
+            "summary": "Set\u0020frames\u0020consumer",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_framesConsumerSet"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ClientMethods\u003A\u003AawaitsRegister\u0028\u0029",
+            "name": "awaitsRegister",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_awaitsRegister"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ClientMethods\u003A\u003AwriteWaitRegister\u0028\u0029",
+            "name": "writeWaitRegister",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_writeWaitRegister"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ClientMethods\u003A\u003AwriteWaitResume\u0028\u0029",
+            "name": "writeWaitResume",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_writeWaitResume"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ClientMethods\u003A\u003AheartbeatSet\u0028\u0029",
+            "name": "heartbeatSet",
+            "summary": "set\u0020heartbeat",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_heartbeatSet"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ClientMethods\u003A\u003Aheartbeat\u0028\u0029",
+            "name": "heartbeat",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_heartbeat"
         },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ClientMethods\u003A\u003AgetChannelLimit\u0028\u0029",
             "name": "getChannelLimit",
@@ -725,6 +630,31 @@ Search.appendIndex(
             "name": "getChannels",
             "summary": "\u83B7\u53D6\u5DF2\u521B\u5EFA\u7684\u901A\u9053",
             "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_getChannels"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ClientMethods\u003A\u003Ainit\u0028\u0029",
+            "name": "init",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_init"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ClientMethods\u003A\u003A__destruct\u0028\u0029",
+            "name": "__destruct",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method___destruct"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ClientMethods\u003A\u003Arun\u0028\u0029",
+            "name": "run",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_run"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ClientMethods\u003A\u003Astop\u0028\u0029",
+            "name": "stop",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_stop"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ClientMethods\u003A\u003AfeedReadBuffer\u0028\u0029",
+            "name": "feedReadBuffer",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_feedReadBuffer"
         },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\ConfigMethods",
             "name": "ConfigMethods",
@@ -746,6 +676,201 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Workbunny-WebmanRabbitMQ-Traits-ConfigMethods.html#method_getConfigs"
         },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods",
+            "name": "RewriteAwaitClientMethods",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitContentHeader\u0028\u0029",
+            "name": "awaitContentHeader",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitContentHeader"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitContentBody\u0028\u0029",
+            "name": "awaitContentBody",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitContentBody"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitConnectionStart\u0028\u0029",
+            "name": "awaitConnectionStart",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionStart"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitConnectionSecure\u0028\u0029",
+            "name": "awaitConnectionSecure",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionSecure"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitConnectionTune\u0028\u0029",
+            "name": "awaitConnectionTune",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionTune"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitConnectionOpenOk\u0028\u0029",
+            "name": "awaitConnectionOpenOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionOpenOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitConnectionClose\u0028\u0029",
+            "name": "awaitConnectionClose",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionClose"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitConnectionCloseOk\u0028\u0029",
+            "name": "awaitConnectionCloseOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionCloseOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitConnectionBlocked\u0028\u0029",
+            "name": "awaitConnectionBlocked",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionBlocked"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitConnectionUnblocked\u0028\u0029",
+            "name": "awaitConnectionUnblocked",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionUnblocked"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitChannelOpenOk\u0028\u0029",
+            "name": "awaitChannelOpenOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelOpenOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitChannelFlow\u0028\u0029",
+            "name": "awaitChannelFlow",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelFlow"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitChannelFlowOk\u0028\u0029",
+            "name": "awaitChannelFlowOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelFlowOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitChannelClose\u0028\u0029",
+            "name": "awaitChannelClose",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelClose"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitChannelCloseOk\u0028\u0029",
+            "name": "awaitChannelCloseOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelCloseOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitAccessRequestOk\u0028\u0029",
+            "name": "awaitAccessRequestOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitAccessRequestOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitExchangeDeclareOk\u0028\u0029",
+            "name": "awaitExchangeDeclareOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitExchangeDeclareOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitExchangeDeleteOk\u0028\u0029",
+            "name": "awaitExchangeDeleteOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitExchangeDeleteOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitExchangeBindOk\u0028\u0029",
+            "name": "awaitExchangeBindOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitExchangeBindOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitExchangeUnbindOk\u0028\u0029",
+            "name": "awaitExchangeUnbindOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitExchangeUnbindOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitQueueDeclareOk\u0028\u0029",
+            "name": "awaitQueueDeclareOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueueDeclareOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitQueueBindOk\u0028\u0029",
+            "name": "awaitQueueBindOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueueBindOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitQueuePurgeOk\u0028\u0029",
+            "name": "awaitQueuePurgeOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueuePurgeOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitQueueDeleteOk\u0028\u0029",
+            "name": "awaitQueueDeleteOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueueDeleteOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitQueueUnbindOk\u0028\u0029",
+            "name": "awaitQueueUnbindOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueueUnbindOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitQosOk\u0028\u0029",
+            "name": "awaitQosOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQosOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitConsumeOk\u0028\u0029",
+            "name": "awaitConsumeOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConsumeOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitCancelOk\u0028\u0029",
+            "name": "awaitCancelOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitCancelOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitReturn\u0028\u0029",
+            "name": "awaitReturn",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitReturn"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitDeliver\u0028\u0029",
+            "name": "awaitDeliver",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitDeliver"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitGetOk\u0028\u0029",
+            "name": "awaitGetOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitGetOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitAck\u0028\u0029",
+            "name": "awaitAck",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitAck"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitRecoverOk\u0028\u0029",
+            "name": "awaitRecoverOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitRecoverOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitNack\u0028\u0029",
+            "name": "awaitNack",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitNack"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitTxSelectOk\u0028\u0029",
+            "name": "awaitTxSelectOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitTxSelectOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitTxCommitOk\u0028\u0029",
+            "name": "awaitTxCommitOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitTxCommitOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitTxRollbackOk\u0028\u0029",
+            "name": "awaitTxRollbackOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitTxRollbackOk"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Traits\\RewriteAwaitClientMethods\u003A\u003AawaitConfirmSelectOk\u0028\u0029",
+            "name": "awaitConfirmSelectOk",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConfirmSelectOk"
+        },                {
             "fqsen": "\\",
             "name": "\\",
             "summary": "",
@@ -766,20 +891,10 @@ Search.appendIndex(
             "summary": "",
             "url": "namespaces/workbunny-webmanrabbitmq-builders.html"
         },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Clients",
-            "name": "Clients",
-            "summary": "",
-            "url": "namespaces/workbunny-webmanrabbitmq-clients.html"
-        },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Commands",
             "name": "Commands",
             "summary": "",
             "url": "namespaces/workbunny-webmanrabbitmq-commands.html"
-        },                {
-            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connections",
-            "name": "Connections",
-            "summary": "",
-            "url": "namespaces/workbunny-webmanrabbitmq-connections.html"
         },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Exceptions",
             "name": "Exceptions",

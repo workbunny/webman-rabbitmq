@@ -1,0 +1,810 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Workbunny\WebmanRabbitMQ\Traits;
+
+use Bunny\Protocol;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelException;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
+
+trait RewriteAwaitClientMethods
+{
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\ContentHeaderFrame
+     */
+    public function awaitContentHeader($channel): Protocol\ContentHeaderFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\ContentHeaderFrame::class);
+            // check connection close or channel close
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\ContentHeaderFrame|null $return */
+            $return = $this->framesConsume(Protocol\ContentHeaderFrame::class, function (Protocol\ContentHeaderFrame $frame) use ($channel) {
+                if ($frame->channel === $channel) {
+                    return $frame;
+                }
+
+                return null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\ContentBodyFrame
+     */
+    public function awaitContentBody($channel): Protocol\ContentBodyFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\ContentBodyFrame::class);
+            // check connection close or channel close
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\ContentBodyFrame|null $return */
+            $return = $this->framesConsume(Protocol\ContentBodyFrame::class, function (Protocol\ContentBodyFrame $frame) use ($channel) {
+                if ($frame->channel === $channel) {
+                    return $frame;
+                }
+
+                return null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @return Protocol\MethodConnectionStartFrame
+     */
+    public function awaitConnectionStart(): Protocol\MethodConnectionStartFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodConnectionStartFrame::class);
+            // check connection close or channel close
+            $this->_whenConnectionOrChannelClose(null);
+            /** @var Protocol\MethodConnectionStartFrame|null $return */
+            $return = $this->framesConsume(Protocol\MethodConnectionStartFrame::class, function (Protocol\MethodConnectionStartFrame $frame) {
+                return $frame;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @return Protocol\MethodConnectionSecureFrame
+     */
+    public function awaitConnectionSecure(): Protocol\MethodConnectionSecureFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodConnectionSecureFrame::class);
+            // check connection close or channel close
+            $this->_whenConnectionOrChannelClose(null);
+            /** @var Protocol\MethodConnectionSecureFrame|null $return */
+            $return = $this->framesConsume(Protocol\MethodConnectionSecureFrame::class, function (Protocol\MethodConnectionSecureFrame $frame) {
+                return $frame;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @return Protocol\MethodConnectionTuneFrame
+     */
+    public function awaitConnectionTune(): Protocol\MethodConnectionTuneFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodConnectionTuneFrame::class);
+            // check connection close or channel close
+            $this->_whenConnectionOrChannelClose(null);
+            /** @var Protocol\MethodConnectionTuneFrame|null $return */
+            $return = $this->framesConsume(Protocol\MethodConnectionTuneFrame::class, function (Protocol\MethodConnectionTuneFrame $frame) {
+                return $frame;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @return Protocol\MethodConnectionOpenOkFrame
+     */
+    public function awaitConnectionOpenOk(): Protocol\MethodConnectionOpenOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodConnectionOpenOkFrame::class);
+            // check connection close or channel close
+            $this->_whenConnectionOrChannelClose(null);
+            /** @var Protocol\MethodConnectionOpenOkFrame|null $return */
+            $return = $this->framesConsume(Protocol\MethodConnectionOpenOkFrame::class, function (Protocol\MethodConnectionOpenOkFrame $frame) {
+                return $frame;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @return Protocol\MethodConnectionCloseFrame
+     */
+    public function awaitConnectionClose(): Protocol\MethodConnectionCloseFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodConnectionCloseFrame::class);
+            /** @var Protocol\MethodConnectionCloseFrame|null $return */
+            $return = $this->framesConsume(Protocol\MethodConnectionCloseFrame::class, function (Protocol\MethodConnectionCloseFrame $frame) {
+                return $frame;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @return Protocol\MethodConnectionCloseOkFrame
+     */
+    public function awaitConnectionCloseOk(): Protocol\MethodConnectionCloseOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodConnectionCloseOkFrame::class);
+            /** @var Protocol\MethodConnectionCloseOkFrame|null $return */
+            $return = $this->framesConsume(Protocol\MethodConnectionCloseOkFrame::class, function (Protocol\MethodConnectionCloseOkFrame $frame) {
+                return $frame;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @return Protocol\MethodConnectionBlockedFrame
+     */
+    public function awaitConnectionBlocked(): Protocol\MethodConnectionBlockedFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodConnectionBlockedFrame::class);
+            // check connection close or channel close
+            $this->_whenConnectionOrChannelClose(null);
+            /** @var Protocol\MethodConnectionBlockedFrame|null $return */
+            $return = $this->framesConsume(Protocol\MethodConnectionBlockedFrame::class, function (Protocol\MethodConnectionBlockedFrame $frame) {
+                return $frame;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @return Protocol\MethodConnectionUnblockedFrame
+     */
+    public function awaitConnectionUnblocked(): Protocol\MethodConnectionUnblockedFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodConnectionUnblockedFrame::class);
+            // check connection close or channel close
+            $this->_whenConnectionOrChannelClose(null);
+            /** @var Protocol\MethodConnectionUnblockedFrame|null $return */
+            $return = $this->framesConsume(Protocol\MethodConnectionUnblockedFrame::class, function (Protocol\MethodConnectionUnblockedFrame $frame) {
+                return $frame;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodChannelOpenOkFrame
+     */
+    public function awaitChannelOpenOk($channel): Protocol\MethodChannelOpenOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodChannelOpenOkFrame::class);
+            // check connection close or channel close
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodChannelOpenOkFrame|null $return */
+            $return = $this->framesConsume(Protocol\MethodChannelOpenOkFrame::class, function (Protocol\MethodChannelOpenOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodChannelFlowFrame
+     */
+    public function awaitChannelFlow($channel): Protocol\MethodChannelFlowFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodChannelFlowFrame::class);
+            // check connection close or channel close
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodChannelFlowFrame|null $return */
+            $return = $this->framesConsume(Protocol\MethodChannelFlowFrame::class, function (Protocol\MethodChannelFlowFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodChannelFlowOkFrame
+     */
+    public function awaitChannelFlowOk($channel): Protocol\MethodChannelFlowOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodChannelFlowOkFrame::class);
+            // check connection close or channel close
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodChannelFlowOkFrame|null $return */
+            $return = $this->framesConsume(Protocol\MethodChannelFlowOkFrame::class, function (Protocol\MethodChannelFlowOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodChannelCloseFrame
+     */
+    public function awaitChannelClose($channel): Protocol\MethodChannelCloseFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodChannelCloseFrame::class);
+            $this->_whenConnectionOrChannelClose(null);
+            /** @var Protocol\MethodChannelCloseFrame $return */
+            $return = $this->framesConsume(Protocol\MethodChannelCloseOkFrame::class, function (Protocol\AbstractFrame $frame) use ($channel) {
+                if ($channel === $frame->channel) {
+                    $this->channelCloseOk($channel);
+
+                    return $frame;
+                }
+
+                return null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodChannelCloseOkFrame
+     */
+    public function awaitChannelCloseOk($channel): Protocol\MethodChannelCloseOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodChannelCloseOkFrame::class);
+            $this->_whenConnectionOrChannelClose(null);
+            /** @var Protocol\MethodChannelCloseOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodChannelCloseOkFrame::class, function (Protocol\MethodChannelCloseOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodAccessRequestOkFrame
+     */
+    public function awaitAccessRequestOk($channel): Protocol\MethodAccessRequestOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodAccessRequestOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodAccessRequestOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodAccessRequestOkFrame::class, function (Protocol\MethodAccessRequestOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodExchangeDeclareOkFrame
+     */
+    public function awaitExchangeDeclareOk($channel): Protocol\MethodExchangeDeclareOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodExchangeDeclareOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodExchangeDeclareOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodExchangeDeclareOkFrame::class, function (Protocol\MethodExchangeDeclareOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodExchangeDeleteOkFrame
+     */
+    public function awaitExchangeDeleteOk($channel): Protocol\MethodExchangeDeleteOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodExchangeDeleteOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodExchangeDeleteOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodExchangeDeleteOkFrame::class, function (Protocol\MethodExchangeDeleteOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodExchangeBindOkFrame
+     */
+    public function awaitExchangeBindOk($channel): Protocol\MethodExchangeBindOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodExchangeBindOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodExchangeBindOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodExchangeBindOkFrame::class, function (Protocol\MethodExchangeBindOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodExchangeUnbindOkFrame
+     */
+    public function awaitExchangeUnbindOk($channel): Protocol\MethodExchangeUnbindOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodExchangeUnbindOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodExchangeUnbindOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodExchangeUnbindOkFrame::class, function (Protocol\MethodExchangeUnbindOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodQueueDeclareOkFrame
+     */
+    public function awaitQueueDeclareOk($channel): Protocol\MethodQueueDeclareOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodQueueDeclareOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodQueueDeclareOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodQueueDeclareOkFrame::class, function (Protocol\MethodQueueDeclareOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodQueueBindOkFrame
+     */
+    public function awaitQueueBindOk($channel): Protocol\MethodQueueBindOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodQueueBindOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodQueueBindOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodQueueBindOkFrame::class, function (Protocol\MethodQueueBindOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodQueuePurgeOkFrame
+     */
+    public function awaitQueuePurgeOk($channel): Protocol\MethodQueuePurgeOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodQueuePurgeOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodQueuePurgeOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodQueuePurgeOkFrame::class, function (Protocol\MethodQueuePurgeOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodQueueDeleteOkFrame
+     */
+    public function awaitQueueDeleteOk($channel): Protocol\MethodQueueDeleteOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodQueueDeleteOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodQueueDeleteOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodQueueDeleteOkFrame::class, function (Protocol\MethodQueueDeleteOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodQueueUnbindOkFrame
+     */
+    public function awaitQueueUnbindOk($channel): Protocol\MethodQueueUnbindOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodQueueUnbindOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodQueueUnbindOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodQueueUnbindOkFrame::class, function (Protocol\MethodQueueUnbindOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodBasicQosOkFrame
+     */
+    public function awaitQosOk($channel): Protocol\MethodBasicQosOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodBasicQosOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodBasicQosOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodBasicQosOkFrame::class, function (Protocol\MethodBasicQosOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodBasicConsumeOkFrame
+     */
+    public function awaitConsumeOk($channel): Protocol\MethodBasicConsumeOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodBasicConsumeOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodBasicConsumeOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodBasicConsumeOkFrame::class, function (Protocol\MethodBasicConsumeOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodBasicCancelOkFrame
+     */
+    public function awaitCancelOk($channel): Protocol\MethodBasicCancelOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodBasicCancelOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodBasicCancelOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodBasicCancelOkFrame::class, function (Protocol\MethodBasicCancelOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodBasicReturnFrame
+     */
+    public function awaitReturn($channel): Protocol\MethodBasicReturnFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodBasicReturnFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodBasicReturnFrame $return */
+            $return = $this->framesConsume(Protocol\MethodBasicReturnFrame::class, function (Protocol\MethodBasicReturnFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodBasicDeliverFrame
+     */
+    public function awaitDeliver($channel): Protocol\MethodBasicDeliverFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodBasicDeliverFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodBasicDeliverFrame $return */
+            $return = $this->framesConsume(Protocol\MethodBasicDeliverFrame::class, function (Protocol\MethodBasicDeliverFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodBasicGetOkFrame|Protocol\MethodBasicGetEmptyFrame
+     */
+    public function awaitGetOk($channel): Protocol\MethodBasicGetEmptyFrame|Protocol\MethodBasicGetOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister([Protocol\MethodBasicGetOkFrame::class, Protocol\MethodBasicGetEmptyFrame::class]);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodBasicGetOkFrame|Protocol\MethodBasicGetEmptyFrame $return */
+            $return = $this->framesConsume([
+                Protocol\MethodBasicGetOkFrame::class,
+                Protocol\MethodBasicGetEmptyFrame::class,
+            ], function (Protocol\MethodBasicGetOkFrame|Protocol\MethodBasicGetEmptyFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodBasicAckFrame
+     */
+    public function awaitAck($channel): Protocol\MethodBasicAckFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodBasicAckFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodBasicAckFrame $return */
+            $return = $this->framesConsume(Protocol\MethodBasicAckFrame::class, function (Protocol\MethodBasicAckFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodBasicRecoverOkFrame
+     */
+    public function awaitRecoverOk($channel): Protocol\MethodBasicRecoverOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodBasicRecoverOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodBasicRecoverOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodBasicRecoverOkFrame::class, function (Protocol\MethodBasicRecoverOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodBasicNackFrame
+     */
+    public function awaitNack($channel): Protocol\MethodBasicNackFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodBasicNackFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodBasicNackFrame $return */
+            $return = $this->framesConsume(Protocol\MethodBasicNackFrame::class, function (Protocol\MethodBasicNackFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodTxSelectOkFrame
+     */
+    public function awaitTxSelectOk($channel): Protocol\MethodTxSelectOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodTxSelectOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodTxSelectOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodTxSelectOkFrame::class, function (Protocol\MethodTxSelectOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodTxCommitOkFrame
+     */
+    public function awaitTxCommitOk($channel): Protocol\MethodTxCommitOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodTxCommitOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodTxCommitOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodTxCommitOkFrame::class, function (Protocol\MethodTxCommitOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodTxRollbackOkFrame
+     */
+    public function awaitTxRollbackOk($channel): Protocol\MethodTxRollbackOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodTxRollbackOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodTxRollbackOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodTxRollbackOkFrame::class, function (Protocol\MethodTxRollbackOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int $channel
+     *
+     * @return Protocol\MethodConfirmSelectOkFrame
+     */
+    public function awaitConfirmSelectOk($channel): Protocol\MethodConfirmSelectOkFrame
+    {
+        $return = null;
+        while (!$return) {
+            $this->awaitsRegister(Protocol\MethodConfirmSelectOkFrame::class);
+            $this->_whenConnectionOrChannelClose($channel);
+            /** @var Protocol\MethodConfirmSelectOkFrame $return */
+            $return = $this->framesConsume(Protocol\MethodConfirmSelectOkFrame::class, function (Protocol\MethodConfirmSelectOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel ? $frame : null;
+            });
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param int|null $channel
+     * @return void
+     *
+     * @throws WebmanRabbitMQChannelException when channel closed
+     * @throws WebmanRabbitMQConnectException when connection closed
+     */
+    protected function _whenConnectionOrChannelClose(?int $channel): void
+    {
+        $this->framesConsume([
+            Protocol\MethodConnectionCloseFrame::class,
+            Protocol\MethodChannelCloseFrame::class,
+        ], function (Protocol\AbstractFrame $frame) use ($channel) {
+            if (
+                $frame instanceof Protocol\MethodChannelCloseFrame and
+                $channel !== null and
+                $frame->channel === $channel
+            ) {
+                $this->channelCloseOk($channel);
+                throw new WebmanRabbitMQChannelException($frame->replyText, $frame->replyCode);
+            }
+            if ($frame instanceof Protocol\MethodConnectionCloseFrame) {
+                $this->connectionCloseOk();
+                throw new WebmanRabbitMQConnectException($frame->replyText, $frame->replyCode);
+            }
+        });
+    }
+}

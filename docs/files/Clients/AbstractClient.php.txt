@@ -5,17 +5,24 @@ declare(strict_types=1);
 namespace Workbunny\WebmanRabbitMQ\Clients;
 
 use Bunny\ClientStateEnum;
+use Bunny\Constants;
+use Bunny\Protocol\AbstractFrame;
 use Bunny\Protocol\Buffer;
-use Bunny\Protocol\HeartbeatFrame;
 use Bunny\Protocol\MethodConnectionStartFrame;
 use Psr\Log\LoggerInterface;
+
+use function Workbunny\WebmanRabbitMQ\binary_dump;
+
+use Workbunny\WebmanRabbitMQ\Channels\Channel;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
+use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
+use Workbunny\WebmanRabbitMQ\Traits\ChannelsMethods;
 use Workbunny\WebmanRabbitMQ\Traits\ClientMethods;
 use Workbunny\WebmanRabbitMQ\Traits\ConfigMethods;
+use Workbunny\WebmanRabbitMQ\Traits\RewriteAwaitClientMethods;
 use Workerman\RabbitMQ\Traits\LoggerMethods;
 use Workerman\RabbitMQ\Traits\MechanismMethods;
-use Workerman\Timer;
 use Workerman\Worker;
 
 abstract class AbstractClient extends \Bunny\Client
@@ -24,13 +31,10 @@ abstract class AbstractClient extends \Bunny\Client
     use ConfigMethods;
     use LoggerMethods;
     use MechanismMethods;
-
-    /**
-     * 心跳定时器
-     *
-     * @var int|null
-     */
-    protected ?int $heartbeat = null;
+    // rewrite some channel methods
+    use ChannelsMethods;
+    // rewrite all await* methods
+    use RewriteAwaitClientMethods;
 
     /**
      * @param array $options
@@ -39,12 +43,14 @@ abstract class AbstractClient extends \Bunny\Client
     public function __construct(array $options = [], ?LoggerInterface $logger = null)
     {
         $this->setConfig($options);
-        // 日志
+        // logger
         $this->setLogger($logger);
-        // 注册认证机制
+        // register mechanism handlers PLAIN
         static::registerMechanismHandler('PLAIN', function (string $mechanism, MethodConnectionStartFrame $start) {
+            // non-blocking sending
             return $this->connectionStartOk([], $mechanism, sprintf("\0%s\0%s", $this->options['user'], $this->options['password']), 'en_US');
         });
+        // register mechanism handlers AMQPLAIN
         static::registerMechanismHandler('AMQPLAIN', function (string $mechanism, MethodConnectionStartFrame $start) {
             $responseBuffer = new Buffer();
             $this->writer->appendTable([
@@ -54,85 +60,10 @@ abstract class AbstractClient extends \Bunny\Client
 
             $responseBuffer->discard(4);
 
+            // non-blocking sending
             return $this->connectionStartOk([], $mechanism, $responseBuffer->read($responseBuffer->getLength()), 'en_US');
         });
         parent::__construct($options);
-    }
-
-    public function __destruct()
-    {
-        if ($this->isConnected()) {
-            $this->disconnect();
-        }
-    }
-
-    /**
-     * @return void
-     */
-    public function heartbeat(): void
-    {
-        if ($this->isRunning()) {
-            $this->writer->appendFrame(new HeartbeatFrame(), $this->writeBuffer);
-            $this->flushWriteBuffer();
-            if (is_callable(
-                $this->options['heartbeat_callback'] ?? null
-            )) {
-                $this->options['heartbeat_callback']($this);
-            }
-        }
-    }
-
-    /** @inheritDoc */
-    public function disconnect($replyCode = 0, $replyText = ''): void
-    {
-        if ($this->isConnected()) {
-            $this->connectionClose($replyCode, $replyText, 0, 0);
-            $this->state = ClientStateEnum::NOT_CONNECTED;
-        }
-        if ($this->heartbeat) {
-            Timer::del($this->heartbeat);
-            $this->heartbeat = null;
-        }
-        if ($this->getStream()) {
-            Worker::$globalEvent->offReadable($this->getStream());
-            $this->closeStream();
-        }
-        $this->init();
-    }
-
-    /** @inheritDoc */
-    public function connect(): AbstractClient
-    {
-        $res = parent::connect();
-        // 可读事件
-        Worker::$globalEvent->onReadable($this->getStream(), [$this, 'onDataAvailable']);
-        $this->heartbeat = Timer::add($this->options['heartbeat'] ?? 50, [$this, 'heartbeat']);
-        $this->running = true;
-
-        return $res;
-    }
-
-    /**
-     * @return void
-     */
-    public function onDataAvailable(): void
-    {
-        $this->read();
-        while (($frame = $this->reader->consumeFrame($this->readBuffer)) !== null) {
-            if ($frame->channel === 0) {
-                $this->onFrameReceived($frame);
-            } else {
-                if (!isset($this->channels[$frame->channel])) {
-                    throw new WebmanRabbitMQChannelException(
-                        "Received frame #{$frame->type} on closed channel #{$frame->channel}."
-                    );
-                }
-
-                $this->channels[$frame->channel]->onFrameReceived($frame);
-            }
-            // 出让协程避免阻塞
-            Timer::sleep(rand(10, 99) / 1000);
-        }
     }
 
     /**
@@ -145,18 +76,256 @@ abstract class AbstractClient extends \Bunny\Client
         if (!str_contains($start->mechanisms, $mechanism)) {
             throw new WebmanRabbitMQConnectException("Server does not support $mechanism mechanism (supported: {$start->mechanisms}).");
         }
-        // 认证机制
+        // mechanism
         if ($handler = static::getMechanismHandler($mechanism)) {
             return $handler($mechanism, $start);
         }
         throw new WebmanRabbitMQConnectException("Client does not support $mechanism mechanism. ");
     }
 
+    /** @inheritDoc */
+    public function disconnect($replyCode = 0, $replyText = ''): void
+    {
+        // del heartbeat
+        $this->heartbeatSet(null, 0);
+        // del frame consumer
+        $this->framesConsumerSet();
+        // set not-running
+        $this->running = false;
+        // disconnect
+        if ($this->isConnected()) {
+            // connection close - blocking await
+            $this->connectionClose($replyCode, $replyText, 0, 0);
+            // set state
+            $this->state = ClientStateEnum::NOT_CONNECTED;
+        }
+        // del stream readable event
+        if ($this->getStream()) {
+            Worker::$globalEvent->offReadable($this->getStream());
+            Worker::$globalEvent->offWritable($this->getStream());
+            $this->closeStream();
+        }
+        // reset
+        $this->init();
+    }
+
     /**
+     * @inheritDoc
+     *
+     *  connect() can help you bypass most of the checks, so make it a habit to invoke it before every connection usage
+     *
+     * @return $this
+     */
+    public function connect(): AbstractClient
+    {
+        if (!$this->isConnected() and $this->state !== ClientStateEnum::CONNECTING) {
+            // set stream non-blocking
+            stream_set_blocking($this->getStream(), false);
+            // register data available callback
+            Worker::$globalEvent->onReadable($this->getStream(), [$this, 'onReadable']);
+            // register data writable callback
+            Worker::$globalEvent->onWritable($this->getStream(), [$this, 'onWriteable']);
+            // set state
+            $this->state = ClientStateEnum::CONNECTING;
+            // send protocol header
+            $this->writer->appendProtocolHeader($this->writeBuffer);
+            $this->flushWriteBuffer();
+            // await connection start and auth response
+            $this->authResponse($this->awaitConnectionStart());
+            $tune = $this->awaitConnectionTune();
+            $this->connectionTuneOk($tune->channelMax, $tune->frameMax, $tune->heartbeat);
+            $this->frameMax = $tune->frameMax;
+            $this->channelMax = $tune->channelMax > 0 ? $tune->channelMax : $this->channelMax;
+            $this->connectionOpen($this->getConfig('vhost', '/'));
+            $this->state = ClientStateEnum::CONNECTED;
+
+            // heartbeat
+            $this->heartbeatSet([$this, 'heartbeat'], $tune->heartbeat > 0 ? $tune->heartbeat : 60);
+            // init frame consumer - Priority: await* > frames consumer
+            $this->framesConsumerSet(function (AbstractFrame $frame) {
+                // check close
+                try {
+                    $this->_whenConnectionOrChannelClose($frame->channel);
+                } catch (WebmanRabbitMQChannelException $e) {
+                    $this->removeChannel($frame->channel);
+                    $this->getLogger()?->notice('Channel closed. ', [
+                        'message' => $e->getMessage(),
+                        'code'    => $e->getCode(),
+                        'file'    => $e->getFile() . ':' . $e->getLine(),
+                        'channel' => $frame->channel,
+                    ]);
+
+                    return;
+                } catch (WebmanRabbitMQConnectException $e) {
+                    $this->state = ClientStateEnum::NOT_CONNECTED;
+                    $this->disconnect($e->getCode(), $e->getMessage());
+                    $this->disconnect();
+                    $this->getLogger()?->notice('Connection closed. ', [
+                        'message' => $e->getMessage(),
+                        'code'    => $e->getCode(),
+                        'file'    => $e->getFile() . ':' . $e->getLine(),
+                    ]);
+
+                    return;
+                }
+
+                // connection message
+                if ($frame->channel === 0) {
+                    $this->onFrameReceived($frame);
+                } else { // channel message
+                    /** @var Channel $channel */
+                    $channel = $this->channels[$frame->channel] ?? null;
+                    if ($channel) {
+                        $this->channels[$frame->channel]->onFrameReceived($frame);
+                    }
+                }
+            });
+        }
+
+        return $this;
+    }
+
+    /**
+     * flush write buffer
+     *
+     *  When the kernel buffer is temporarily non-writable, `a writeWait event is triggered,
+     *  and flushWriteBuffer() yields control until onWriteable() resume it.
+     *
      * @return bool
      */
-    public function isRunning(): bool
+    protected function flushWriteBuffer(): bool
     {
-        return $this->running;
+        $length = $this->writeBuffer->getLength();
+        $written = 0;
+        try {
+            while ($length !== 0) {
+                if (($len = @fwrite($this->getStream(), $this->writeBuffer->read($length, $written))) === false) {
+                    throw new WebmanRabbitMQConnectException('Could not write data to socket.');
+                }
+                if ($len <= 0) {
+                    throw new WebmanRabbitMQConnectException('Broken pipe or closed connection.');
+                }
+                $length -= $len;
+                $written += $len;
+                // flush internal PHP buffers
+                fflush($this->getStream());
+                $this->lastWrite = microtime(true);
+                // check after write
+                if ($length !== 0) {
+                    // coroutine relinquishes control and waits for the "writeable" event to be triggered
+                    $this->writeWaitRegister();
+                }
+            }
+            // debug dump
+            if ($this->getConfig('debug', false)) {
+                $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, limit: 2);
+                $payload = binary_dump($this->writeBuffer->read($this->writeBuffer->getLength()));
+                echo <<<doc
+\033[32mWrite on $this->lastWrite s\033[0m:
+function: \e[48;5;245m\e[38;5;15m{$backtrace[1]['function']}\e[0m
+binary (dump):
+$payload\n
+doc;
+            }
+        } finally {
+            if ($written > 0) {
+                // write buffer discard
+                $this->writeBuffer->discard($written);
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * writeable event callback
+     *
+     * @return void
+     */
+    public function onWriteable(): void
+    {
+        try {
+            // when the previous write operation is temporarily not allowed,
+            // wait for the system to return that it is now writable.
+            // at this point, the write event will be resumed
+            $this->writeWaitResume();
+        } catch (\Throwable $e) {
+            throw new WebmanRabbitMQException($e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * readable event callback
+     *
+     *  - possible:
+     *      - N reads for 1 frame
+     *      - N reads for N frame
+     *      - 1 reads for N frame
+     *
+     *  - data-flow:
+     *      binary -> buffer -> frame
+     *
+     *  - logical-flow:
+     *      read -> buffer-append -> frame-push -> await*-check (possible frame-consume)
+     *
+     *
+     * @return void
+     */
+    public function onReadable(): void
+    {
+        // read binary data
+        $payload = @fread($this->stream, $this->frameMax);
+        if ($payload === false) {
+            $info = stream_get_meta_data($this->stream);
+            if ($info['timed_out'] ?? null) {
+                $this->disconnect(Constants::STATUS_RESOURCE_ERROR, 'Connection closed by server unexpectedly');
+                throw new WebmanRabbitMQConnectException('Timeout reached while reading from stream.');
+            }
+        }
+        if (@feof($this->stream)) {
+            $this->disconnect(Constants::STATUS_RESOURCE_ERROR, 'Connection closed by server unexpectedly');
+            throw new WebmanRabbitMQConnectException('Broken pipe or closed connection.');
+        }
+
+        $this->readBuffer->append($payload);
+        $this->lastRead = microtime(true);
+
+        // buffer to frame
+        $frames = [];
+        while (($frame = $this->reader->consumeFrame($this->readBuffer)) !== null) {
+            // append to frame queue
+            $this->framesPush($frame);
+            $frames[] = $frameClass = $frame::class;
+            // debug dump
+            if ($this->getConfig('debug', false)) {
+                $data = json_encode($frame, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+                echo <<<doc
+\033[33mRead on $this->lastRead s\033[0m:
+frame: \e[48;5;245m\e[38;5;15m$frameClass\e[0m,
+data (to_json): 
+$data\n
+doc;
+            }
+        }
+        // some operations on the client side use await to wait for the reply message.
+        // these operations will be temporarily written into the "awaits" queue.
+        // when a readable event occurs, the await operation will be executed first.
+        // one frame send(N write) -> one awaits* event -> one frame recv(N read)
+        foreach ($frames as $frameClass) {
+            if (!$this->awaits->isEmpty()) {
+                // ensure sequential execution in the coroutines,
+                // remove the operation from the post-processing stage
+                [$frameClasses, $co] = $this->awaits->shift();
+                $this->awaits->unshift([$frameClasses, $co]);
+                if (in_array($frameClass, $frameClasses)) {
+                    // when await is resumed, it will consume its needed target frame
+                    $co?->resume([
+                        'timestamp' => microtime(true),
+                    ]);
+                    // remove
+                    $this->awaits->shift();
+                }
+            }
+        }
     }
 }

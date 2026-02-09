@@ -93,38 +93,20 @@
                                         <ul class="phpdocumentor-breadcrumbs">
             <li class="phpdocumentor-breadcrumb"><a href="namespaces/workbunny.html">Workbunny</a></li>
             <li class="phpdocumentor-breadcrumb"><a href="namespaces/workbunny-webmanrabbitmq.html">WebmanRabbitMQ</a></li>
-            <li class="phpdocumentor-breadcrumb"><a href="namespaces/workbunny-webmanrabbitmq-exceptions.html">Exceptions</a></li>
+            <li class="phpdocumentor-breadcrumb"><a href="namespaces/workbunny-webmanrabbitmq-traits.html">Traits</a></li>
     </ul>
 
-    <article class="phpdocumentor-element -class">
+    <article class="phpdocumentor-element -trait">
         <h2 class="phpdocumentor-content__title">
-    WebmanRabbitMQException
-
-        <span class="phpdocumentor-element__extends">
-        extends <abbr title="\RuntimeException">RuntimeException</abbr>
-    </span>
-    
-            <div class="phpdocumentor-element__package">
-            in package
-            <ul class="phpdocumentor-breadcrumbs">
-                                    <li class="phpdocumentor-breadcrumb"><a href="packages/WebmanRabbitMQ.html">WebmanRabbitMQ</a></li>
-                            </ul>
-        </div>
-    
-    
+    ChannelsMethods
     </h2>
 
-<div class="phpdocumentor-label-line">
-
-
-</div>
-
         <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="Exceptions/WebmanRabbitMQException.php"><a href="files/exceptions-webmanrabbitmqexception.html"><abbr title="Exceptions/WebmanRabbitMQException.php">WebmanRabbitMQException.php</abbr></a></abbr>
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ChannelsMethods.php"><a href="files/traits-channelsmethods.html"><abbr title="Traits/ChannelsMethods.php">ChannelsMethods.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">10</span>
+    <span class="phpdocumentor-element-found-in__line">21</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Exceptions-WebmanRabbitMQException.html#source-view.10" class="phpdocumentor-element-found-in__source" data-line="10" data-modal="source-view" data-src="files/Exceptions/WebmanRabbitMQException.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#source-view.21" class="phpdocumentor-element-found-in__source" data-line="21" data-modal="source-view" data-src="files/Traits/ChannelsMethods.php.txt"></a>
     </aside>
 
         
@@ -136,7 +118,7 @@
     
 <h3 id="toc">
     Table of Contents
-    <a href="classes/Workbunny-WebmanRabbitMQ-Exceptions-WebmanRabbitMQException.html#toc" class="headerlink"><i class="fas fa-link"></i></a>
+    <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#toc" class="headerlink"><i class="fas fa-link"></i></a>
 
 </h3>
 
@@ -151,17 +133,26 @@
 
 <h4 id="toc-methods">
     Methods
-    <a href="classes/Workbunny-WebmanRabbitMQ-Exceptions-WebmanRabbitMQException.html#toc-methods" class="headerlink"><i class="fas fa-link"></i></a>
+    <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#toc-methods" class="headerlink"><i class="fas fa-link"></i></a>
 
 </h4>
 <dl class="phpdocumentor-table-of-contents">
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Exceptions-WebmanRabbitMQException.html#method___construct">__construct()</a>
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#method_channel">channel()</a>
     <span>
-                                &nbsp;: mixed    </span>
+                                &nbsp;: <abbr title="\Workbunny\WebmanRabbitMQ\Channels\Channel">Channel</abbr>    </span>
 </dt>
+<dd>获取通道</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#method_channelsPool">channelsPool()</a>
+    <span>
+                                &nbsp;: <abbr title="\Workerman\Coroutine\Pool">Pool</abbr>|null    </span>
+</dt>
+<dd>获取通道池</dd>
 
     </dl>
+
 
 
 
@@ -172,7 +163,7 @@
             <section class="phpdocumentor-methods">
         <h3 class="phpdocumentor-elements__header" id="methods">
             Methods
-            <a href="classes/Workbunny-WebmanRabbitMQ-Exceptions-WebmanRabbitMQException.html#methods" class="headerlink"><i class="fas fa-link"></i></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#methods" class="headerlink"><i class="fas fa-link"></i></a>
 
         </h3>
                     <article
@@ -181,65 +172,94 @@
             -public
                                                         "
 >
-    <h4 class="phpdocumentor-element__name" id="method___construct">
-        __construct()
-        <a href="classes/Workbunny-WebmanRabbitMQ-Exceptions-WebmanRabbitMQException.html#method___construct" class="headerlink"><i class="fas fa-link"></i></a>
+    <h4 class="phpdocumentor-element__name" id="method_channel">
+        channel()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#method_channel" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h4>
     <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="Exceptions/WebmanRabbitMQException.php"><a href="files/exceptions-webmanrabbitmqexception.html"><abbr title="Exceptions/WebmanRabbitMQException.php">WebmanRabbitMQException.php</abbr></a></abbr>
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ChannelsMethods.php"><a href="files/traits-channelsmethods.html"><abbr title="Traits/ChannelsMethods.php">ChannelsMethods.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">14</span>
+    <span class="phpdocumentor-element-found-in__line">68</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Exceptions-WebmanRabbitMQException.html#source-view.14" class="phpdocumentor-element-found-in__source" data-line="14" data-modal="source-view" data-src="files/Exceptions/WebmanRabbitMQException.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#source-view.68" class="phpdocumentor-element-found-in__source" data-line="68" data-modal="source-view" data-src="files/Traits/ChannelsMethods.php.txt"></a>
     </aside>
 
-    
+        <p class="phpdocumentor-summary">获取通道</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">__construct</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$message</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$code</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">0</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type"><abbr title="\Throwable">Throwable</abbr>|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$previous</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$extra</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+                    <span class="phpdocumentor-signature__name">channel</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Workbunny\WebmanRabbitMQ\Channels\Channel">Channel</abbr></span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
     
     
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-argument-list__argument__name">$message</span>
-                : <span class="phpdocumentor-argument-list__argument__type">string</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-argument-list__argument__name">$code</span>
-                : <span class="phpdocumentor-argument-list__argument__type">int</span>
-                 = <span class="phpdocumentor-argument-list__argument__default-value">0</span>            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-argument-list__argument__name">$previous</span>
-                : <span class="phpdocumentor-argument-list__argument__type"><abbr title="\Throwable">Throwable</abbr>|null</span>
-                 = <span class="phpdocumentor-argument-list__argument__default-value">null</span>            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                
-            </dd>
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-argument-list__argument__name">$extra</span>
-                : <span class="phpdocumentor-argument-list__argument__type">mixed</span>
-                 = <span class="phpdocumentor-argument-list__argument__default-value">null</span>            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                
-            </dd>
-            </dl>
+    
+    
+    <h5 class="phpdocumentor-tag-list__heading" id="tags">
+        Tags
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#method_channel#tags" class="headerlink"><i class="fas fa-link"></i></a>
 
+    </h5>
+    <dl class="phpdocumentor-tag-list">
+                                    <dt class="phpdocumentor-tag-list__entry">
+                    <span class="phpdocumentor-tag__name">throws</span>
+                </dt>
+                <dd class="phpdocumentor-tag-list__definition">
+                                                                <span class="phpdocumentor-tag-link"><a href="classes/Workbunny-WebmanRabbitMQ-Exceptions-WebmanRabbitMQChannelException.html"><abbr title="\Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelException">WebmanRabbitMQChannelException</abbr></a></span>
+                                                            
+                                             
+                                    </dd>
+                                            </dl>
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Workbunny\WebmanRabbitMQ\Channels\Channel">Channel</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_channelsPool">
+        channelsPool()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#method_channelsPool" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ChannelsMethods.php"><a href="files/traits-channelsmethods.html"><abbr title="Traits/ChannelsMethods.php">ChannelsMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">33</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#source-view.33" class="phpdocumentor-element-found-in__source" data-line="33" data-modal="source-view" data-src="files/Traits/ChannelsMethods.php.txt"></a>
+    </aside>
+
+        <p class="phpdocumentor-summary">获取通道池</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">channelsPool</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Workerman\Coroutine\Pool">Pool</abbr>|null</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
     
 
         
     
-    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Workerman\Coroutine\Pool">Pool</abbr>|null</span>
+            </section>
+
 </article>
             </section>
 
@@ -247,7 +267,7 @@
     <div class="phpdocumentor-modal-bg" data-exit-button></div>
     <div class="phpdocumentor-modal-container">
         <div class="phpdocumentor-modal-content">
-            <pre style="max-height: 500px; overflow-y: scroll" data-src="files/Exceptions/WebmanRabbitMQException.php.txt" class="language-php line-numbers linkable-line-numbers"></pre>
+            <pre style="max-height: 500px; overflow-y: scroll" data-src="files/Traits/ChannelsMethods.php.txt" class="language-php line-numbers linkable-line-numbers"></pre>
         </div>
         <button data-exit-button class="phpdocumentor-modal__close">&times;</button>
     </div>
@@ -348,15 +368,14 @@
             <li class="phpdocumentor-on-this-page-section__title">Table Of Contents</li>
             <li>
                 <ul class="phpdocumentor-list -clean">
-                                                                                <li><a href="classes/Workbunny-WebmanRabbitMQ-Exceptions-WebmanRabbitMQException.html#toc-methods">Methods</a></li>
+                                                                                <li><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#toc-methods">Methods</a></li>
                                     </ul>
             </li>
-            
-            
-                        <li class="phpdocumentor-on-this-page-section__title">Methods</li>
+                                                <li class="phpdocumentor-on-this-page-section__title">Methods</li>
             <li>
                 <ul class="phpdocumentor-list -clean">
-                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Exceptions-WebmanRabbitMQException.html#method___construct">__construct()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#method_channel">channel()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#method_channelsPool">channelsPool()</a></li>
                                     </ul>
             </li>
                     </ul>
@@ -376,7 +395,7 @@
     </section>
 </section>
         </div>
-        <a href="classes/Workbunny-WebmanRabbitMQ-Exceptions-WebmanRabbitMQException.html#top" class="phpdocumentor-back-to-top"><i class="fas fa-chevron-circle-up"></i></a>
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#top" class="phpdocumentor-back-to-top"><i class="fas fa-chevron-circle-up"></i></a>
 
     </main>
 

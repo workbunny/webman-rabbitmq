@@ -49,6 +49,7 @@ class Connection implements ConnectionInterface
     {
         $this->setConfig($config);
         $this->setLogger($logger);
+        AMQP::$debug = boolval($this->getConfig('debug', false));
         // register mechanism handlers PLAIN
         static::registerMechanismHandler('PLAIN', function (string $mechanism, MethodConnectionStartFrame $start) {
             // non-blocking sending
@@ -197,8 +198,8 @@ class Connection implements ConnectionInterface
             $this->connection()->connect();
         }
         // wait for connected
-        if ($this->state === ClientStateEnum::CONNECTING) {dump('before connection await');
-            $this->await('connection.connected');dump('after connection await');
+        if ($this->state === ClientStateEnum::CONNECTING) {
+            $this->await('connection.connected');
         }
         $this->state = ClientStateEnum::CONNECTED;
     }

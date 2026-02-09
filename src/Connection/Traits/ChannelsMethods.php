@@ -8,24 +8,19 @@ declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Connection\Traits;
 
-use Bunny\ChannelStateEnum;
-use Bunny\Constants;
-use Bunny\Exception\ChannelException;
-use Bunny\Protocol\AbstractFrame;
 use Bunny\Protocol\ContentBodyFrame;
 use Bunny\Protocol\ContentHeaderFrame;
-use Bunny\Protocol\HeartbeatFrame;
 use Bunny\Protocol\MethodBasicAckFrame;
 use Bunny\Protocol\MethodBasicCancelFrame;
+use Bunny\Protocol\MethodBasicCancelOkFrame;
 use Bunny\Protocol\MethodBasicConsumeFrame;
-use Bunny\Protocol\MethodBasicDeliverFrame;
+use Bunny\Protocol\MethodBasicConsumeOkFrame;
 use Bunny\Protocol\MethodBasicGetFrame;
 use Bunny\Protocol\MethodBasicNackFrame;
 use Bunny\Protocol\MethodBasicPublishFrame;
 use Bunny\Protocol\MethodBasicQosFrame;
 use Bunny\Protocol\MethodBasicRecoverFrame;
 use Bunny\Protocol\MethodBasicRejectFrame;
-use Bunny\Protocol\MethodBasicReturnFrame;
 use Bunny\Protocol\MethodChannelCloseFrame;
 use Bunny\Protocol\MethodChannelCloseOkFrame;
 use Bunny\Protocol\MethodChannelFlowFrame;
@@ -33,14 +28,21 @@ use Bunny\Protocol\MethodChannelFlowOkFrame;
 use Bunny\Protocol\MethodChannelOpenFrame;
 use Bunny\Protocol\MethodConfirmSelectFrame;
 use Bunny\Protocol\MethodExchangeBindFrame;
+use Bunny\Protocol\MethodExchangeBindOkFrame;
 use Bunny\Protocol\MethodExchangeDeclareFrame;
+use Bunny\Protocol\MethodExchangeDeclareOkFrame;
 use Bunny\Protocol\MethodExchangeDeleteFrame;
+use Bunny\Protocol\MethodExchangeDeleteOkFrame;
 use Bunny\Protocol\MethodExchangeUnbindFrame;
-use Bunny\Protocol\MethodFrame;
+use Bunny\Protocol\MethodExchangeUnbindOkFrame;
 use Bunny\Protocol\MethodQueueBindFrame;
+use Bunny\Protocol\MethodQueueBindOkFrame;
 use Bunny\Protocol\MethodQueueDeclareFrame;
+use Bunny\Protocol\MethodQueueDeclareOkFrame;
 use Bunny\Protocol\MethodQueueDeleteFrame;
+use Bunny\Protocol\MethodQueueDeleteOkFrame;
 use Bunny\Protocol\MethodQueuePurgeFrame;
+use Bunny\Protocol\MethodQueuePurgeOkFrame;
 use Bunny\Protocol\MethodQueueUnbindFrame;
 use Bunny\Protocol\MethodTxCommitFrame;
 use Bunny\Protocol\MethodTxRollbackFrame;
@@ -139,13 +141,13 @@ trait ChannelsMethods
      * @param bool $internal
      * @param bool $nowait
      * @param array $arguments
-     * @return bool
+     * @return bool|MethodExchangeDeclareOkFrame
      */
     public function exchangeDeclare(
         int    $channel,
         string $exchange, string $exchangeType = 'direct', bool $passive = false, bool $durable = false,
         bool   $autoDelete = false, bool $internal = false, bool $nowait = false, array $arguments = []
-    ): bool
+    ): bool|MethodExchangeDeclareOkFrame
     {
         $f = new MethodExchangeDeclareFrame();
         $f->channel = $channel;
@@ -157,7 +159,15 @@ trait ChannelsMethods
         $f->internal = $internal;
         $f->nowait = $nowait;
         $f->arguments = $arguments;
-        return $this->frameSend($f);
+        $res = $this->frameSend($f);
+        if (!$nowait and $res) {
+            /** @var MethodExchangeDeclareOkFrame $f */
+            $f = $this->connection->await(MethodExchangeDeclareOkFrame::class, function (MethodQueueDeclareOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel;
+            });
+            return $f;
+        }
+        return $res;
     }
 
     /**
@@ -167,16 +177,24 @@ trait ChannelsMethods
      * @param string $exchange
      * @param bool $ifUnused
      * @param bool $nowait
-     * @return bool
+     * @return bool|MethodExchangeDeleteOkFrame
      */
-    public function exchangeDelete(int $channel, string $exchange, bool $ifUnused = false, bool $nowait = false): bool
+    public function exchangeDelete(int $channel, string $exchange, bool $ifUnused = false, bool $nowait = false): bool|MethodExchangeDeleteOkFrame
     {
         $f = new MethodExchangeDeleteFrame();
         $f->channel = $channel;
         $f->exchange = $exchange;
         $f->ifUnused = $ifUnused;
         $f->nowait = $nowait;
-        return $this->frameSend($f);
+        $res = $this->frameSend($f);
+        if (!$nowait and $res) {
+            /** @var MethodExchangeDeleteOkFrame $f */
+            $f = $this->connection->await(MethodExchangeDeleteOkFrame::class, function (MethodExchangeDeleteOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel;
+            });
+            return $f;
+        }
+        return $res;
     }
 
     /**
@@ -188,11 +206,11 @@ trait ChannelsMethods
      * @param string $routingKey
      * @param bool $nowait
      * @param array $arguments
-     * @return bool
+     * @return bool|MethodExchangeBindOkFrame
      */
     public function exchangeBind(
         int $channel, string $destination, string $source, string $routingKey = '', bool $nowait = false, array $arguments = []
-    ): bool
+    ): bool|MethodExchangeBindOkFrame
     {
         $f = new MethodExchangeBindFrame();
         $f->channel = $channel;
@@ -201,7 +219,15 @@ trait ChannelsMethods
         $f->routingKey = $routingKey;
         $f->nowait = $nowait;
         $f->arguments = $arguments;
-        return $this->frameSend($f);
+        $res = $this->frameSend($f);
+        if (!$nowait and $res) {
+            /** @var MethodExchangeBindOkFrame $f */
+            $f = $this->connection->await(MethodExchangeBindOkFrame::class, function (MethodExchangeBindOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel;
+            });
+            return $f;
+        }
+        return $res;
     }
 
     /**
@@ -213,11 +239,11 @@ trait ChannelsMethods
      * @param string $routingKey
      * @param bool $nowait
      * @param array $arguments
-     * @return bool
+     * @return bool|MethodExchangeUnbindOkFrame
      */
     public function exchangeUnbind(
         int $channel, string $destination, string $source, string $routingKey = '', bool $nowait = false, array $arguments = []
-    ): bool
+    ): bool|MethodExchangeUnbindOkFrame
     {
         $f = new MethodExchangeUnbindFrame();
         $f->channel = $channel;
@@ -226,7 +252,15 @@ trait ChannelsMethods
         $f->routingKey = $routingKey;
         $f->nowait = $nowait;
         $f->arguments = $arguments;
-        return $this->frameSend($f);
+        $res = $this->frameSend($f);
+        if (!$nowait and $res) {
+            /** @var MethodExchangeUnbindOkFrame $f */
+            $f = $this->connection->await(MethodExchangeUnbindOkFrame::class, function (MethodExchangeUnbindOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel;
+            });
+            return $f;
+        }
+        return $res;
     }
 
     /**
@@ -240,14 +274,14 @@ trait ChannelsMethods
      * @param bool $autoDelete
      * @param bool $nowait
      * @param array $arguments
-     * @return bool
+     * @return bool|MethodQueueDeclareOkFrame
      */
     public function queueDeclare(
         int    $channel,
         string $queue = '', bool $passive = false, bool $durable = false,
         bool   $exclusive = false, bool $autoDelete = false,
         bool   $nowait = false, array $arguments = []
-    ): bool
+    ): bool|MethodQueueDeclareOkFrame
     {
         $f = new MethodQueueDeclareFrame();
         $f->channel = $channel;
@@ -258,7 +292,15 @@ trait ChannelsMethods
         $f->autoDelete = $autoDelete;
         $f->nowait = $nowait;
         $f->arguments = $arguments;
-        return $this->frameSend($f);
+        $res = $this->frameSend($f);
+        if (!$nowait and $res) {
+            /** @var MethodQueueDeclareOkFrame $f */
+            $f = $this->connection->await(MethodQueueDeclareOkFrame::class, function (MethodQueueDeclareOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel;
+            });
+            return $f;
+        }
+        return $res;
     }
 
     /**
@@ -270,13 +312,13 @@ trait ChannelsMethods
      * @param string $routingKey
      * @param bool $nowait
      * @param array $arguments
-     * @return bool
+     * @return bool|MethodQueueBindOkFrame
      */
     public function queueBind(
         int $channel,
         string $queue, string $exchange, string $routingKey = '',
         bool $nowait = false, array $arguments = []
-    ): bool
+    ): bool|MethodQueueBindOkFrame
     {
         $f = new MethodQueueBindFrame();
         $f->channel = $channel;
@@ -285,7 +327,15 @@ trait ChannelsMethods
         $f->routingKey = $routingKey;
         $f->nowait = $nowait;
         $f->arguments = $arguments;
-        return $this->frameSend($f);
+        $res = $this->frameSend($f);
+        if (!$nowait and $res) {
+            /** @var MethodQueueBindOkFrame $f */
+            $f = $this->connection->await(MethodQueueBindOkFrame::class, function (MethodQueueBindOkFrame $f) use ($channel) {
+                return $f->channel === $channel;
+            });
+            return $f;
+        }
+        return $res;
     }
 
     /**
@@ -318,15 +368,23 @@ trait ChannelsMethods
      * @param int $channel
      * @param string $queue
      * @param bool $nowait
-     * @return bool
+     * @return bool|MethodQueuePurgeOkFrame
      */
-    public function queuePurge(int $channel, string $queue = '', bool $nowait = false): bool
+    public function queuePurge(int $channel, string $queue = '', bool $nowait = false): bool|MethodQueuePurgeOkFrame
     {
         $f = new MethodQueuePurgeFrame();
         $f->channel = $channel;
         $f->queue = $queue;
         $f->nowait = $nowait;
-        return $this->frameSend($f);
+        $res = $this->frameSend($f);
+        if (!$nowait and $res) {
+            /** @var MethodQueuePurgeOkFrame $f */
+            $f = $this->connection->await(MethodQueuePurgeOkFrame::class, function (MethodQueuePurgeOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel;
+            });
+            return $f;
+        }
+        return $res;
     }
 
     /**
@@ -337,13 +395,13 @@ trait ChannelsMethods
      * @param bool $ifUnused
      * @param bool $ifEmpty
      * @param bool $nowait
-     * @return bool
+     * @return bool|MethodQueueDeleteOkFrame
      */
     public function queueDelete(
         int $channel,
         string $queue = '', bool $ifUnused = false,
         bool $ifEmpty = false, bool $nowait = false
-    ): bool
+    ): bool|MethodQueueDeleteOkFrame
     {
         $f = new MethodQueueDeleteFrame();
         $f->channel = $channel;
@@ -351,7 +409,15 @@ trait ChannelsMethods
         $f->ifUnused = $ifUnused;
         $f->ifEmpty = $ifEmpty;
         $f->nowait = $nowait;
-        return $this->frameSend($f);
+        $res = $this->frameSend($f);
+        if (!$nowait and $res) {
+            /** @var MethodQueueDeleteOkFrame $f */
+            $f = $this->connection->await(MethodQueueDeleteOkFrame::class, function (MethodQueueDeleteOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel;
+            });
+            return $f;
+        }
+        return $res;
     }
 
     /**
@@ -384,14 +450,14 @@ trait ChannelsMethods
      * @param bool $exclusive
      * @param bool $nowait
      * @param array $arguments
-     * @return bool
+     * @return bool|MethodBasicConsumeOkFrame
      */
     public function basicConsume(
         int $channel, string $queue = '', string $consumerTag = '',
         bool $noLocal = false, bool $noAck = false,
         bool $exclusive = false, bool $nowait = false,
         array $arguments = []
-    ): bool
+    ): bool|MethodBasicConsumeOkFrame
     {
         $f = new MethodBasicConsumeFrame();
         $f->channel = $channel;
@@ -402,7 +468,15 @@ trait ChannelsMethods
         $f->exclusive = $exclusive;
         $f->nowait = $nowait;
         $f->arguments = $arguments;
-        return $this->frameSend($f);
+        $res = $this->frameSend($f);
+        if (!$nowait and $res) {
+            /** @var MethodBasicConsumeOkFrame $f */
+            $f = $this->connection->await(MethodBasicConsumeOkFrame::class, function (MethodBasicConsumeOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel;
+            });
+            return $f;
+        }
+        return $res;
     }
 
     /**
@@ -411,15 +485,23 @@ trait ChannelsMethods
      * @param int $channel
      * @param string $consumerTag
      * @param bool $nowait
-     * @return bool
+     * @return bool|MethodBasicCancelOkFrame
      */
-    public function basicCancel(int $channel, string $consumerTag, bool $nowait = false): bool
+    public function basicCancel(int $channel, string $consumerTag, bool $nowait = false): bool|MethodBasicCancelOkFrame
     {
         $f = new MethodBasicCancelFrame();
         $f->channel = $channel;
         $f->consumerTag = $consumerTag;
         $f->nowait = $nowait;
-        return $this->frameSend($f);
+        $res = $this->frameSend($f);
+        if (!$nowait and $res) {
+            /** @var MethodBasicCancelOkFrame $f */
+            $f = $this->connection->await(MethodBasicCancelOkFrame::class, function (MethodBasicCancelOkFrame $frame) use ($channel) {
+                return $frame->channel === $channel;
+            });
+            return $f;
+        }
+        return $res;
     }
 
     /**

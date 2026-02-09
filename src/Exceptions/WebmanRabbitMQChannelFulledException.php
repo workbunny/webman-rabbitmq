@@ -7,7 +7,7 @@ namespace Workbunny\WebmanRabbitMQ\Exceptions;
 use Throwable;
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
 
-class WebmanRabbitMQChannelException extends WebmanRabbitMQException
+class WebmanRabbitMQChannelFulledException extends WebmanRabbitMQException
 {
     protected ?BuilderConfig $builderConfig;
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Workbunny\WebmanRabbitMQ\Exceptions;
 
 use RuntimeException;
+use Workerman\Coroutine;
 
 class WebmanRabbitMQException extends RuntimeException
 {
@@ -13,6 +14,7 @@ class WebmanRabbitMQException extends RuntimeException
     public function __construct(string $message, int $code = 0, ?\Throwable $previous = null, mixed $extra = null)
     {
         $this->extra = $extra;
-        parent::__construct($message, $code, $previous);
+        $coroutine = Coroutine::getCurrent()->id();
+        parent::__construct("[Co: $coroutine] $message", $code, $previous);
     }
 }

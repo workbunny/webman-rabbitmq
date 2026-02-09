@@ -114,7 +114,7 @@
     
             <span class="phpdocumentor-element__extends">
             uses
-                            <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html"><abbr title="\Workbunny\WebmanRabbitMQ\Traits\ClientMethods">ClientMethods</abbr></a>,                             <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ConfigMethods.html"><abbr title="\Workbunny\WebmanRabbitMQ\Traits\ConfigMethods">ConfigMethods</abbr></a>,                             <abbr title="\Workerman\RabbitMQ\Traits\LoggerMethods">LoggerMethods</abbr>,                             <abbr title="\Workerman\RabbitMQ\Traits\MechanismMethods">MechanismMethods</abbr>                    </span>
+                            <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html"><abbr title="\Workbunny\WebmanRabbitMQ\Traits\ClientMethods">ClientMethods</abbr></a>,                             <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ConfigMethods.html"><abbr title="\Workbunny\WebmanRabbitMQ\Traits\ConfigMethods">ConfigMethods</abbr></a>,                             <abbr title="\Workerman\RabbitMQ\Traits\LoggerMethods">LoggerMethods</abbr>,                             <abbr title="\Workerman\RabbitMQ\Traits\MechanismMethods">MechanismMethods</abbr>,                             <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html"><abbr title="\Workbunny\WebmanRabbitMQ\Traits\ChannelsMethods">ChannelsMethods</abbr></a>,                             <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html"><abbr title="\Workbunny\WebmanRabbitMQ\Traits\RewriteAwaitClientMethods">RewriteAwaitClientMethods</abbr></a>                    </span>
     </h2>
 
 <div class="phpdocumentor-label-line">
@@ -127,9 +127,9 @@
         <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Clients/AbstractClient.php"><a href="files/clients-abstractclient.html"><abbr title="Clients/AbstractClient.php">AbstractClient.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">21</span>
+    <span class="phpdocumentor-element-found-in__line">28</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.21" class="phpdocumentor-element-found-in__source" data-line="21" data-modal="source-view" data-src="files/Clients/AbstractClient.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.28" class="phpdocumentor-element-found-in__source" data-line="28" data-modal="source-view" data-src="files/Clients/AbstractClient.php.txt"></a>
     </aside>
 
         
@@ -167,15 +167,263 @@
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method___destruct">__destruct()</a>
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method___destruct">__destruct()</a>
     <span>
                                 &nbsp;: mixed    </span>
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitAccessRequestOk">awaitAccessRequestOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodAccessRequestOkFrame">MethodAccessRequestOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitAck">awaitAck()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodBasicAckFrame">MethodBasicAckFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitCancelOk">awaitCancelOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodBasicCancelOkFrame">MethodBasicCancelOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelClose">awaitChannelClose()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodChannelCloseFrame">MethodChannelCloseFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelCloseOk">awaitChannelCloseOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodChannelCloseOkFrame">MethodChannelCloseOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelFlow">awaitChannelFlow()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodChannelFlowFrame">MethodChannelFlowFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelFlowOk">awaitChannelFlowOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodChannelFlowOkFrame">MethodChannelFlowOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelOpenOk">awaitChannelOpenOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodChannelOpenOkFrame">MethodChannelOpenOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConfirmSelectOk">awaitConfirmSelectOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodConfirmSelectOkFrame">MethodConfirmSelectOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionBlocked">awaitConnectionBlocked()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodConnectionBlockedFrame">MethodConnectionBlockedFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionClose">awaitConnectionClose()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodConnectionCloseFrame">MethodConnectionCloseFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionCloseOk">awaitConnectionCloseOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodConnectionCloseOkFrame">MethodConnectionCloseOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionOpenOk">awaitConnectionOpenOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodConnectionOpenOkFrame">MethodConnectionOpenOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionSecure">awaitConnectionSecure()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodConnectionSecureFrame">MethodConnectionSecureFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionStart">awaitConnectionStart()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodConnectionStartFrame">MethodConnectionStartFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionTune">awaitConnectionTune()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodConnectionTuneFrame">MethodConnectionTuneFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionUnblocked">awaitConnectionUnblocked()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodConnectionUnblockedFrame">MethodConnectionUnblockedFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConsumeOk">awaitConsumeOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodBasicConsumeOkFrame">MethodBasicConsumeOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitContentBody">awaitContentBody()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\ContentBodyFrame">ContentBodyFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitContentHeader">awaitContentHeader()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\ContentHeaderFrame">ContentHeaderFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitDeliver">awaitDeliver()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodBasicDeliverFrame">MethodBasicDeliverFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitExchangeBindOk">awaitExchangeBindOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodExchangeBindOkFrame">MethodExchangeBindOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitExchangeDeclareOk">awaitExchangeDeclareOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodExchangeDeclareOkFrame">MethodExchangeDeclareOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitExchangeDeleteOk">awaitExchangeDeleteOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodExchangeDeleteOkFrame">MethodExchangeDeleteOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitExchangeUnbindOk">awaitExchangeUnbindOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodExchangeUnbindOkFrame">MethodExchangeUnbindOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitGetOk">awaitGetOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodBasicGetOkFrame">MethodBasicGetOkFrame</abbr>|<abbr title="\Bunny\Protocol\MethodBasicGetEmptyFrame">MethodBasicGetEmptyFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitNack">awaitNack()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodBasicNackFrame">MethodBasicNackFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQosOk">awaitQosOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodBasicQosOkFrame">MethodBasicQosOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueueBindOk">awaitQueueBindOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodQueueBindOkFrame">MethodQueueBindOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueueDeclareOk">awaitQueueDeclareOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodQueueDeclareOkFrame">MethodQueueDeclareOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueueDeleteOk">awaitQueueDeleteOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodQueueDeleteOkFrame">MethodQueueDeleteOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueuePurgeOk">awaitQueuePurgeOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodQueuePurgeOkFrame">MethodQueuePurgeOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueueUnbindOk">awaitQueueUnbindOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodQueueUnbindOkFrame">MethodQueueUnbindOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitRecoverOk">awaitRecoverOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodBasicRecoverOkFrame">MethodBasicRecoverOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitReturn">awaitReturn()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodBasicReturnFrame">MethodBasicReturnFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_awaitsRegister">awaitsRegister()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitTxCommitOk">awaitTxCommitOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodTxCommitOkFrame">MethodTxCommitOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitTxRollbackOk">awaitTxRollbackOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodTxRollbackOkFrame">MethodTxRollbackOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitTxSelectOk">awaitTxSelectOk()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\MethodTxSelectOkFrame">MethodTxSelectOkFrame</abbr>    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#method_channel">channel()</a>
+    <span>
+                                &nbsp;: <abbr title="\Workbunny\WebmanRabbitMQ\Channels\Channel">Channel</abbr>    </span>
+</dt>
+<dd>获取通道</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#method_channelsPool">channelsPool()</a>
+    <span>
+                                &nbsp;: <abbr title="\Workerman\Coroutine\Pool">Pool</abbr>|null    </span>
+</dt>
+<dd>获取通道池</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_connect">connect()</a>
     <span>
-                                &nbsp;: <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html"><abbr title="\Workbunny\WebmanRabbitMQ\Clients\AbstractClient">AbstractClient</abbr></a>    </span>
+                                &nbsp;: $this    </span>
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
@@ -183,6 +431,33 @@
     <span>
                                 &nbsp;: void    </span>
 </dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="-deprecated" href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_feedReadBuffer">feedReadBuffer()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_framesConsume">framesConsume()</a>
+    <span>
+                                &nbsp;: <abbr title="\Bunny\Protocol\AbstractFrame">AbstractFrame</abbr>|null    </span>
+</dt>
+<dd>Consume frame</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_framesConsumerSet">framesConsumerSet()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>Set frames consumer</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_framesPush">framesPush()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>Append frame to queue</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_getChannelLimit">getChannelLimit()</a>
@@ -211,25 +486,64 @@
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_heartbeat">heartbeat()</a>
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_heartbeat">heartbeat()</a>
     <span>
                                 &nbsp;: void    </span>
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_isRunning">isRunning()</a>
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_heartbeatSet">heartbeatSet()</a>
     <span>
-                                &nbsp;: bool    </span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>set heartbeat</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_init">init()</a>
+    <span>
+                                &nbsp;: void    </span>
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_onDataAvailable">onDataAvailable()</a>
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_onReadable">onReadable()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>readable event callback</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_onWriteable">onWriteable()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>writeable event callback</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="-deprecated" href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_run">run()</a>
     <span>
                                 &nbsp;: void    </span>
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-ConfigMethods.html#method_setConfig">setConfig()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="-deprecated" href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_stop">stop()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_writeWaitRegister">writeWaitRegister()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_writeWaitResume">writeWaitResume()</a>
     <span>
                                 &nbsp;: void    </span>
 </dt>
@@ -262,9 +576,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Clients/AbstractClient.php"><a href="files/clients-abstractclient.html"><abbr title="Clients/AbstractClient.php">AbstractClient.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">39</span>
+    <span class="phpdocumentor-element-found-in__line">43</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.39" class="phpdocumentor-element-found-in__source" data-line="39" data-modal="source-view" data-src="files/Clients/AbstractClient.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.43" class="phpdocumentor-element-found-in__source" data-line="43" data-modal="source-view" data-src="files/Clients/AbstractClient.php.txt"></a>
     </aside>
 
     
@@ -304,25 +618,515 @@
         class="phpdocumentor-element
             -method
             -public
-                                                        "
+                                                -final        "
 >
     <h4 class="phpdocumentor-element__name" id="method___destruct">
         __destruct()
-        <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method___destruct" class="headerlink"><i class="fas fa-link"></i></a>
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method___destruct" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h4>
     <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="Clients/AbstractClient.php"><a href="files/clients-abstractclient.html"><abbr title="Clients/AbstractClient.php">AbstractClient.php</abbr></a></abbr>
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ClientMethods.php"><a href="files/traits-clientmethods.html"><abbr title="Traits/ClientMethods.php">ClientMethods.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">62</span>
+    <span class="phpdocumentor-element-found-in__line">247</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.62" class="phpdocumentor-element-found-in__source" data-line="62" data-modal="source-view" data-src="files/Clients/AbstractClient.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.247" class="phpdocumentor-element-found-in__source" data-line="247" data-modal="source-view" data-src="files/Traits/ClientMethods.php.txt"></a>
     </aside>
 
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">__destruct</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+        <span class="phpdocumentor-signature__final">final</span>            <span class="phpdocumentor-signature__name">__destruct</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+    <h5 class="phpdocumentor-tag-list__heading" id="tags">
+        Tags
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method___destruct#tags" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h5>
+    <dl class="phpdocumentor-tag-list">
+                                    <dt class="phpdocumentor-tag-list__entry">
+                    <span class="phpdocumentor-tag__name">inheritDoc</span>
+                </dt>
+                <dd class="phpdocumentor-tag-list__definition">
+                                                                                
+                                             
+                                    </dd>
+                                            </dl>
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitAccessRequestOk">
+        awaitAccessRequestOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitAccessRequestOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">325</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.325" class="phpdocumentor-element-found-in__source" data-line="325" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitAccessRequestOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodAccessRequestOkFrame">MethodAccessRequestOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodAccessRequestOkFrame">MethodAccessRequestOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitAck">
+        awaitAck()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitAck" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">648</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.648" class="phpdocumentor-element-found-in__source" data-line="648" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitAck</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicAckFrame">MethodBasicAckFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicAckFrame">MethodBasicAckFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitCancelOk">
+        awaitCancelOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitCancelOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">565</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.565" class="phpdocumentor-element-found-in__source" data-line="565" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitCancelOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicCancelOkFrame">MethodBasicCancelOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicCancelOkFrame">MethodBasicCancelOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitChannelClose">
+        awaitChannelClose()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelClose" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">279</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.279" class="phpdocumentor-element-found-in__source" data-line="279" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitChannelClose</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodChannelCloseFrame">MethodChannelCloseFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodChannelCloseFrame">MethodChannelCloseFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitChannelCloseOk">
+        awaitChannelCloseOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelCloseOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">305</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.305" class="phpdocumentor-element-found-in__source" data-line="305" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitChannelCloseOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodChannelCloseOkFrame">MethodChannelCloseOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodChannelCloseOkFrame">MethodChannelCloseOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitChannelFlow">
+        awaitChannelFlow()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelFlow" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">237</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.237" class="phpdocumentor-element-found-in__source" data-line="237" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitChannelFlow</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodChannelFlowFrame">MethodChannelFlowFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodChannelFlowFrame">MethodChannelFlowFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitChannelFlowOk">
+        awaitChannelFlowOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelFlowOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">258</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.258" class="phpdocumentor-element-found-in__source" data-line="258" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitChannelFlowOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodChannelFlowOkFrame">MethodChannelFlowOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodChannelFlowOkFrame">MethodChannelFlowOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitChannelOpenOk">
+        awaitChannelOpenOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelOpenOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">216</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.216" class="phpdocumentor-element-found-in__source" data-line="216" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitChannelOpenOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodChannelOpenOkFrame">MethodChannelOpenOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodChannelOpenOkFrame">MethodChannelOpenOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitConfirmSelectOk">
+        awaitConfirmSelectOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConfirmSelectOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">768</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.768" class="phpdocumentor-element-found-in__source" data-line="768" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitConfirmSelectOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConfirmSelectOkFrame">MethodConfirmSelectOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConfirmSelectOkFrame">MethodConfirmSelectOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitConnectionBlocked">
+        awaitConnectionBlocked()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionBlocked" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">176</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.176" class="phpdocumentor-element-found-in__source" data-line="176" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitConnectionBlocked</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConnectionBlockedFrame">MethodConnectionBlockedFrame</abbr></span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -333,7 +1137,1453 @@
 
         
     
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConnectionBlockedFrame">MethodConnectionBlockedFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitConnectionClose">
+        awaitConnectionClose()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionClose" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">142</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.142" class="phpdocumentor-element-found-in__source" data-line="142" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
     
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitConnectionClose</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConnectionCloseFrame">MethodConnectionCloseFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConnectionCloseFrame">MethodConnectionCloseFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitConnectionCloseOk">
+        awaitConnectionCloseOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionCloseOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">159</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.159" class="phpdocumentor-element-found-in__source" data-line="159" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitConnectionCloseOk</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConnectionCloseOkFrame">MethodConnectionCloseOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConnectionCloseOkFrame">MethodConnectionCloseOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitConnectionOpenOk">
+        awaitConnectionOpenOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionOpenOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">123</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.123" class="phpdocumentor-element-found-in__source" data-line="123" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitConnectionOpenOk</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConnectionOpenOkFrame">MethodConnectionOpenOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConnectionOpenOkFrame">MethodConnectionOpenOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitConnectionSecure">
+        awaitConnectionSecure()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionSecure" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">85</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.85" class="phpdocumentor-element-found-in__source" data-line="85" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitConnectionSecure</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConnectionSecureFrame">MethodConnectionSecureFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConnectionSecureFrame">MethodConnectionSecureFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitConnectionStart">
+        awaitConnectionStart()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionStart" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">66</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.66" class="phpdocumentor-element-found-in__source" data-line="66" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitConnectionStart</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConnectionStartFrame">MethodConnectionStartFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConnectionStartFrame">MethodConnectionStartFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitConnectionTune">
+        awaitConnectionTune()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionTune" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">104</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.104" class="phpdocumentor-element-found-in__source" data-line="104" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitConnectionTune</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConnectionTuneFrame">MethodConnectionTuneFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConnectionTuneFrame">MethodConnectionTuneFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitConnectionUnblocked">
+        awaitConnectionUnblocked()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionUnblocked" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">195</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.195" class="phpdocumentor-element-found-in__source" data-line="195" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitConnectionUnblocked</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConnectionUnblockedFrame">MethodConnectionUnblockedFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodConnectionUnblockedFrame">MethodConnectionUnblockedFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitConsumeOk">
+        awaitConsumeOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConsumeOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">545</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.545" class="phpdocumentor-element-found-in__source" data-line="545" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitConsumeOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicConsumeOkFrame">MethodBasicConsumeOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicConsumeOkFrame">MethodBasicConsumeOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitContentBody">
+        awaitContentBody()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitContentBody" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">43</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.43" class="phpdocumentor-element-found-in__source" data-line="43" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitContentBody</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\ContentBodyFrame">ContentBodyFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\ContentBodyFrame">ContentBodyFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitContentHeader">
+        awaitContentHeader()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitContentHeader" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">18</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.18" class="phpdocumentor-element-found-in__source" data-line="18" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitContentHeader</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\ContentHeaderFrame">ContentHeaderFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\ContentHeaderFrame">ContentHeaderFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitDeliver">
+        awaitDeliver()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitDeliver" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">605</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.605" class="phpdocumentor-element-found-in__source" data-line="605" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitDeliver</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicDeliverFrame">MethodBasicDeliverFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicDeliverFrame">MethodBasicDeliverFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitExchangeBindOk">
+        awaitExchangeBindOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitExchangeBindOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">385</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.385" class="phpdocumentor-element-found-in__source" data-line="385" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitExchangeBindOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodExchangeBindOkFrame">MethodExchangeBindOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodExchangeBindOkFrame">MethodExchangeBindOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitExchangeDeclareOk">
+        awaitExchangeDeclareOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitExchangeDeclareOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">345</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.345" class="phpdocumentor-element-found-in__source" data-line="345" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitExchangeDeclareOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodExchangeDeclareOkFrame">MethodExchangeDeclareOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodExchangeDeclareOkFrame">MethodExchangeDeclareOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitExchangeDeleteOk">
+        awaitExchangeDeleteOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitExchangeDeleteOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">365</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.365" class="phpdocumentor-element-found-in__source" data-line="365" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitExchangeDeleteOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodExchangeDeleteOkFrame">MethodExchangeDeleteOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodExchangeDeleteOkFrame">MethodExchangeDeleteOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitExchangeUnbindOk">
+        awaitExchangeUnbindOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitExchangeUnbindOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">405</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.405" class="phpdocumentor-element-found-in__source" data-line="405" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitExchangeUnbindOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodExchangeUnbindOkFrame">MethodExchangeUnbindOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodExchangeUnbindOkFrame">MethodExchangeUnbindOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitGetOk">
+        awaitGetOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitGetOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">625</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.625" class="phpdocumentor-element-found-in__source" data-line="625" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitGetOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicGetOkFrame">MethodBasicGetOkFrame</abbr>|<abbr title="\Bunny\Protocol\MethodBasicGetEmptyFrame">MethodBasicGetEmptyFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicGetOkFrame">MethodBasicGetOkFrame</abbr>|<abbr title="\Bunny\Protocol\MethodBasicGetEmptyFrame">MethodBasicGetEmptyFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitNack">
+        awaitNack()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitNack" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">688</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.688" class="phpdocumentor-element-found-in__source" data-line="688" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitNack</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicNackFrame">MethodBasicNackFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicNackFrame">MethodBasicNackFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitQosOk">
+        awaitQosOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQosOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">525</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.525" class="phpdocumentor-element-found-in__source" data-line="525" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitQosOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicQosOkFrame">MethodBasicQosOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicQosOkFrame">MethodBasicQosOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitQueueBindOk">
+        awaitQueueBindOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueueBindOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">445</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.445" class="phpdocumentor-element-found-in__source" data-line="445" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitQueueBindOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodQueueBindOkFrame">MethodQueueBindOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodQueueBindOkFrame">MethodQueueBindOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitQueueDeclareOk">
+        awaitQueueDeclareOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueueDeclareOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">425</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.425" class="phpdocumentor-element-found-in__source" data-line="425" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitQueueDeclareOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodQueueDeclareOkFrame">MethodQueueDeclareOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodQueueDeclareOkFrame">MethodQueueDeclareOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitQueueDeleteOk">
+        awaitQueueDeleteOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueueDeleteOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">485</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.485" class="phpdocumentor-element-found-in__source" data-line="485" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitQueueDeleteOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodQueueDeleteOkFrame">MethodQueueDeleteOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodQueueDeleteOkFrame">MethodQueueDeleteOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitQueuePurgeOk">
+        awaitQueuePurgeOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueuePurgeOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">465</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.465" class="phpdocumentor-element-found-in__source" data-line="465" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitQueuePurgeOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodQueuePurgeOkFrame">MethodQueuePurgeOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodQueuePurgeOkFrame">MethodQueuePurgeOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitQueueUnbindOk">
+        awaitQueueUnbindOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueueUnbindOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">505</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.505" class="phpdocumentor-element-found-in__source" data-line="505" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitQueueUnbindOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodQueueUnbindOkFrame">MethodQueueUnbindOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodQueueUnbindOkFrame">MethodQueueUnbindOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitRecoverOk">
+        awaitRecoverOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitRecoverOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">668</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.668" class="phpdocumentor-element-found-in__source" data-line="668" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitRecoverOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicRecoverOkFrame">MethodBasicRecoverOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicRecoverOkFrame">MethodBasicRecoverOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitReturn">
+        awaitReturn()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitReturn" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">585</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.585" class="phpdocumentor-element-found-in__source" data-line="585" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitReturn</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicReturnFrame">MethodBasicReturnFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodBasicReturnFrame">MethodBasicReturnFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitsRegister">
+        awaitsRegister()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_awaitsRegister" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ClientMethods.php"><a href="files/traits-clientmethods.html"><abbr title="Traits/ClientMethods.php">ClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">131</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.131" class="phpdocumentor-element-found-in__source" data-line="131" data-modal="source-view" data-src="files/Traits/ClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitsRegister</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><abbr title="class-string<\Bunny\Protocol\AbstractFrame>">AbstractFrame></abbr>|array&lt;string|int, <abbr title="class-string<\Bunny\Protocol\AbstractFrame>">AbstractFrame></abbr>&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$frame</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$frame</span>
+                : <span class="phpdocumentor-argument-list__argument__type"><abbr title="class-string<\Bunny\Protocol\AbstractFrame>">AbstractFrame></abbr>|array&lt;string|int, <abbr title="class-string<\Bunny\Protocol\AbstractFrame>">AbstractFrame></abbr>&gt;</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitTxCommitOk">
+        awaitTxCommitOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitTxCommitOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">728</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.728" class="phpdocumentor-element-found-in__source" data-line="728" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitTxCommitOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodTxCommitOkFrame">MethodTxCommitOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodTxCommitOkFrame">MethodTxCommitOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitTxRollbackOk">
+        awaitTxRollbackOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitTxRollbackOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">748</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.748" class="phpdocumentor-element-found-in__source" data-line="748" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitTxRollbackOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodTxRollbackOkFrame">MethodTxRollbackOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodTxRollbackOkFrame">MethodTxRollbackOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_awaitTxSelectOk">
+        awaitTxSelectOk()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitTxSelectOk" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/RewriteAwaitClientMethods.php"><a href="files/traits-rewriteawaitclientmethods.html"><abbr title="Traits/RewriteAwaitClientMethods.php">RewriteAwaitClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">708</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.708" class="phpdocumentor-element-found-in__source" data-line="708" data-modal="source-view" data-src="files/Traits/RewriteAwaitClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">awaitTxSelectOk</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodTxSelectOkFrame">MethodTxSelectOkFrame</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$channel</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\MethodTxSelectOkFrame">MethodTxSelectOkFrame</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_channel">
+        channel()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#method_channel" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ChannelsMethods.php"><a href="files/traits-channelsmethods.html"><abbr title="Traits/ChannelsMethods.php">ChannelsMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">44</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.44" class="phpdocumentor-element-found-in__source" data-line="44" data-modal="source-view" data-src="files/Traits/ChannelsMethods.php.txt"></a>
+    </aside>
+
+        <p class="phpdocumentor-summary">获取通道</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">channel</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Workbunny\WebmanRabbitMQ\Channels\Channel">Channel</abbr></span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+    <h5 class="phpdocumentor-tag-list__heading" id="tags">
+        Tags
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#method_channel#tags" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h5>
+    <dl class="phpdocumentor-tag-list">
+                                    <dt class="phpdocumentor-tag-list__entry">
+                    <span class="phpdocumentor-tag__name">throws</span>
+                </dt>
+                <dd class="phpdocumentor-tag-list__definition">
+                                                                <span class="phpdocumentor-tag-link"><a href="classes/Workbunny-WebmanRabbitMQ-Exceptions-WebmanRabbitMQChannelException.html"><abbr title="\Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelException">WebmanRabbitMQChannelException</abbr></a></span>
+                                                            
+                                             
+                                    </dd>
+                                            </dl>
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Workbunny\WebmanRabbitMQ\Channels\Channel">Channel</abbr></span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                    -static                    "
+>
+    <h4 class="phpdocumentor-element__name" id="method_channelsPool">
+        channelsPool()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#method_channelsPool" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ChannelsMethods.php"><a href="files/traits-channelsmethods.html"><abbr title="Traits/ChannelsMethods.php">ChannelsMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">33</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.33" class="phpdocumentor-element-found-in__source" data-line="33" data-modal="source-view" data-src="files/Traits/ChannelsMethods.php.txt"></a>
+    </aside>
+
+        <p class="phpdocumentor-summary">获取通道池</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+            <span class="phpdocumentor-signature__static">static</span>        <span class="phpdocumentor-signature__name">channelsPool</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Workerman\Coroutine\Pool">Pool</abbr>|null</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Workerman\Coroutine\Pool">Pool</abbr>|null</span>
+            </section>
+
 </article>
                     <article
         class="phpdocumentor-element
@@ -349,15 +2599,15 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Clients/AbstractClient.php"><a href="files/clients-abstractclient.html"><abbr title="Clients/AbstractClient.php">AbstractClient.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">104</span>
+    <span class="phpdocumentor-element-found-in__line">119</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.104" class="phpdocumentor-element-found-in__source" data-line="104" data-modal="source-view" data-src="files/Clients/AbstractClient.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.119" class="phpdocumentor-element-found-in__source" data-line="119" data-modal="source-view" data-src="files/Clients/AbstractClient.php.txt"></a>
     </aside>
 
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">connect</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html"><abbr title="\Workbunny\WebmanRabbitMQ\Clients\AbstractClient">AbstractClient</abbr></a></span></code>
+                    <span class="phpdocumentor-signature__name">connect</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">$this</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -376,7 +2626,9 @@
                 </dt>
                 <dd class="phpdocumentor-tag-list__definition">
                                                                                 
-                                             
+                                                 <section class="phpdocumentor-description"><p>connect() can help you bypass most of the checks, so make it a habit to invoke it before every connection usage</p>
+</section>
+
                                     </dd>
                                             </dl>
 
@@ -384,7 +2636,7 @@
     
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type"><a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html"><abbr title="\Workbunny\WebmanRabbitMQ\Clients\AbstractClient">AbstractClient</abbr></a></span>
+        <span class="phpdocumentor-signature__response_type">$this</span>
             </section>
 
 </article>
@@ -402,9 +2654,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Clients/AbstractClient.php"><a href="files/clients-abstractclient.html"><abbr title="Clients/AbstractClient.php">AbstractClient.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">86</span>
+    <span class="phpdocumentor-element-found-in__line">87</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.86" class="phpdocumentor-element-found-in__source" data-line="86" data-modal="source-view" data-src="files/Clients/AbstractClient.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.87" class="phpdocumentor-element-found-in__source" data-line="87" data-modal="source-view" data-src="files/Clients/AbstractClient.php.txt"></a>
     </aside>
 
     
@@ -458,6 +2710,205 @@
         class="phpdocumentor-element
             -method
             -public
+            -deprecated                                    -final        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_feedReadBuffer">
+        feedReadBuffer()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_feedReadBuffer" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ClientMethods.php"><a href="files/traits-clientmethods.html"><abbr title="Traits/ClientMethods.php">ClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">278</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.278" class="phpdocumentor-element-found-in__source" data-line="278" data-modal="source-view" data-src="files/Traits/ClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature -deprecated">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__final">final</span>            <span class="phpdocumentor-signature__name">feedReadBuffer</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+                <div class="phpdocumentor-admonition">
+        <svg class="phpdocumentor-admonition__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <article>
+                
+            </article>
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_framesConsume">
+        framesConsume()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_framesConsume" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ClientMethods.php"><a href="files/traits-clientmethods.html"><abbr title="Traits/ClientMethods.php">ClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">80</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.80" class="phpdocumentor-element-found-in__source" data-line="80" data-modal="source-view" data-src="files/Traits/ClientMethods.php.txt"></a>
+    </aside>
+
+        <p class="phpdocumentor-summary">Consume frame</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">framesConsume</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><abbr title="class-string<\Bunny\Protocol\AbstractFrame>">AbstractFrame></abbr>|array&lt;string|int, <abbr title="class-string<\Bunny\Protocol\AbstractFrame>">AbstractFrame></abbr>&gt;|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$frameClass</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">callable&nbsp;</span><span class="phpdocumentor-signature__argument__name">$callback</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\AbstractFrame">AbstractFrame</abbr>|null</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$frameClass</span>
+                : <span class="phpdocumentor-argument-list__argument__type"><abbr title="class-string<\Bunny\Protocol\AbstractFrame>">AbstractFrame></abbr>|array&lt;string|int, <abbr title="class-string<\Bunny\Protocol\AbstractFrame>">AbstractFrame></abbr>&gt;|null</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>The frame you expect to process</p>
+</section>
+
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$callback</span>
+                : <span class="phpdocumentor-argument-list__argument__type">callable</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\Bunny\Protocol\AbstractFrame">AbstractFrame</abbr>|null</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_framesConsumerSet">
+        framesConsumerSet()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_framesConsumerSet" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ClientMethods.php"><a href="files/traits-clientmethods.html"><abbr title="Traits/ClientMethods.php">ClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">106</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.106" class="phpdocumentor-element-found-in__source" data-line="106" data-modal="source-view" data-src="files/Traits/ClientMethods.php.txt"></a>
+    </aside>
+
+        <p class="phpdocumentor-summary">Set frames consumer</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">framesConsumerSet</span><span>(</span><span class="phpdocumentor-signature__argument"><span>[</span><span class="phpdocumentor-signature__argument__type">callable|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$callback</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$ms</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">0</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$callback</span>
+                : <span class="phpdocumentor-argument-list__argument__type">callable|null</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">null</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$ms</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">0</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_framesPush">
+        framesPush()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_framesPush" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ClientMethods.php"><a href="files/traits-clientmethods.html"><abbr title="Traits/ClientMethods.php">ClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">65</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.65" class="phpdocumentor-element-found-in__source" data-line="65" data-modal="source-view" data-src="files/Traits/ClientMethods.php.txt"></a>
+    </aside>
+
+        <p class="phpdocumentor-summary">Append frame to queue</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">framesPush</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><abbr title="\Bunny\Protocol\AbstractFrame">AbstractFrame</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$frame</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$frame</span>
+                : <span class="phpdocumentor-argument-list__argument__type"><abbr title="\Bunny\Protocol\AbstractFrame">AbstractFrame</abbr></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
                                                         "
 >
     <h4 class="phpdocumentor-element__name" id="method_getChannelLimit">
@@ -468,9 +2919,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Traits/ClientMethods.php"><a href="files/traits-clientmethods.html"><abbr title="Traits/ClientMethods.php">ClientMethods.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">24</span>
+    <span class="phpdocumentor-element-found-in__line">209</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.24" class="phpdocumentor-element-found-in__source" data-line="24" data-modal="source-view" data-src="files/Traits/ClientMethods.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.209" class="phpdocumentor-element-found-in__source" data-line="209" data-modal="source-view" data-src="files/Traits/ClientMethods.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">获取通道数量限制</p>
@@ -508,9 +2959,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Traits/ClientMethods.php"><a href="files/traits-clientmethods.html"><abbr title="Traits/ClientMethods.php">ClientMethods.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">34</span>
+    <span class="phpdocumentor-element-found-in__line">219</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.34" class="phpdocumentor-element-found-in__source" data-line="34" data-modal="source-view" data-src="files/Traits/ClientMethods.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.219" class="phpdocumentor-element-found-in__source" data-line="219" data-modal="source-view" data-src="files/Traits/ClientMethods.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">获取已创建的通道</p>
@@ -633,15 +3084,15 @@
 >
     <h4 class="phpdocumentor-element__name" id="method_heartbeat">
         heartbeat()
-        <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_heartbeat" class="headerlink"><i class="fas fa-link"></i></a>
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_heartbeat" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h4>
     <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="Clients/AbstractClient.php"><a href="files/clients-abstractclient.html"><abbr title="Clients/AbstractClient.php">AbstractClient.php</abbr></a></abbr>
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ClientMethods.php"><a href="files/traits-clientmethods.html"><abbr title="Traits/ClientMethods.php">ClientMethods.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">72</span>
+    <span class="phpdocumentor-element-found-in__line">193</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.72" class="phpdocumentor-element-found-in__source" data-line="72" data-modal="source-view" data-src="files/Clients/AbstractClient.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.193" class="phpdocumentor-element-found-in__source" data-line="193" data-modal="source-view" data-src="files/Traits/ClientMethods.php.txt"></a>
     </aside>
 
     
@@ -666,23 +3117,181 @@
             -public
                                                         "
 >
-    <h4 class="phpdocumentor-element__name" id="method_isRunning">
-        isRunning()
-        <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_isRunning" class="headerlink"><i class="fas fa-link"></i></a>
+    <h4 class="phpdocumentor-element__name" id="method_heartbeatSet">
+        heartbeatSet()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_heartbeatSet" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h4>
     <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="Clients/AbstractClient.php"><a href="files/clients-abstractclient.html"><abbr title="Clients/AbstractClient.php">AbstractClient.php</abbr></a></abbr>
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ClientMethods.php"><a href="files/traits-clientmethods.html"><abbr title="Traits/ClientMethods.php">ClientMethods.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">158</span>
+    <span class="phpdocumentor-element-found-in__line">177</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.158" class="phpdocumentor-element-found-in__source" data-line="158" data-modal="source-view" data-src="files/Clients/AbstractClient.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.177" class="phpdocumentor-element-found-in__source" data-line="177" data-modal="source-view" data-src="files/Traits/ClientMethods.php.txt"></a>
+    </aside>
+
+        <p class="phpdocumentor-summary">set heartbeat</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">heartbeatSet</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">callable|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$callback</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$s</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$callback</span>
+                : <span class="phpdocumentor-argument-list__argument__type">callable|null</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$s</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_init">
+        init()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_init" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ClientMethods.php"><a href="files/traits-clientmethods.html"><abbr title="Traits/ClientMethods.php">ClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">235</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.235" class="phpdocumentor-element-found-in__source" data-line="235" data-modal="source-view" data-src="files/Traits/ClientMethods.php.txt"></a>
     </aside>
 
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">isRunning</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
+                    <span class="phpdocumentor-signature__name">init</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+    <h5 class="phpdocumentor-tag-list__heading" id="tags">
+        Tags
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_init#tags" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h5>
+    <dl class="phpdocumentor-tag-list">
+                                    <dt class="phpdocumentor-tag-list__entry">
+                    <span class="phpdocumentor-tag__name">inheritDoc</span>
+                </dt>
+                <dd class="phpdocumentor-tag-list__definition">
+                                                                                
+                                             
+                                    </dd>
+                                            </dl>
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_onReadable">
+        onReadable()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_onReadable" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Clients/AbstractClient.php"><a href="files/clients-abstractclient.html"><abbr title="Clients/AbstractClient.php">AbstractClient.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">274</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.274" class="phpdocumentor-element-found-in__source" data-line="274" data-modal="source-view" data-src="files/Clients/AbstractClient.php.txt"></a>
+    </aside>
+
+        <p class="phpdocumentor-summary">readable event callback</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">onReadable</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <section class="phpdocumentor-description"><ul>
+<li>
+<p>possible:</p>
+<ul>
+<li>N reads for 1 frame</li>
+<li>N reads for N frame</li>
+<li>1 reads for N frame</li>
+</ul>
+</li>
+<li>
+<p>data-flow:
+binary -&gt; buffer -&gt; frame</p>
+</li>
+<li>
+<p>logical-flow:
+read -&gt; buffer-append -&gt; frame-push -&gt; await*-check (possible frame-consume)</p>
+</li>
+</ul>
+</section>
+
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_onWriteable">
+        onWriteable()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_onWriteable" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Clients/AbstractClient.php"><a href="files/clients-abstractclient.html"><abbr title="Clients/AbstractClient.php">AbstractClient.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">245</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.245" class="phpdocumentor-element-found-in__source" data-line="245" data-modal="source-view" data-src="files/Clients/AbstractClient.php.txt"></a>
+    </aside>
+
+        <p class="phpdocumentor-summary">writeable event callback</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">onWriteable</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -693,41 +3302,53 @@
 
         
     
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">bool</span>
-            </section>
-
+    
 </article>
                     <article
         class="phpdocumentor-element
             -method
             -public
-                                                        "
+            -deprecated                                    -final        "
 >
-    <h4 class="phpdocumentor-element__name" id="method_onDataAvailable">
-        onDataAvailable()
-        <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_onDataAvailable" class="headerlink"><i class="fas fa-link"></i></a>
+    <h4 class="phpdocumentor-element__name" id="method_run">
+        run()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_run" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h4>
     <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="Clients/AbstractClient.php"><a href="files/clients-abstractclient.html"><abbr title="Clients/AbstractClient.php">AbstractClient.php</abbr></a></abbr>
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ClientMethods.php"><a href="files/traits-clientmethods.html"><abbr title="Traits/ClientMethods.php">ClientMethods.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">118</span>
+    <span class="phpdocumentor-element-found-in__line">260</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.118" class="phpdocumentor-element-found-in__source" data-line="118" data-modal="source-view" data-src="files/Clients/AbstractClient.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.260" class="phpdocumentor-element-found-in__source" data-line="260" data-modal="source-view" data-src="files/Traits/ClientMethods.php.txt"></a>
     </aside>
 
     
-    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <code class="phpdocumentor-code phpdocumentor-signature -deprecated">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">onDataAvailable</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+        <span class="phpdocumentor-signature__final">final</span>            <span class="phpdocumentor-signature__name">run</span><span>(</span><span class="phpdocumentor-signature__argument"><span>[</span><span class="phpdocumentor-signature__argument__type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$maxSeconds</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
+                <div class="phpdocumentor-admonition">
+        <svg class="phpdocumentor-admonition__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <article>
+                
+            </article>
+        </div>
     
     
-    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$maxSeconds</span>
+                : <span class="phpdocumentor-argument-list__argument__type">mixed</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">null</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
     
 
         
@@ -773,6 +3394,117 @@
             </dd>
             </dl>
 
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+            -deprecated                                    -final        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_stop">
+        stop()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_stop" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ClientMethods.php"><a href="files/traits-clientmethods.html"><abbr title="Traits/ClientMethods.php">ClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">269</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.269" class="phpdocumentor-element-found-in__source" data-line="269" data-modal="source-view" data-src="files/Traits/ClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature -deprecated">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__final">final</span>            <span class="phpdocumentor-signature__name">stop</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+                <div class="phpdocumentor-admonition">
+        <svg class="phpdocumentor-admonition__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <article>
+                
+            </article>
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_writeWaitRegister">
+        writeWaitRegister()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_writeWaitRegister" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ClientMethods.php"><a href="files/traits-clientmethods.html"><abbr title="Traits/ClientMethods.php">ClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">147</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.147" class="phpdocumentor-element-found-in__source" data-line="147" data-modal="source-view" data-src="files/Traits/ClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">writeWaitRegister</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_writeWaitResume">
+        writeWaitResume()
+        <a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_writeWaitResume" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="Traits/ClientMethods.php"><a href="files/traits-clientmethods.html"><abbr title="Traits/ClientMethods.php">ClientMethods.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">157</span>
+
+            <a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#source-view.157" class="phpdocumentor-element-found-in__source" data-line="157" data-modal="source-view" data-src="files/Traits/ClientMethods.php.txt"></a>
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">writeWaitResume</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
     
 
         
@@ -895,17 +3627,68 @@
             <li>
                 <ul class="phpdocumentor-list -clean">
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method___construct">__construct()</a></li>
-                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method___destruct">__destruct()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method___destruct">__destruct()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitAccessRequestOk">awaitAccessRequestOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitAck">awaitAck()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitCancelOk">awaitCancelOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelClose">awaitChannelClose()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelCloseOk">awaitChannelCloseOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelFlow">awaitChannelFlow()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelFlowOk">awaitChannelFlowOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitChannelOpenOk">awaitChannelOpenOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConfirmSelectOk">awaitConfirmSelectOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionBlocked">awaitConnectionBlocked()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionClose">awaitConnectionClose()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionCloseOk">awaitConnectionCloseOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionOpenOk">awaitConnectionOpenOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionSecure">awaitConnectionSecure()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionStart">awaitConnectionStart()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionTune">awaitConnectionTune()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConnectionUnblocked">awaitConnectionUnblocked()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitConsumeOk">awaitConsumeOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitContentBody">awaitContentBody()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitContentHeader">awaitContentHeader()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitDeliver">awaitDeliver()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitExchangeBindOk">awaitExchangeBindOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitExchangeDeclareOk">awaitExchangeDeclareOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitExchangeDeleteOk">awaitExchangeDeleteOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitExchangeUnbindOk">awaitExchangeUnbindOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitGetOk">awaitGetOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitNack">awaitNack()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQosOk">awaitQosOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueueBindOk">awaitQueueBindOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueueDeclareOk">awaitQueueDeclareOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueueDeleteOk">awaitQueueDeleteOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueuePurgeOk">awaitQueuePurgeOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitQueueUnbindOk">awaitQueueUnbindOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitRecoverOk">awaitRecoverOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitReturn">awaitReturn()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_awaitsRegister">awaitsRegister()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitTxCommitOk">awaitTxCommitOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitTxRollbackOk">awaitTxRollbackOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-RewriteAwaitClientMethods.html#method_awaitTxSelectOk">awaitTxSelectOk()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#method_channel">channel()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ChannelsMethods.html#method_channelsPool">channelsPool()</a></li>
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_connect">connect()</a></li>
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_disconnect">disconnect()</a></li>
+                                            <li class="-deprecated"><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_feedReadBuffer">feedReadBuffer()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_framesConsume">framesConsume()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_framesConsumerSet">framesConsumerSet()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_framesPush">framesPush()</a></li>
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_getChannelLimit">getChannelLimit()</a></li>
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_getChannels">getChannels()</a></li>
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ConfigMethods.html#method_getConfig">getConfig()</a></li>
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ConfigMethods.html#method_getConfigs">getConfigs()</a></li>
-                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_heartbeat">heartbeat()</a></li>
-                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_isRunning">isRunning()</a></li>
-                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_onDataAvailable">onDataAvailable()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_heartbeat">heartbeat()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_heartbeatSet">heartbeatSet()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_init">init()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_onReadable">onReadable()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Clients-AbstractClient.html#method_onWriteable">onWriteable()</a></li>
+                                            <li class="-deprecated"><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_run">run()</a></li>
                                             <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ConfigMethods.html#method_setConfig">setConfig()</a></li>
+                                            <li class="-deprecated"><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_stop">stop()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_writeWaitRegister">writeWaitRegister()</a></li>
+                                            <li class=""><a href="classes/Workbunny-WebmanRabbitMQ-Traits-ClientMethods.html#method_writeWaitResume">writeWaitResume()</a></li>
                                     </ul>
             </li>
                     </ul>
