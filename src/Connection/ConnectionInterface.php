@@ -13,6 +13,28 @@ use Workerman\Coroutine\Pool;
 interface ConnectionInterface
 {
     /**
+     * get id
+     *
+     * @return string
+     */
+    public function id(): string;
+
+    /**
+     * get state
+     *
+     * @return int
+     */
+    public function getState(): int;
+
+    /**
+     * set state
+     *
+     * @param int $state
+     * @return void
+     */
+    public function setState(int $state): void;
+
+    /**
      * tcp connection
      *
      * @return AsyncTcpConnection|mixed
@@ -50,13 +72,12 @@ interface ConnectionInterface
     public function frameSend(AbstractFrame $frame): ?bool;
 
     /**
-     * 连接/重连
+     * 连接
      *
-     * @param array{replyCode: int, replyText: string} $options
      * @return void
      * @throws WebmanRabbitMQConnectException
      */
-    public function reconnect(array $options = []): void;
+    public function connect(): void;
 
     /**
      * 关闭连接

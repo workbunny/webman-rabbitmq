@@ -28,6 +28,9 @@ class Connection implements ConnectionInterface
     use InitMethods;
     use ConnectionMethods;
 
+    /** @var string|null  */
+    protected ?string $id = null;
+
     /** @var int state */
     protected int $state = ClientStateEnum::NOT_CONNECTED;
 
@@ -47,10 +50,10 @@ class Connection implements ConnectionInterface
         $this->setLogger($logger);
         AMQP::$debug = boolval($this->getConfig('debug', false));
         // register mechanism handlers PLAIN
-        static::registerMechanismHandler('PLAIN', function (string $mechanism, MethodConnectionStartFrame $start) {
+        $this->registerMechanismHandler('PLAIN', function (string $mechanism, MethodConnectionStartFrame $start) {
             // non-blocking sending
             return $this->connectionStartOk(
-                $this->getConfig('client_properties', []),
+                $this->getClientProperties(),
                 $mechanism,
                 sprintf(
                     "\0%s\0%s",
@@ -72,16 +75,38 @@ class Connection implements ConnectionInterface
 
             // non-blocking sending
             return $this->connectionStartOk(
-                $this->getConfig('client_properties', []),
+                $this->getClientProperties(),
                 $mechanism,
                 $responseBuffer->read($responseBuffer->getLength()),
                 $start->locales
             );
         });
-        // init tcp connection
+        // init connection
         $this->connection();
         // init channels pool
         $this->channels();
+    }
+
+    /**
+     * @return string
+     */
+    public function id(): string
+    {
+        $this->id = $this->id ?? '[workbunny/webman-rabbitmq]' . date('YmdHis') . '-' . uniqid();
+        if ($this->tcpConnection) {
+            $this->tcpConnection->clientId = $this->id;
+        }
+        return $this->id;
+    }
+
+    /**
+     * @return array
+     */
+    public function getClientProperties(): array
+    {
+        return [
+            'client-id' => $this->id()
+            ] + $this->getConfig('client_properties', []);
     }
 
     /**
@@ -173,7 +198,7 @@ class Connection implements ConnectionInterface
     /** @inheritDoc */
     public function frameSend(AbstractFrame|Buffer $frame): ?bool
     {
-        return $this->connection()->send($frame);
+        return $this->tcpConnection->send($frame);
     }
 
     /** @inheritDoc */
@@ -183,20 +208,18 @@ class Connection implements ConnectionInterface
     }
 
     /** @inheritDoc */
-    public function reconnect(array $options = []): void
+    public function connect(): void
     {
-        // if connected, disconnect it
-        if ($this->state === ClientStateEnum::CONNECTED) {
-            $this->disconnect($options);
-        }
         // connect
-        if (in_array($this->state, [ClientStateEnum::NOT_CONNECTED, ClientStateEnum::ERROR], true)) {
+        if (in_array($this->state, [ClientStateEnum::NOT_CONNECTED, ClientStateEnum::ERROR])) {
             $this->setState(ClientStateEnum::CONNECTING);
+            // clear awaits
+            $this->awaits = [];
             // exec connect
             $this->connection()->connect();
         }
         // wait for connected
-        if ($this->state === ClientStateEnum::CONNECTING) {
+        if ($this->state === ClientStateEnum::CONNECTING) {dump('connecting.wait');
             $this->await('connection.connected');
         }
         $this->state = ClientStateEnum::CONNECTED;
@@ -214,12 +237,22 @@ class Connection implements ConnectionInterface
         $replyText = $options['replyText'] ?? '';
         if ($this->state === ClientStateEnum::CONNECTED) {
             $this->state = ClientStateEnum::DISCONNECTING;
+            // close channels
+            $this->channels()->closeConnections();
+            // send connection close message
             $this->connectionClose($replyCode, $replyText, 0, 0);
-            $this->await(MethodConnectionCloseOkFrame::class);
+            // wait for closeOk
+            $this->await(MethodConnectionCloseOkFrame::class, function (MethodConnectionCloseOkFrame $frame) {
+                return $frame->channel === Constants::CONNECTION_CHANNEL;
+            });
+            // set state
+            $this->state = ClientStateEnum::NOT_CONNECTED;
+            // close tcp connection
+            $this->tcpConnection->destroy();
+            $this->tcpConnection = null;
             // wakeup connection.disconnected, if has it
             $this->wakeup('connection.disconnected', true);
         }
-        $this->state = ClientStateEnum::NOT_CONNECTED;
     }
 
     /**
