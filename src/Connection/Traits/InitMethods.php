@@ -213,7 +213,7 @@ trait InitMethods
                     throw new WebmanRabbitMQConnectException("Server does not support $mechanism mechanism (supported: {$start->mechanisms}).");
                 }
                 // mechanism
-                if (!$handler = static::getMechanismHandler($mechanism)) {
+                if (!$handler = $this->getMechanismHandler($mechanism)) {
                     throw new WebmanRabbitMQConnectException("Client does not support $mechanism mechanism. ");
                 }
                 $handler($mechanism, $start);
@@ -237,16 +237,19 @@ trait InitMethods
                 $this->state = ClientStateEnum::CONNECTED;
                 // set heartbeat
                 $this->heartbeat = Timer::repeat($this->heartbeatInterval, function () use ($connection) {
-                    $this->connectionHeartbeat();
-                    $this->lastHeartbeatSendTime = microtime(true);
+                    if ($this->getState() === ClientStateEnum::CONNECTED) {
+                        $this->connectionHeartbeat();
+                        $this->lastHeartbeatSendTime = microtime(true);
+                    }
                 });
                 // wakeup event
                 $this->wakeup('connection.connected', true);
             };
             // onMessage
             $this->tcpConnection->onMessage = function (AsyncTcpConnection $connection, AbstractFrame|Buffer $data) {
+                $clientId = $connection->clientId ?? 'NaN';
                 if ($data instanceof Buffer) {
-                    Worker::safeEcho('AMQP protocol Error: Invalid frame type.');
+                    Worker::safeEcho("AMQP protocol Error [$clientId]: Invalid frame type.\n");
                     $connection->close();
 
                     return;
@@ -265,11 +268,24 @@ trait InitMethods
                 }
             };
             $this->tcpConnection->onClose = function () {
-                throw new WebmanRabbitMQConnectException('Connection closed.');
+                $clientId = $this->tcpConnection->clientId ?? 'NaN';
+                // if not normal close, throw error
+                if (!in_array($this->getState(),[ClientStateEnum::NOT_CONNECTED, ClientStateEnum::DISCONNECTING])) {
+                    throw new WebmanRabbitMQConnectException("[$clientId] Connection closed.");
+                }
             };
             // onError
             $this->tcpConnection->onError = function (AsyncTcpConnection $connection, $code, $msg) {
-                throw new WebmanRabbitMQConnectException($msg, $code);
+                $clientId = $connection->clientId ?? 'NaN';
+                throw new WebmanRabbitMQConnectException("[$clientId]: $msg", $code);
+            };
+            $this->tcpConnection->onBufferDrain = function (AsyncTcpConnection $connection) {
+                $clientId = $connection->clientId ?? 'NaN';
+                Worker::safeEcho("AMQP protocol [$clientId]: on buffer drain.\n");
+            };
+            $this->tcpConnection->onBufferFull = function (AsyncTcpConnection $connection) {
+                $clientId = $connection->clientId ?? 'NaN';
+                Worker::safeEcho("AMQP protocol [$clientId]: on buffer full.\n");
             };
         }
 
