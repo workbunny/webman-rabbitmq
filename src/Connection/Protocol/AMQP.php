@@ -54,19 +54,22 @@ class AMQP
     public static function input(string $buffer, ConnectionInterface $connection): int
     {
         try {
-            $length = strlen($buffer);
-            if ($length < 7) {
+            $buf = new Buffer($buffer);
+            // not enough data, type | channel | payload size | payload | frame end
+            if ($buf->getLength() < ($min = (1 + 2 + 4 + 1))) {
                 return 0;
             }
-            if ($length >= 8 and str_starts_with($buffer, 'AMQP')) {
+            // check is AMQP protocol header - AMQP-0-9-1
+            if ($buf->read($min) === "AMQP\x00\x00\x09\x01") {
                 return 8;
             }
-            $pos = strpos($buffer, $end = chr(Constants::FRAME_END));
-            if ($pos === false) {
+            // check is AMQP frame
+            $payloadSize = $buf->readUint32(3);
+            // not enough data
+            if ($buf->getLength() < $payloadSize + $min) {
                 return 0;
             }
-
-            return $pos + strlen($end);
+            return $payloadSize + $min;
         } catch (\Throwable $throwable) {
             Worker::safeEcho("AMQP protocol input Error: {$throwable->getMessage()}\n");
             $connection->close();
@@ -85,7 +88,9 @@ class AMQP
     public static function decode(string $buffer, ConnectionInterface $connection): null|AbstractFrame|Buffer
     {
         try {
+            // buffer object
             $res = new Buffer($buffer);
+            // is AMQP frame, trans to Frame object
             if (!str_starts_with($buffer, 'AMQP')) {
                 $res = self::reader()->consumeFrame($res);
             }
