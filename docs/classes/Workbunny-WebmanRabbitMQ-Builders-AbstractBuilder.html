@@ -66,6 +66,10 @@
             </li>
             </ul>
 
+                                    <h4 class="phpdocumentor-sidebar__root-namespace">
+    <a href="namespaces/protocols.html" class="">Protocols</a>
+</h4>
+
                         </section>
                 <section class="phpdocumentor-sidebar__category -packages">
             <h2 class="phpdocumentor-sidebar__category-header">Packages</h2>
@@ -380,9 +384,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Builders/AbstractBuilder.php"><a href="files/builders-abstractbuilder.html"><abbr title="Builders/AbstractBuilder.php">AbstractBuilder.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">320</span>
+    <span class="phpdocumentor-element-found-in__line">321</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#source-view.320" class="phpdocumentor-element-found-in__source" data-line="320" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#source-view.321" class="phpdocumentor-element-found-in__source" data-line="321" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">Command 获取需要创建的类文件内容</p>
@@ -460,7 +464,7 @@
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">consume</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface">ConnectionInterface</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$connection</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type"><a href="classes/Workbunny-WebmanRabbitMQ-BuilderConfig.html"><abbr title="\Workbunny\WebmanRabbitMQ\BuilderConfig">BuilderConfig</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$config</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+                    <span class="phpdocumentor-signature__name">consume</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface">ConnectionInterface</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$connection</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type"><a href="classes/Workbunny-WebmanRabbitMQ-BuilderConfig.html"><abbr title="\Workbunny\WebmanRabbitMQ\BuilderConfig">BuilderConfig</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$config</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -470,7 +474,7 @@
     <dl class="phpdocumentor-argument-list">
                     <dt class="phpdocumentor-argument-list__entry">
                 <span class="phpdocumentor-argument-list__argument__name">$connection</span>
-                : <span class="phpdocumentor-argument-list__argument__type"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface">ConnectionInterface</abbr></span>
+                : <span class="phpdocumentor-argument-list__argument__type"><a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface">ConnectionInterface</abbr></a></span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
                 
@@ -723,16 +727,16 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Builders/AbstractBuilder.php"><a href="files/builders-abstractbuilder.html"><abbr title="Builders/AbstractBuilder.php">AbstractBuilder.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">309</span>
+    <span class="phpdocumentor-element-found-in__line">310</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#source-view.309" class="phpdocumentor-element-found-in__source" data-line="309" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#source-view.310" class="phpdocumentor-element-found-in__source" data-line="310" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">消息处理</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-    <span class="phpdocumentor-signature__abstract">abstract</span>                <span class="phpdocumentor-signature__name">handler</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><abbr title="\Bunny\Message">Message</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$message</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\Channel">Channel</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface">ConnectionInterface</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$connection</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
+    <span class="phpdocumentor-signature__abstract">abstract</span>                <span class="phpdocumentor-signature__name">handler</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><abbr title="\Bunny\Message">Message</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$message</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type"><a href="classes/Workbunny-WebmanRabbitMQ-Connection-Channel.html"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\Channel">Channel</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channel</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type"><a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface">ConnectionInterface</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$connection</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -749,14 +753,14 @@
             </dd>
                     <dt class="phpdocumentor-argument-list__entry">
                 <span class="phpdocumentor-argument-list__argument__name">$channel</span>
-                : <span class="phpdocumentor-argument-list__argument__type"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\Channel">Channel</abbr></span>
+                : <span class="phpdocumentor-argument-list__argument__type"><a href="classes/Workbunny-WebmanRabbitMQ-Connection-Channel.html"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\Channel">Channel</abbr></a></span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
                 
             </dd>
                     <dt class="phpdocumentor-argument-list__entry">
                 <span class="phpdocumentor-argument-list__argument__name">$connection</span>
-                : <span class="phpdocumentor-argument-list__argument__type"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface">ConnectionInterface</abbr></span>
+                : <span class="phpdocumentor-argument-list__argument__type"><a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface">ConnectionInterface</abbr></a></span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
                 
@@ -787,9 +791,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Builders/AbstractBuilder.php"><a href="files/builders-abstractbuilder.html"><abbr title="Builders/AbstractBuilder.php">AbstractBuilder.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">300</span>
+    <span class="phpdocumentor-element-found-in__line">301</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#source-view.300" class="phpdocumentor-element-found-in__source" data-line="300" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#source-view.301" class="phpdocumentor-element-found-in__source" data-line="301" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">Builder 重加载时</p>
@@ -833,9 +837,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Builders/AbstractBuilder.php"><a href="files/builders-abstractbuilder.html"><abbr title="Builders/AbstractBuilder.php">AbstractBuilder.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">284</span>
+    <span class="phpdocumentor-element-found-in__line">285</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#source-view.284" class="phpdocumentor-element-found-in__source" data-line="284" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#source-view.285" class="phpdocumentor-element-found-in__source" data-line="285" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">Builder 启动时</p>
@@ -879,9 +883,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Builders/AbstractBuilder.php"><a href="files/builders-abstractbuilder.html"><abbr title="Builders/AbstractBuilder.php">AbstractBuilder.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">292</span>
+    <span class="phpdocumentor-element-found-in__line">293</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#source-view.292" class="phpdocumentor-element-found-in__source" data-line="292" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#source-view.293" class="phpdocumentor-element-found-in__source" data-line="293" data-modal="source-view" data-src="files/Builders/AbstractBuilder.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">Builder 停止时</p>
@@ -934,7 +938,7 @@
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">publish</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface">ConnectionInterface</abbr>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$connection</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type"><a href="classes/Workbunny-WebmanRabbitMQ-BuilderConfig.html"><abbr title="\Workbunny\WebmanRabbitMQ\BuilderConfig">BuilderConfig</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$config</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool|int</span></code>
+                    <span class="phpdocumentor-signature__name">publish</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface">ConnectionInterface</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$connection</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type"><a href="classes/Workbunny-WebmanRabbitMQ-BuilderConfig.html"><abbr title="\Workbunny\WebmanRabbitMQ\BuilderConfig">BuilderConfig</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$config</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool|int</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -944,7 +948,7 @@
     <dl class="phpdocumentor-argument-list">
                     <dt class="phpdocumentor-argument-list__entry">
                 <span class="phpdocumentor-argument-list__argument__name">$connection</span>
-                : <span class="phpdocumentor-argument-list__argument__type"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface">ConnectionInterface</abbr></span>
+                : <span class="phpdocumentor-argument-list__argument__type"><a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface">ConnectionInterface</abbr></a></span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
                 

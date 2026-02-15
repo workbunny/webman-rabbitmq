@@ -15,16 +15,14 @@
             <api>
                 <source dsn="src">
                     <path>Builders</path>
-                    <path>channels</path>
-                    <path>Clients</path>
                     <path>Commands</path>
-                    <path>Connections</path>
+                    <path>config</path>
+                    <path>Connection</path>
                     <path>Exceptions</path>
                     <path>Traits</path>
                     <path>*.php</path>
                 </source>
                 <ignore hidden="true" symlinks="true">
-                    <path>src/config</path>
                     <path>Install.*</path>
                 </ignore>
                 <extensions>
