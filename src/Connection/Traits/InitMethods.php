@@ -59,6 +59,14 @@ trait InitMethods
     public float $lastHeartbeatRecvTime = 0.0;
 
     /**
+     * @return int
+     */
+    public function getFrameMax(): int
+    {
+        return $this->frameMax;
+    }
+
+    /**
      * get free channel's id
      *
      * @return int
@@ -85,13 +93,14 @@ trait InitMethods
     }
 
     /**
-     * get used channels
+     * get all used channels / get one used channel
      *
-     * @return array
+     * @param int|null $channelId
+     * @return Channel|array|null
      */
-    public function channelUsed(): array
+    public function channelUsed(?int $channelId = null): null|Channel|array
     {
-        return $this->channelUsedList;
+        return $channelId === null ? $this->channelUsedList : ($this->channelUsedList[$channelId] ?? null);
     }
 
     /**
@@ -143,42 +152,26 @@ trait InitMethods
                 /** @var Channel $channel */
                 $channel = $this->channels()->get();
             } catch (Coroutine\Exception\PoolException|\Throwable) {
-                throw new WebmanRabbitMQChannelException('No available channel.', -999999999);
+                throw new WebmanRabbitMQChannelFulledException('No available channel.');
             }
             Context::set('workbunny.webman-rabbitmq.channel', $channel);
             Coroutine::defer(function () use ($channel) {
                 try {
-                    // non-ready, close it or put it back
-                    if (in_array($channel->getState(), [
-                        ChannelStateEnum::ERROR, ChannelStateEnum::CLOSED, ChannelStateEnum::CLOSING,
-                    ])) {
-                        $this->channels()->closeConnection($channel);
-                    } else {
-                        $this->channels()->put($channel);
-                    }
-                } catch (\Throwable) {
-                }
+                    // just put it back, do not care its state
+                    $this->channels()->put($channel);
+                } catch (\Throwable) {}
             });
 
             return $channel;
+        }
+
+        // check current coroutine context.channel state
+        if ($channel->getState() === ChannelStateEnum::READY) {
+            return $channel;
         } else {
-            // check current coroutine context.channel state
-            if ($channel->getState() === ChannelStateEnum::READY) {
-                return $channel;
-            }
-            // not ready, close it or put it back
-            try {
-                if (in_array($channel->getState(), [ChannelStateEnum::ERROR, ChannelStateEnum::CLOSED, ChannelStateEnum::CLOSING])) {
-                    $this->channels()->closeConnection($channel);
-                } else {
-                    $this->channels()->put($channel);
-                }
-            } catch (\Throwable) {
-            }
-            // reset context
             Context::set('workbunny.webman-rabbitmq.channel', null);
-            // transfer control to other coroutines
-            Timer::sleep(0);
+            // close it
+            $this->channels()->closeConnection($channel);
             // get new channel - recursion
             $channel = $this->channel();
         }
@@ -263,7 +256,7 @@ trait InitMethods
                     return;
                 }
                 // channel recv
-                if ($channel = $this->channelMap[$data->channel] ?? null) {
+                if ($channel = ($this->channelUsed($data->channel))) {
                     $channel->onFrameReceived($data);
                 }
             };

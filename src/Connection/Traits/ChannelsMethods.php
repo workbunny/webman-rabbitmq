@@ -172,7 +172,7 @@ trait ChannelsMethods
         $res = $this->frameSend($f);
         if (!$nowait and $res) {
             /** @var MethodExchangeDeclareOkFrame $f */
-            $f = $this->connection->await(MethodExchangeDeclareOkFrame::class, function (MethodQueueDeclareOkFrame $frame) use ($channel) {
+            $f = $this->connection->await(MethodExchangeDeclareOkFrame::class, function (MethodExchangeDeclareOkFrame $frame) use ($channel) {
                 return $frame->channel === $channel;
             });
 
@@ -494,7 +494,7 @@ trait ChannelsMethods
      * @param bool $exclusive
      * @param bool $nowait
      * @param array $arguments
-     * @return bool|MethodBasicConsumeOkFrame
+     * @return bool
      */
     public function basicConsume(
         int $channel,
@@ -505,7 +505,7 @@ trait ChannelsMethods
         bool $exclusive = false,
         bool $nowait = false,
         array $arguments = []
-    ): bool|MethodBasicConsumeOkFrame {
+    ): bool {
         $f = new MethodBasicConsumeFrame();
         $f->channel = $channel;
         $f->queue = $queue;
@@ -515,17 +515,7 @@ trait ChannelsMethods
         $f->exclusive = $exclusive;
         $f->nowait = $nowait;
         $f->arguments = $arguments;
-        $res = $this->frameSend($f);
-        if (!$nowait and $res) {
-            /** @var MethodBasicConsumeOkFrame $f */
-            $f = $this->connection->await(MethodBasicConsumeOkFrame::class, function (MethodBasicConsumeOkFrame $frame) use ($channel) {
-                return $frame->channel === $channel;
-            });
-
-            return $f;
-        }
-
-        return $res;
+        return $this->frameSend($f);
     }
 
     /**
@@ -534,25 +524,15 @@ trait ChannelsMethods
      * @param int $channel
      * @param string $consumerTag
      * @param bool $nowait
-     * @return bool|MethodBasicCancelOkFrame
+     * @return bool
      */
-    public function basicCancel(int $channel, string $consumerTag, bool $nowait = false): bool|MethodBasicCancelOkFrame
+    public function basicCancel(int $channel, string $consumerTag, bool $nowait = false): bool
     {
         $f = new MethodBasicCancelFrame();
         $f->channel = $channel;
         $f->consumerTag = $consumerTag;
         $f->nowait = $nowait;
-        $res = $this->frameSend($f);
-        if (!$nowait and $res) {
-            /** @var MethodBasicCancelOkFrame $f */
-            $f = $this->connection->await(MethodBasicCancelOkFrame::class, function (MethodBasicCancelOkFrame $frame) use ($channel) {
-                return $frame->channel === $channel;
-            });
-
-            return $f;
-        }
-
-        return $res;
+        return $this->frameSend($f);
     }
 
     /**
@@ -561,7 +541,7 @@ trait ChannelsMethods
      * @param int $channel
      * @param string $exchange
      * @param array $headers
-     * @param string|array $body
+     * @param string $body
      * @param string $routingKey
      * @param bool $mandatory
      * @param bool $immediate
@@ -571,13 +551,11 @@ trait ChannelsMethods
         int $channel,
         string $exchange,
         array $headers = [],
-        string|array $body = '',
+        string $body = '',
         string $routingKey = '',
         bool $mandatory = false,
         bool $immediate = false
     ): null|int {
-        $body = is_string($body) ? [$body] : $body;
-
         $f = new MethodBasicPublishFrame();
         $f->channel = $channel;
         $f->exchange = $exchange;
@@ -585,15 +563,17 @@ trait ChannelsMethods
         $f->mandatory = $mandatory;
         $f->immediate = $immediate;
         if ($this->frameSend($f)) {
-            if ($this->frameSend(ContentHeaderFrame::fromArray($headers))) {
-                $result = 0;
-                foreach ($body as $chunk) {
+            $headerFrame = ContentHeaderFrame::fromArray($headers);
+            $headerFrame->channel = $channel;
+            $headerFrame->bodySize = strlen($body);
+            if ($this->frameSend($headerFrame)) {
+                while (($len = strlen($body)) > 0) {
+                    $chunk = substr($body, 0, min($this->connection->getFrameMax(), $len));
                     if ($this->frameSend(new ContentBodyFrame($channel, strlen($chunk), $chunk))) {
-                        $result++;
+                        $body = substr($body, strlen($chunk));
                     }
                 }
-
-                return $result;
+                return $headerFrame->bodySize;
             }
         }
 

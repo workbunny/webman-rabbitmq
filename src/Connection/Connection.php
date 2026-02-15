@@ -34,9 +34,6 @@ class Connection implements ConnectionInterface
     /** @var int state */
     protected int $state = ClientStateEnum::NOT_CONNECTED;
 
-    /** @var Channel|null master channel */
-    protected ?Channel $masterChannel = null;
-
     /** @var array<class-string<AbstractFrame>|string, array<int, array{checker: callable|null, coroutine: Coroutine\Coroutine\CoroutineInterface, timestamp: float}>> $awaits */
     protected array $awaits = [];
 
@@ -198,13 +195,13 @@ class Connection implements ConnectionInterface
     /** @inheritDoc */
     public function frameSend(AbstractFrame|Buffer $frame): ?bool
     {
-        return $this->tcpConnection->send($frame);
+        return $this->tcpConnection?->send($frame);
     }
 
     /** @inheritDoc */
-    public function masterChannel(): Channel
+    public function masterChannel(): ?Channel
     {
-        return $this->masterChannel;
+        return $this->channelUsed(Constants::CONNECTION_CHANNEL);
     }
 
     /** @inheritDoc */
@@ -219,7 +216,7 @@ class Connection implements ConnectionInterface
             $this->connection()->connect();
         }
         // wait for connected
-        if ($this->state === ClientStateEnum::CONNECTING) {dump('connecting.wait');
+        if ($this->state === ClientStateEnum::CONNECTING) {
             $this->await('connection.connected');
         }
         $this->state = ClientStateEnum::CONNECTED;
@@ -277,6 +274,6 @@ class Connection implements ConnectionInterface
             return;
         }
         // master channel receive
-        $this->masterChannel?->onFrameReceived($frame);
+        $this->masterChannel()?->onFrameReceived($frame);
     }
 }

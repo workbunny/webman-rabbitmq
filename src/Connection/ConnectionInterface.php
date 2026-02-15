@@ -59,9 +59,9 @@ interface ConnectionInterface
     /**
      * master channel
      *
-     * @return Channel
+     * @return null|Channel
      */
-    public function masterChannel(): Channel;
+    public function masterChannel(): ?Channel;
 
     /**
      * send protocol frame

@@ -104,8 +104,8 @@ abstract class QueueBuilder extends AbstractBuilder
 namespace $namespace;
 
 use Bunny\Message as BunnyMessage;
-use Workbunny\WebmanRabbitMQ\Channels\Channel;
-use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
+use Workbunny\WebmanRabbitMQ\Connection\Channel;
+use Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface;
 use Workbunny\WebmanRabbitMQ\Constants;
 use Workbunny\WebmanRabbitMQ\Builders\QueueBuilder;
 

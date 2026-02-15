@@ -135,9 +135,9 @@ class Channel
      *  - channel only send frame, not buffer
      *
      * @param AbstractFrame $frame
-     * @return bool
+     * @return bool|null
      */
-    public function frameSend(AbstractFrame $frame): bool
+    public function frameSend(AbstractFrame $frame): ?bool
     {
         return $this->connection->frameSend($frame);
     }
@@ -207,22 +207,19 @@ class Channel
     /**
      * publish message
      *
-     * @param string $exchange
+     * @param string $body
      * @param array $headers
-     * @param array|string $body
+     * @param string $exchange
      * @param string $routingKey
      * @param bool $mandatory
      * @param bool $immediate
      * @return int|null
      */
     public function publish(
-        string $exchange,
-        array $headers = [],
-        array|string $body = '',
-        string $routingKey = '',
-        bool   $mandatory = false,
-        bool $immediate = false
-    ): null|int {
+        string $body, array $headers, string $exchange, string $routingKey = '',
+        bool $mandatory = false, bool $immediate = false
+    ): null|int
+    {
         return $this->basicPublish($this->id(), $exchange, $headers, $body, $routingKey, $mandatory, $immediate);
     }
 
@@ -271,7 +268,9 @@ class Channel
     ): MethodBasicConsumeOkFrame {
         $this->basicConsume($this->id(), $queue, $consumerTag, $noLocal, $noAck, $exclusive, $nowait, $arguments);
         /** @var MethodBasicConsumeOkFrame $frame */
-        $frame = $this->connection->await(MethodBasicConsumeOkFrame::class);
+        $frame = $this->connection->await(MethodBasicConsumeOkFrame::class, function (MethodBasicConsumeOkFrame $frame) {
+            return $frame->channel === $this->id();
+        });
         $this->deliverCallbacks[$frame->consumerTag] = $callback;
 
         return $frame;
@@ -287,7 +286,9 @@ class Channel
         $res = $this->basicCancel($this->id(), $consumerTag, $nowait);
         if (!$nowait) {
             /** @var MethodBasicCancelOkFrame $res */
-            $res = $this->connection->await(MethodBasicCancelOkFrame::class);
+            $res = $this->connection->await(MethodBasicCancelOkFrame::class, function (MethodBasicCancelOkFrame $frame) {
+                return $frame->channel === $this->id();
+            });
         }
         unset($this->deliverCallbacks[$consumerTag]);
 
@@ -315,7 +316,7 @@ class Channel
         $f->closeMethodId = 0;
         $res = $this->frameSend($f);
         if (!$nowait and $res) {
-            $res = $this->connection->await(MethodChannelCloseOkFrame::class, function (MethodChannelCloseFrame $frame) {
+            $res = $this->connection->await(MethodChannelCloseOkFrame::class, function (MethodChannelCloseOkFrame $frame) {
                 return $frame->channel === $this->id;
             });
         }
@@ -338,7 +339,9 @@ class Channel
 
         $this->txSelect($this->id());
         /** @var MethodTxSelectOkFrame $frame */
-        $frame = $this->connection->await(MethodTxSelectOkFrame::class);
+        $frame = $this->connection->await(MethodTxSelectOkFrame::class, function (MethodTxSelectOkFrame $frame) {
+            return $frame->channel === $this->id();
+        });
         $this->setMode(ChannelModeEnum::TRANSACTIONAL);
 
         return $frame;
@@ -356,7 +359,9 @@ class Channel
         }
         $this->txCommit($this->id());
         /** @var MethodTxCommitOkFrame $res */
-        $res = $this->connection->await(MethodTxCommitOkFrame::class);
+        $res = $this->connection->await(MethodTxCommitOkFrame::class, function (MethodTxCommitOkFrame $frame) {
+            return $frame->channel === $this->id();
+        });
 
         return $res;
     }
@@ -373,7 +378,9 @@ class Channel
         }
         $this->txRollback($this->id());
         /** @var MethodTxRollbackOkFrame $res */
-        $res = $this->connection->await(MethodTxRollbackOkFrame::class);
+        $res = $this->connection->await(MethodTxRollbackOkFrame::class, function (MethodTxRollbackOkFrame $frame) {
+            return $frame->channel === $this->id();
+        });
 
         return $res;
     }
@@ -393,7 +400,9 @@ class Channel
 
         $this->confirmSelect($this->id());
         if (!$nowait) {
-            $this->connection->await(MethodTxSelectOkFrame::class);
+            $this->connection->await(MethodTxSelectOkFrame::class, function (MethodTxSelectOkFrame $frame) {
+                return $frame->channel === $this->id();
+            });
         }
         $action();
         /** @var MethodBasicAckFrame|MethodBasicNackFrame $frame */
@@ -430,6 +439,7 @@ class Channel
             )
         ) {
             $this->currentContentStartFrame = $frame;
+            // clear
             $this->currentContentHeaderFrame = null;
             $this->currentContentBodyBuffer->discard($this->currentContentBodyBuffer->getLength());
             $this->setState(ChannelStateEnum::AWAITING_HEADER);

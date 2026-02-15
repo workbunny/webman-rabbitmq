@@ -6,8 +6,8 @@ namespace Workbunny\Tests\TestBuilders;
 
 use Bunny\Message as BunnyMessage;
 use Workbunny\WebmanRabbitMQ\Builders\QueueBuilder;
-use Workbunny\WebmanRabbitMQ\Channels\Channel;
-use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
+use Workbunny\WebmanRabbitMQ\Connection\Channel;
+use Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface;
 use Workbunny\WebmanRabbitMQ\Constants;
 
 class TestRequeueBuilder extends QueueBuilder

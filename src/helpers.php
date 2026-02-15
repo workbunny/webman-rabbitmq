@@ -15,9 +15,9 @@ use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQPublishException;
  * @param string $body
  * @param string|null $routingKey
  * @param array|null $headers
- * @return bool
+ * @return int|null
  */
-function publish(AbstractBuilder $builder, string $body, ?string $routingKey = null, ?array $headers = null): bool
+function publish(AbstractBuilder $builder, string $body, ?string $routingKey = null, ?array $headers = null): int|null
 {
     $config = new BuilderConfig($builder->getBuilderConfig()());
     if (
