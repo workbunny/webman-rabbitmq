@@ -62,14 +62,14 @@ RabbitMQ的webman客户端插件；
 
 ```
 
-- `Builder`：队列抽象结构
+- `Builder`：队列消费者、生产者的抽象结构，类似`ORM`的`Model`
   - `BuilderConfig`: 队列配置结构
   - `Builder`可以指定不同的`connection`配置进行连接，以区分业务/服务
-- `Connection`：抽象的连接对象
+  - `Builder`的`publish`/`consume`使用了影子模式（当前`Connection`的`Channel`耗尽时，会自动从`Connection Pool`获取新的连接创建`Channel`）
+      - 影子模式下请尽量将`Connection Pool`和`Channels Pool`的配置`wait_timeout`改小，避免过长时间的等待（等待中会出让控制权，不会阻塞）
+- `Connection`：基于`AsyncTcpConnection`封装的`AMQP-client`
   - `Connection`由`ConnectionManagement`管理，连接池为静态，不会因为`Builder`的释放而释放
   - `Connection Pool`中通过`get`拿取`Connection`后需要手动调用`release`归还，或者使用`action`通过传入回调函数来执行并自动归还
-  - `Connection`的`publish`/`consume`使用了影子模式（当前`Connection`的`Channel`耗尽时，会自动从`Connection Pool`获取新的连接创建`Channel`）
-    - 影子模式下请尽量将`Connection Pool`和`Channels Pool`的配置`wait_timeout`改小，避免过长时间的等待（等待中会出让控制权，不会阻塞）
   - 配置信息：
     - `min_connections`: 最小连接数
     - `max_connections`: 最大连接数
@@ -82,6 +82,7 @@ RabbitMQ的webman客户端插件；
   - 配置信息：
     - `idel_timeout`: 空闲回收时间 [s]
     - `wait_timeout`: 等待连接超时时间 [s]
+- `AMQP`: `workerman`支持的协议封装
 
 **[详细文档](https://workbunny.github.io/webman-rabbitmq/)**
 
@@ -205,7 +206,7 @@ return [
 - `Builder`发送
     ```php
     use process\workbunny\rabbitmq\TestBuilder;
-    use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
+    use Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface;
     $builder = new TestBuilder();
     $body = 'abc';
     return $builder->action(function (ConnectionInterface $connection) use ($builder, $body) {
@@ -218,8 +219,8 @@ return [
 - 原生发送，需要自行指定`exchange`等参数
     ```php
     use Workbunny\WebmanRabbitMQ\BuilderConfig;
-    use Workbunny\WebmanRabbitMQ\Connections\ConnectionInterface;
-    use Workbunny\WebmanRabbitMQ\Connections\ConnectionsManagement;
+    use Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface;
+    use Workbunny\WebmanRabbitMQ\ConnectionsManagement;
     $config = new \Workbunny\WebmanRabbitMQ\BuilderConfig();
     $config->setExchange('your_exchange');
     $config->setRoutingKey('your_routing_key');
@@ -232,28 +233,3 @@ return [
         $connection->publish($config)
     }, 'your_connection');
     ```
-
-## 进阶
-
-### 1. 自定义`Connection`
-
-- **默认使用`Workbunny\WebmanRabbitMQ\Connections\Connection`，包含影子模式**
-- **创建自定义`Connection`需继承实现`ConnectionInterface`，创建自定义`Connection`会丧失影子模式的功能，除非自行实现**
-- `config/plugin/workbunny/webman-rabbitmq/connections.php`修改`connection`配置项为自定义`Connection`类；
-
-### 2. 自定义`Builder`
-
-- 创建自定义`Builder`需继承实现`AbstractBuilder`；
-  - `onWorkerStart` 消费进程启动时会触发，一般用于实现基础消费逻辑；
-  - `onWorkerStop` 消费进程结束时会触发，一般用于回收资源；
-  - `onWorkerReload` 消费进程重载，一般可置空；
-  - `classContent` 用于配合命令行自动生成BuilderClass；
-- 框架`bootstrap`中加载注册代码
-  - 使用`AbstractBuilder::registerMode()`注册模式，便可使用`Command`命令行自定义`--mode={your mode}`
-
-### 3. 自定义`Client`
-
-- **默认使用`Workbunny\WebmanRabbitMQ\Clients\Client`，客户端继承并重写自`bunny/byunny`的`BIO`版本的`Client`**
-- **自定义的`Client`需要配合自定义`Connection`进行使用，最终通过`config/plugin/workbunny/webman-rabbitmq/connections.php`配置中的`connection`进行加载**
-- **通常在需要直接调用原生`RabbitMQ-Client`并拓展其功能时才需要用到自定义开发**
-- **创建自定义`Client`需继承实现`Workbunny\WebmanRabbitMQ\Clients\AbstractClient`**

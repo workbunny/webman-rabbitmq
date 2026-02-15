@@ -12,9 +12,7 @@ use Bunny\Protocol\ContentBodyFrame;
 use Bunny\Protocol\ContentHeaderFrame;
 use Bunny\Protocol\MethodBasicAckFrame;
 use Bunny\Protocol\MethodBasicCancelFrame;
-use Bunny\Protocol\MethodBasicCancelOkFrame;
 use Bunny\Protocol\MethodBasicConsumeFrame;
-use Bunny\Protocol\MethodBasicConsumeOkFrame;
 use Bunny\Protocol\MethodBasicGetFrame;
 use Bunny\Protocol\MethodBasicNackFrame;
 use Bunny\Protocol\MethodBasicPublishFrame;
@@ -515,6 +513,7 @@ trait ChannelsMethods
         $f->exclusive = $exclusive;
         $f->nowait = $nowait;
         $f->arguments = $arguments;
+
         return $this->frameSend($f);
     }
 
@@ -532,6 +531,7 @@ trait ChannelsMethods
         $f->channel = $channel;
         $f->consumerTag = $consumerTag;
         $f->nowait = $nowait;
+
         return $this->frameSend($f);
     }
 
@@ -573,6 +573,7 @@ trait ChannelsMethods
                         $body = substr($body, strlen($chunk));
                     }
                 }
+
                 return $headerFrame->bodySize;
             }
         }

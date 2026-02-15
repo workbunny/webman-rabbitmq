@@ -216,10 +216,13 @@ class Channel
      * @return int|null
      */
     public function publish(
-        string $body, array $headers, string $exchange, string $routingKey = '',
-        bool $mandatory = false, bool $immediate = false
-    ): null|int
-    {
+        string $body,
+        array $headers,
+        string $exchange,
+        string $routingKey = '',
+        bool $mandatory = false,
+        bool $immediate = false
+    ): null|int {
         return $this->basicPublish($this->id(), $exchange, $headers, $body, $routingKey, $mandatory, $immediate);
     }
 

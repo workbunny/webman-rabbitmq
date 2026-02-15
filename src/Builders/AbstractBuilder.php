@@ -223,7 +223,8 @@ abstract class AbstractBuilder
                     if (!in_array($tag, [Constants::ACK, Constants::NACK, Constants::REQUEUE, Constants::REJECT])) {
                         $tag = Constants::ACK;
                     }
-                } catch (Throwable $throwable) {dump($throwable);
+                } catch (Throwable $throwable) {
+                    dump($throwable);
                     $tag = Constants::REQUEUE;
                     $this->logger?->notice('Consume Throwable', [
                         'message' => $throwable->getMessage(),

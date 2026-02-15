@@ -8,14 +8,12 @@ use Workbunny\Tests\TestBuilders\TestConsumeBuilder;
 use Workbunny\Tests\TestBuilders\TestPublishBuilder;
 use Workbunny\Tests\TestBuilders\TestRequeueBuilder;
 use Workbunny\WebmanRabbitMQ\ConnectionsManagement;
-
 use Workerman\Coroutine;
 use Workerman\Timer;
 use Workerman\Worker;
 
 class BuilderTest extends BaseTestCase
 {
-
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
@@ -49,7 +47,6 @@ class BuilderTest extends BaseTestCase
             $this->assertEquals($builder->getBuilderConfig()->getRoutingKey(), $message['routing_key']);
         }
     }
-
 
     public function testManualParallelPublish()
     {
@@ -93,9 +90,9 @@ class BuilderTest extends BaseTestCase
                 $res = \Workbunny\WebmanRabbitMQ\publish($builder, $payload = __FUNCTION__ . '_' . $i);
                 $this->assertTrue($res > 0);
                 $expected[$i] = [
-                    'exchange' => $builder->getBuilderConfig()->getExchange(),
+                    'exchange'    => $builder->getBuilderConfig()->getExchange(),
                     'routing_key' => $builder->getBuilderConfig()->getRoutingKey(),
-                    'payload' => $payload
+                    'payload'     => $payload,
                 ];
             }
             // 出让协程，等待消费完毕
@@ -113,7 +110,6 @@ class BuilderTest extends BaseTestCase
                 }
             }
             $this->assertEquals($expected, $actual);
-
         } finally {
             if (file_exists($log)) {
                 unlink($log);

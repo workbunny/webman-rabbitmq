@@ -159,7 +159,8 @@ trait InitMethods
                 try {
                     // just put it back, do not care its state
                     $this->channels()->put($channel);
-                } catch (\Throwable) {}
+                } catch (\Throwable) {
+                }
             });
 
             return $channel;
@@ -263,7 +264,7 @@ trait InitMethods
             $this->tcpConnection->onClose = function () {
                 $clientId = $this->tcpConnection->clientId ?? 'NaN';
                 // if not normal close, throw error
-                if (!in_array($this->getState(),[ClientStateEnum::NOT_CONNECTED, ClientStateEnum::DISCONNECTING])) {
+                if (!in_array($this->getState(), [ClientStateEnum::NOT_CONNECTED, ClientStateEnum::DISCONNECTING])) {
                     throw new WebmanRabbitMQConnectException("[$clientId] Connection closed.");
                 }
             };

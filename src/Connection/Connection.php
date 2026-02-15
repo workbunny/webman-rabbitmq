@@ -28,7 +28,7 @@ class Connection implements ConnectionInterface
     use InitMethods;
     use ConnectionMethods;
 
-    /** @var string|null  */
+    /** @var string|null */
     protected ?string $id = null;
 
     /** @var int state */
@@ -93,6 +93,7 @@ class Connection implements ConnectionInterface
         if ($this->tcpConnection) {
             $this->tcpConnection->clientId = $this->id;
         }
+
         return $this->id;
     }
 
@@ -102,7 +103,7 @@ class Connection implements ConnectionInterface
     public function getClientProperties(): array
     {
         return [
-            'client-id' => $this->id()
+            'client-id' => $this->id(),
             ] + $this->getConfig('client_properties', []);
     }
 

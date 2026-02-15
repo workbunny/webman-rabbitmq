@@ -119,7 +119,7 @@ class ConnectionsManagement
             }
 
             $connection = new $connectionClass($config['config'], $logger);
-            $connection->reconnect();
+            $connection->connect();
 
             return $connection;
         });

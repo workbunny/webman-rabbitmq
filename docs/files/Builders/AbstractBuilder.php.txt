@@ -207,24 +207,25 @@ abstract class AbstractBuilder
             $config->isNowait(),
             $config->getArguments()
         );
+
         $consumer->consume(
             function (Message $message) use ($config, $consumer, $connection) {
                 // 如果事件循环开始重启或停止时停止消费
                 if (in_array($status = Worker::getStatus(), [
                     Worker::STATUS_SHUTDOWN, Worker::STATUS_RELOADING,
                 ])) {
-                    $this->logger->notice("Consumer stopping [worker status $status]");
+                    $this->logger?->notice("Consumer stopping [worker status $status]");
 
                     return;
                 }
                 try {
-                    $tag = $config->getCallback()($message, $consumer, $this);
+                    $tag = $config->getCallback()($message, $consumer, $connection);
                     if (!in_array($tag, [Constants::ACK, Constants::NACK, Constants::REQUEUE, Constants::REJECT])) {
                         $tag = Constants::ACK;
                     }
-                } catch (Throwable $throwable) {
+                } catch (Throwable $throwable) {dump($throwable);
                     $tag = Constants::REQUEUE;
-                    $this->logger->notice('Consume Throwable', [
+                    $this->logger?->notice('Consume Throwable', [
                         'message' => $throwable->getMessage(),
                         'code'    => $throwable->getCode(),
                         'file'    => $throwable->getFile() . ':' . $throwable->getLine(),
@@ -251,7 +252,7 @@ abstract class AbstractBuilder
                 $call = $tag === Constants::REQUEUE ? Constants::ACK : $tag;
                 $res = $consumer->$call($message);
                 if (!$res) {
-                    $this->logger->notice("Consume $tag failed [timer retrying].");
+                    $this->logger?->notice("Consume $tag failed [timer retrying].");
                     // ACK失败则定时器重试，直到成功
                     $id = Timer::delay(5, function (string $tag, string $call, Message $message) use (&$id, $connection) {
                         try {

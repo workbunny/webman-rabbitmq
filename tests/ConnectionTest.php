@@ -14,7 +14,6 @@ use Workerman\Timer;
 
 class ConnectionTest extends BaseTestCase
 {
-
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
@@ -58,11 +57,9 @@ class ConnectionTest extends BaseTestCase
             $this->assertTrue($c1->getState() === ClientStateEnum::CONNECTED);
             $this->assertTrue($c2->getState() === ClientStateEnum::CONNECTED);
         } finally {
-
             ConnectionsManagement::release($c1 ?? null);
             ConnectionsManagement::release($c2 ?? null);
         }
-
     }
 
     public function testCreateConnectionsByCoroutine()
@@ -84,7 +81,6 @@ class ConnectionTest extends BaseTestCase
                 } finally {
                     ConnectionsManagement::release($connection ?? null);
                 }
-
             });
         }
 

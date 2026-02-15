@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Protocols;
 
-use Bunny\Constants;
 use Bunny\Protocol\AbstractFrame;
 use Bunny\Protocol\Buffer;
 use Bunny\Protocol\ProtocolReader;
@@ -69,6 +68,7 @@ class AMQP
             if ($buf->getLength() < $payloadSize + $min) {
                 return 0;
             }
+
             return $payloadSize + $min;
         } catch (\Throwable $throwable) {
             Worker::safeEcho("AMQP protocol input Error: {$throwable->getMessage()}\n");
