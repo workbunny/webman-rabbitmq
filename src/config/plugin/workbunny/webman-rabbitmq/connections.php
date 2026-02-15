@@ -17,7 +17,7 @@ return [
         ],
         'config' => [
             'debug'              => false,
-            'host'               => 'rabbitmq',
+            'host'               => '127.0.0.1',
             'vhost'              => '/',
             'port'               => 5672,
             'username'           => 'guest',
