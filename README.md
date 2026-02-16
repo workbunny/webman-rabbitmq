@@ -73,7 +73,7 @@
 
 ### 要求
 - php >= 8.1
-- webman-framework >= 2.0 或 workerman >= 2.0
+- webman-framework >= 2.0 或 workerman >= 5.1
 - rabbitmq-server >= 3.10
 
 ### 安装
