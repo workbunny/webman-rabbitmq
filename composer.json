@@ -21,7 +21,6 @@
   },
   "require-dev": {
     "workerman/webman-framework": "^2.0",
-    "workerman/workerman": "^2.0",
     "webman/console": "^2.0",
     "phpunit/phpunit": "^10.0",
     "friendsofphp/php-cs-fixer": "^3.0",
