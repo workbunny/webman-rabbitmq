@@ -195,7 +195,7 @@ return [
     return $builder->action(function (ConnectionInterface $connection) use ($builder, $body) {
         $config = new BuilderConfig($builder->getBuilderConfig()());
         $config->setBody($body);
-        $connection->publish($config)
+        $connection->publish($connection, $config)
     });
     ```
   
@@ -213,6 +213,6 @@ return [
   
     // 使用 your_connection 配置连接发送
     return ConnectionsManagement::connection(function (ConnectionInterface $connection) use ($config) {
-        $connection->publish($config)
+        $connection->publish($connection, $config)
     }, 'your_connection');
     ```
