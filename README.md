@@ -195,24 +195,27 @@ return [
 
 **注：向延迟队列发布普通消息会抛出一个 WebmanRabbitMQPublishException 异常**
 
+**注：首先使用命令行工具或者手动创建对应的`Builder`，以下以`Workbunny\Tests\TestBuilders\TestPublishBuilder`举例**
+
 - 快捷发送
     ```php
     use function Workbunny\WebmanRabbitMQ\publish;
-    use process\workbunny\rabbitmq\TestBuilder;
+    use Workbunny\Tests\TestBuilders\TestPublishBuilder;
     
-    publish(new TestBuilder(), 'abc'); # return bool
+    publish(new TestPublishBuilder(), 'abc'); # return bool
     ```
 
 - `Builder`发送
     ```php
-    use process\workbunny\rabbitmq\TestBuilder;
+    use Workbunny\Tests\TestBuilders\TestPublishBuilder;
+    use Workbunny\WebmanRabbitMQ\BuilderConfig;
     use Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface;
-    $builder = new TestBuilder();
+    $builder = new TestPublishBuilder();
     $body = 'abc';
     return $builder->action(function (ConnectionInterface $connection) use ($builder, $body) {
         $config = new BuilderConfig($builder->getBuilderConfig()());
         $config->setBody($body);
-        $connection->publish($config)
+        $builder->publish($connection, $config);
     });
     ```
   
@@ -226,10 +229,36 @@ return [
     $config->setRoutingKey('your_routing_key');
     $config->setQueue('your_queue');
     $config->setBody('abc');
-    // 其他设置参数 ...
-  
+    $config->setMandatory(true);
+    $config->setImmediate(false);
     // 使用 your_connection 配置连接发送
     return ConnectionsManagement::connection(function (ConnectionInterface $connection) use ($config) {
-        $connection->publish($config)
+        $connection->channel()->publish(
+            $config->getBody(),
+            $config->getHeaders(),
+            $config->getExchange(),
+            $config->getRoutingKey(),
+            $config->getMandatory(),
+            $config->getImmediate()
+        );
     }, 'your_connection');
     ```
+
+### 消费
+
+**注：首先使用命令行工具或者手动创建对应的`Builder`，以下以`Workbunny\Tests\TestBuilders\TestConsumeBuilder`举例**
+
+- 快捷消费
+    - 修改生成的`Builder`文件，将`handler()`方法逻辑添加消费逻辑
+    - 启动构建好的`Builder`自定义进程即是启动消费
+
+- `Builder`消费
+    ```php
+    use Workbunny\Tests\TestBuilders\TestConsumeBuilder;
+    use Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface;
+    $builder = new TestConsumeBuilder();
+    $builder->action(function (ConnectionInterface $connection) use ($builder) {
+        $builder->consume($connection, $builder->getBuilderConfig());
+    });
+    ```
+    **注：需要保持该进程常驻**
