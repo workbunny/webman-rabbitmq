@@ -9,27 +9,6 @@
 
 [![Latest Stable Version](https://badgen.net/packagist/v/workbunny/webman-rabbitmq/latest)](https://packagist.org/packages/workbunny/webman-rabbitmq) [![Total Downloads](https://badgen.net/packagist/dt/workbunny/webman-rabbitmq)](https://packagist.org/packages/workbunny/webman-rabbitmq) [![License](https://badgen.net/packagist/license/workbunny/webman-rabbitmq)](https://packagist.org/packages/workbunny/webman-rabbitmq) [![PHP Version Require](https://badgen.net/packagist/php/workbunny/webman-rabbitmq)](https://packagist.org/packages/workbunny/webman-rabbitmq)
 
-## 常见问题
-
-1. 什么时候使用消息队列？
-
-   **当你需要对系统进行解耦、削峰、异步的时候；如发送短信验证码、秒杀活动、资产的异步分账清算等。**
-
-2. RabbitMQ和Redis的区别？
-
-   **Redis中的Stream的特性同样适用于消息队列，并且也包含了比较完善的ACK机制，但在一些点上与RabbitMQ存在不同：**
-	- **Redis Stream没有完善的后台管理；RabbitMQ拥有较为完善的后台管理及Api；**
-	- **Redis的持久化策略取舍：默认的RDB策略极端情况下存在丢失数据，AOF策略则需要牺牲一些性能；RabbitMQ持久化方案更多，可对消息持久化也可对队列持久化；**
-	- **RabbitMQ拥有更多的插件可以提供更完善的协议支持及功能支持；**
-
-3. 什么时候使用Redis？什么时候使用RabbitMQ？
-
-   **当你的队列使用比较单一或者比较轻量的时候，请选用 Redis Stream；当你需要一个比较完整的消息队列体系，包括需要利用交换机来绑定不同队列做一些比较复杂的消息任务的时候，请选择RabbitMQ；**
-
-   **当然，如果你的队列使用也比较单一，但你需要用到一些管理后台相关系统化的功能的时候，又不想花费太多时间去开发的时候，也可以使用RabbitMQ；因为RabbitMQ提供了一整套后台管理的体系及 HTTP API 供开发者兼容到自己的管理后台中，不需要再消耗多余的时间去开发功能；**
-
-   注：这里的 **轻量** 指的是 **无须将应用中的队列服务独立化，该队列服务是该应用独享的**
-
 ### 说明
 
 - 此文档为3.0
@@ -37,12 +16,17 @@
 
 ## 简介
 
-RabbitMQ的webman客户端插件；
+适配`Workerman`/`webman`的`AMQP`组件包
 
-1. 支持5种消费模式：简单队列、workQueue、routing、pub/sub、exchange；
-2. 支持延迟队列（rabbitMQ须安装插件）；
-3. 异步无阻塞消费、异步无阻塞生产、同步阻塞生产；
-
+- 支持基于`AMQP`协议工具实现`AMQP-Server`
+- 支持5种消费模式：简单队列、workQueue、routing、pub/sub、exchange；
+- 支持延迟队列（rabbitMQ须安装插件）；
+- 支持连接池，支持通道池，`Builder`支持影子模式（并发补偿）；
+- 3.0与之前版本相比，更符合`AMQO`协议约定，更合理的架构设计和使用逻辑
+  	- 使用`ConnectionManagement`多连接管理器管理`Connection`（`Client`），合理复用机制及并发使用能力
+  	- 使用`Channel-Pool`管理`Channel`，合理的复用和并发机制
+  	- 提供`AMQP`协议包，可供开发者自定义实现`AMQP-Client`或`AMQP-Server`，并提供`AMQP-Frame`协议帧工具
+ 
 ### 概念
 
 ```
@@ -61,7 +45,6 @@ RabbitMQ的webman客户端插件；
     └───────────┘                                                 channel-max
 
 ```
-
 - `Builder`：队列消费者、生产者的抽象结构，类似`ORM`的`Model`
   - `BuilderConfig`: 队列配置结构
   - `Builder`可以指定不同的`connection`配置进行连接，以区分业务/服务
@@ -90,7 +73,7 @@ RabbitMQ的webman客户端插件；
 
 ### 要求
 - php >= 8.1
-- webman-framework >= 2.0
+- webman-framework >= 2.0 或 workerman >= 5.1
 - rabbitmq-server >= 3.10
 
 ### 安装

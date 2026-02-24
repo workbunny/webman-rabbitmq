@@ -16,12 +16,12 @@
   },
   "require": {
     "php": "^8.1",
-    "workerman/webman-framework": "^2.0",
-    "webman/console": "^2.0",
     "bunny/bunny": "^0.5",
     "psr/log": "^3.0"
   },
   "require-dev": {
+    "workerman/webman-framework": "^2.0",
+    "webman/console": "^2.0",
     "phpunit/phpunit": "^10.0",
     "friendsofphp/php-cs-fixer": "^3.0",
     "symfony/var-dumper": "^6.0 | ^7.0",
@@ -46,7 +46,8 @@
   "suggest": {
     "revolt/event-loop": "supported Event/Fiber",
     "ext-swoole": "supported Event/Swoole",
-    "ext-swow": "supported Event/Swow"
+    "ext-swow": "supported Event/Swow",
+    "webman/console": "supported builder commands"
   },
   "scripts": {
     "tester": "php tests/tester start",
