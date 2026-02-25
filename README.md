@@ -2,9 +2,9 @@
 
 **<p align="center">workbunny/webman-rabbitmq</p>**
 
-**<p align="center">🐇 A PHP implementation of RabbitMQ Client for webman plugin. 🐇</p>**
+**<p align="center">🐇 A pure-PHP implementation of AMQP for webman/workerman. 🐇</p>**
 
-# A PHP implementation of RabbitMQ Client for webman plugin
+# A pure-PHP implementation of AMQP for webman/workerman. 
 
 
 [![Latest Stable Version](https://badgen.net/packagist/v/workbunny/webman-rabbitmq/latest)](https://packagist.org/packages/workbunny/webman-rabbitmq) [![Total Downloads](https://badgen.net/packagist/dt/workbunny/webman-rabbitmq)](https://packagist.org/packages/workbunny/webman-rabbitmq) [![License](https://badgen.net/packagist/license/workbunny/webman-rabbitmq)](https://packagist.org/packages/workbunny/webman-rabbitmq) [![PHP Version Require](https://badgen.net/packagist/php/workbunny/webman-rabbitmq)](https://packagist.org/packages/workbunny/webman-rabbitmq)
