@@ -225,7 +225,6 @@ abstract class AbstractBuilder
                         $tag = Constants::ACK;
                     }
                 } catch (Throwable $throwable) {
-                    dump($throwable);
                     $tag = Constants::REQUEUE;
                     $this->logger?->notice('Consume Throwable', [
                         'message' => $throwable->getMessage(),
