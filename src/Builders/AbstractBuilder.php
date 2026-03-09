@@ -207,6 +207,7 @@ abstract class AbstractBuilder
             $config->isNowait(),
             $config->getArguments()
         );
+        $consumer->qos($config->getPrefetchSize(), $config->getPrefetchCount(), $config->isGlobal(), $config->isNowait());
 
         $consumer->consume(
             function (Message $message) use ($config, $consumer, $connection) {

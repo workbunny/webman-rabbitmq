@@ -23,6 +23,7 @@ use Bunny\Protocol\MethodBasicDeliverFrame;
 use Bunny\Protocol\MethodBasicGetEmptyFrame;
 use Bunny\Protocol\MethodBasicGetOkFrame;
 use Bunny\Protocol\MethodBasicNackFrame;
+use Bunny\Protocol\MethodBasicQosOkFrame;
 use Bunny\Protocol\MethodBasicReturnFrame;
 use Bunny\Protocol\MethodChannelCloseFrame;
 use Bunny\Protocol\MethodChannelCloseOkFrame;
@@ -244,6 +245,29 @@ class Channel
             /* @var MethodBasicGetEmptyFrame|MethodBasicGetOkFrame $frame */
             $this->connection->await("basic.get.$id");
         }
+    }
+
+    /**
+     * qos
+     *
+     * @param int $prefetchSize
+     * @param int $prefetchCount
+     * @param bool $global
+     * @param bool $nowait
+     * @return MethodBasicQosOkFrame|bool
+     */
+    public function qos(int $prefetchSize = 0, int $prefetchCount = 0, bool $global = false, bool $nowait = false): MethodBasicQosOkFrame|bool
+    {
+        $this->basicQos($channel = $this->id(), $prefetchSize, $prefetchCount, $global);
+        if (!$nowait) {
+            /** @var MethodBasicQosOkFrame $f */
+            $f = $this->connection->await(MethodBasicQosOkFrame::class, function (MethodBasicQosOkFrame $frame) use($channel) {
+                return $frame->channel === $channel;
+            });
+
+            return $f;
+        }
+        return true;
     }
 
     /**
