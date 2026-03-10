@@ -54,7 +54,7 @@ class Connection implements ConnectionInterface
                 $mechanism,
                 sprintf(
                     "\0%s\0%s",
-                    $this->getConfig('user', 'guest'),
+                    $this->getConfig('username', 'guest'),
                     $this->getConfig('password', 'guest')
                 ),
                 $start->locales
@@ -64,7 +64,7 @@ class Connection implements ConnectionInterface
         static::registerMechanismHandler('AMQPLAIN', function (string $mechanism, MethodConnectionStartFrame $start) {
             $responseBuffer = new Buffer();
             AMQP::writer()->appendTable([
-                'LOGIN'    => $this->getConfig('user', 'guest'),
+                'LOGIN'    => $this->getConfig('username', 'guest'),
                 'PASSWORD' => $this->getConfig('password', 'guest'),
             ], $responseBuffer);
 

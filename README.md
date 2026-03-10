@@ -138,15 +138,16 @@ use Workbunny\WebmanRabbitMQ\Connections\Connection;
 return [
     'default' => [
         'connection'       => Connection::class,
-        // 连接池
+        // 连接池，用于支撑影子模式
         'connections_pool' => [
-            'min_connections' => 1,
-            'max_connections' => 20,
-            'idle_timeout'    => 60,
-            'wait_timeout'    => 10
+            'min_connections'       => 1,
+            'max_connections'       => 20,
+            'idle_timeout'          => 60,
+            'wait_timeout'          => 10,
         ],
         'config' => [
-            'host'               => 'rabbitmq',
+            'debug'              => false,
+            'host'               => '127.0.0.1',
             'vhost'              => '/',
             'port'               => 5672,
             'username'           => 'guest',
@@ -157,17 +158,26 @@ return [
             'restart_interval'   => 5,
             // 通道池
             'channels_pool'      => [
-                'idle_timeout' => 60,
-                'wait_timeout' => 10
+                'idle_timeout'     => 60,
+                'wait_timeout'     => 10,
             ],
             'client_properties' => [
-                'name'    => 'workbunny/webman-rabbitmq',
-                'version' => \Composer\InstalledVersions::getVersion('workbunny/webman-rabbitmq')
+                'name'     => 'workbunny/webman-rabbitmq',
+                'version'  => InstalledVersions::getVersion('workbunny/webman-rabbitmq'),
             ],
             // 心跳回调 callable
-            'heartbeat_callback' => null,
-        ]
-    ]
+            'heartbeat_callback' => function () {
+            },
+
+            // see https://www.workerman.net/doc/workerman/async-tcp-connection/construct.html
+//            'context' => [
+//                'ssl' => [
+//                    'verify_peer'      => false,
+//                    'verify_peer_name' => false,
+//                ],
+//            ]
+        ],
+    ],
 ];
 ```
 
