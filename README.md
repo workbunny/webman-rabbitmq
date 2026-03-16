@@ -95,6 +95,8 @@
 
 📚 **[查看详细文档](https://workbunny.github.io/webman-rabbitmq/)**
 
+📚 **[AMQP 0-9-1 协议帧对照表](https://github.com/workbunny/webman-rabbitmq/blob/master/src/Connection/README.md)**
+
 ---
 
 ## 🚀 快速开始
