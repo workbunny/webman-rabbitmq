@@ -255,9 +255,13 @@ abstract class AbstractBuilder
                 if (!$res) {
                     $this->logger?->notice("Consume $tag failed [timer retrying].");
                     // ACK失败则定时器重试，直到成功
-                    $id = Timer::delay(5, function (string $tag, string $call, Message $message) use (&$id, $connection) {
+                    $id = Timer::delay(5, function (string $tag, string $call, Message $message) use (&$id, $connection, $config) {
                         try {
-                            $res = $connection->channel()->$call($message);
+                            if (in_array($call, [Constants::REJECT, Constants::NACK])) {
+                                $res = $connection->channel()->$call($message, requeue: $config->isIsRequeue());
+                            } else {
+                                $res = $connection->channel()->$call($message);
+                            }
                             if ($res) {
                                 Timer::del($id);
                             }
