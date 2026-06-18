@@ -15,6 +15,7 @@ return [
             'idle_timeout'          => 60,
             'wait_timeout'          => 10,
         ],
+        'logger'                 => null,
         'config' => [
             'debug'              => false,
             'host'               => '127.0.0.1',

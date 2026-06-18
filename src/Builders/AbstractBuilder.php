@@ -52,10 +52,7 @@ abstract class AbstractBuilder
         $this->logger = is_a($logger, LoggerInterface::class, true)
             ? (is_string($logger) ? new $logger() : $logger)
             : null;
-
-        $this->setConfig(ConnectionsManagement::config($this->connection));
         $this->setBuilderConfig(new BuilderConfig());
-        ConnectionsManagement::initialize($this->connection, $this->logger);
     }
 
     /**

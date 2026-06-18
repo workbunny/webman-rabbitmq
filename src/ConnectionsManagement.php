@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Workbunny\WebmanRabbitMQ;
 
 use Psr\Log\LoggerInterface;
+use Webman\Bootstrap;
 use Workbunny\WebmanRabbitMQ\Connection\Connection;
 use Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
 use Workerman\Coroutine\Pool;
+use Workerman\Worker;
 
-class ConnectionsManagement
+class ConnectionsManagement implements Bootstrap
 {
     /**
      * 连接池
@@ -106,8 +108,7 @@ class ConnectionsManagement
      */
     public static function initialize(string $connection = 'default', ?LoggerInterface $logger = null): void
     {
-        $has = self::pool($connection);
-        if ($has) {
+        if (self::pool($connection)) {
             return;
         }
         $config = self::config($connection);
@@ -127,6 +128,19 @@ class ConnectionsManagement
             $connection->disconnect();
         });
         self::$pools[$connection] = $pool;
+    }
+
+    /**
+     * 启动
+     * @param Worker|null $worker
+     * @return void
+     */
+    public static function start(?Worker $worker): void
+    {
+        $configs = \config('plugin.workbunny.webman-rabbitmq.connections', []);
+        foreach ($configs as $connection => $config) {
+            self::initialize($connection, $config['logger'] ?? null);
+        }
     }
 
     /**
