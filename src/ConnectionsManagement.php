@@ -101,6 +101,21 @@ class ConnectionsManagement implements Bootstrap
     }
 
     /**
+     * 重置所有连接池（测试/热重启场景）
+     * @return void
+     */
+    public static function reset(): void
+    {
+        foreach (self::$pools as $pool) {
+            try {
+                $pool->closeConnections();
+            } catch (\Throwable) {
+            }
+        }
+        self::$pools = [];
+    }
+
+    /**
      * 初始化
      * @param string $connection
      * @param LoggerInterface|null $logger
@@ -139,7 +154,13 @@ class ConnectionsManagement implements Bootstrap
     {
         $configs = \config('plugin.workbunny.webman-rabbitmq.connections', []);
         foreach ($configs as $connection => $config) {
-            self::initialize($connection, $config['logger'] ?? null);
+            /** @var LoggerInterface|null $logger */
+            $logger = $config['logger'] ?? null;
+            try {
+                self::initialize($connection, $logger);
+            } catch (\Throwable $e) {
+                $logger?->error("Failed to initialize RabbitMQ connection [$connection]: {$e->getMessage()}");
+            }
         }
     }
 

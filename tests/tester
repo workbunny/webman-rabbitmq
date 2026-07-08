@@ -1,8 +1,6 @@
 #!/usr/bin/env php
 <?php declare(strict_types=1);
 
-use Workerman\Events\Swow;
-use Workerman\Events\Swoole;
 use Workerman\Events\Fiber;
 use Workerman\Timer;
 use Workerman\Worker;
@@ -29,19 +27,23 @@ function create_test_worker(Closure $callable, $eventLoopClass): void
         $fp = fopen(__FILE__, 'r+');
         flock($fp, LOCK_EX);
         echo PHP_EOL . PHP_EOL. PHP_EOL . '[TEST EVENT-LOOP: ' . basename(str_replace('\\', '/', $eventLoopClass)) . ']' . PHP_EOL;
+        $code = 0;
+        $err = '';
         try {
             $callable();
         } catch (Throwable $e) {
             echo $e;
+            $err = $e->getMessage();
+            $code = 1;
         } finally {
             flock($fp, LOCK_UN);
         }
-        Timer::repeat(1, function () use ($fp) {
+        Timer::repeat(1, function () use ($fp, $err, $code) {
             if (flock($fp, LOCK_EX | LOCK_NB)) {
                 if(function_exists('posix_kill')) {
-                    posix_kill(posix_getppid(), SIGINT);
+                    posix_kill(posix_getppid(), $code > 0 ? SIGKILL : SIGINT);
                 } else {
-                    Worker::stopAll();
+                    Worker::stopAll($code, $err);
                 }
             }
         });

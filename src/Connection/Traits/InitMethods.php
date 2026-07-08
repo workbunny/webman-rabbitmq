@@ -113,6 +113,7 @@ trait InitMethods
         if (!$this->channels) {
             $poolConfig = $this->getConfig('channels_pool', []);
             $maxConnections = min($poolConfig['max_connections'] ?? $this->channelLimit, $this->channelLimit);
+            unset($poolConfig['max_connections']);
             $this->channels = new Pool(max($maxConnections, 1), $poolConfig);
             $this->channels->setConnectionCreator(function () {
                 $this->channel(true)->channelOpen($channelId = $this->getChannelId());
@@ -195,7 +196,7 @@ trait InitMethods
             if ($this->getConfig('context.ssl', [])) {
                 $this->tcpConnection->transport = 'ssl';
             }
-            $this->tcpConnection->onConnect = function (AsyncTcpConnection $connection) {
+            $this->tcpConnection->onConnect = function () {
                 $this->state = ClientStateEnum::CONNECTING;
                 // protocol header
                 $buffer = new Buffer();

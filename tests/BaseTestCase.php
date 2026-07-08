@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Workbunny\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Webman\Context;
 use Workbunny\WebmanRabbitMQ\Commands\AbstractCommand;
+use Workbunny\WebmanRabbitMQ\ConnectionsManagement;
 
 class BaseTestCase extends TestCase
 {
@@ -23,6 +25,26 @@ class BaseTestCase extends TestCase
         $this->rabbitUser = $this->config['username'];
         $this->rabbitPass = $this->config['password'];
         $this->vhost = $this->config['vhost'];
+    }
+
+    protected function tearDown(): void
+    {
+        // 清理协程上下文，防止 channel 缓存泄漏到下一个测试
+        if (class_exists(Context::class)) {
+            Context::destroy();
+        }
+    }
+
+    public static function setUpBeforeClass(): void
+    {
+        // 确保开始前连接池是干净的
+        ConnectionsManagement::reset();
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        // 确保结束后连接池完全清空，不影响下一个测试类
+        ConnectionsManagement::reset();
     }
 
     protected function exec(string $command): array
