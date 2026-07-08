@@ -212,7 +212,7 @@ abstract class AbstractBuilder
                 if (in_array($status = Worker::getStatus(), [
                     Worker::STATUS_SHUTDOWN, Worker::STATUS_RELOADING,
                 ])) {
-                    $this->logger?->notice("Consumer stopping [worker status $status]");
+                    $this->logger?->info("Consumer stopping [worker status $status]");
 
                     return;
                 }
@@ -223,7 +223,7 @@ abstract class AbstractBuilder
                     }
                 } catch (Throwable $throwable) {
                     $tag = Constants::REQUEUE;
-                    $this->logger?->notice('Consume Throwable', [
+                    $this->logger?->info('Consume Throwable', [
                         'message' => $throwable->getMessage(),
                         'code'    => $throwable->getCode(),
                         'file'    => $throwable->getFile() . ':' . $throwable->getLine(),
@@ -250,7 +250,7 @@ abstract class AbstractBuilder
                 $call = $tag === Constants::REQUEUE ? Constants::ACK : $tag;
                 $res = $consumer->$call($message);
                 if (!$res) {
-                    $this->logger?->notice("Consume $tag failed [timer retrying].");
+                    $this->logger?->info("Consume $tag failed [timer retrying].");
                     // ACK失败则定时器重试，必须使用原 channel（AMQP 要求 ACK 在接收消息的同一 channel 上发送）
                     $id = Timer::delay(5, function (string $tag, string $call, Message $message) use (&$id, $consumer, $config) {
                         try {

@@ -489,6 +489,11 @@ class Channel
             $this->currentContentBodyBuffer->discard($this->currentContentBodyBuffer->getLength());
             if ($this->currentContentHeaderFrame->bodySize > 0) {
                 $this->setState(ChannelStateEnum::AWAITING_BODY);
+            } else {
+                // bodySize == 0 → 消息无体，直接完成 → 恢复 READY 并触发回调
+                // 不回到 READY 会导致状态机卡死，后续所有消息被丢弃
+                $this->setState(ChannelStateEnum::READY);
+                $this->onBodyFramesComplete();
             }
 
             return;

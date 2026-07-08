@@ -297,7 +297,7 @@ class Connection implements ConnectionInterface
     {
         // connection receive
         if ($frame instanceof MethodConnectionCloseFrame) {
-            $this->logger?->notice('Connection closed by server: ' . $frame->replyText);
+            $this->logger?->info('Connection closed by server: ' . $frame->replyText);
             $this->disconnect([
                 'replyCode' => $frame->replyCode,
                 'replyText' => $frame->replyText,

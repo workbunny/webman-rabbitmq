@@ -76,7 +76,7 @@ abstract class QueueBuilder extends AbstractBuilder
                 $this->consume($connection, $this->getBuilderConfig());
             });
         } catch (WebmanRabbitMQException $exception) {
-            $this->logger?->notice("Queue $worker->id exception, retry after $this->restartInterval seconds. ", [
+            $this->logger?->info("Queue $worker->id exception, retry after $this->restartInterval seconds. ", [
                 'message' => $exception->getMessage(),
                 'code'    => $exception->getCode(),
                 'file'    => $exception->getFile() . ':' . $exception->getLine(),
@@ -99,7 +99,7 @@ abstract class QueueBuilder extends AbstractBuilder
     public function onWorkerReload(Worker $worker): void
     {
         $queue = $this->getBuilderConfig()->getQueue();
-        $this->logger?->notice("Consumer $worker->id [queue: $queue] reload.");
+        $this->logger?->info("Consumer $worker->id [queue: $queue] reload.");
     }
 
     /** @inheritDoc */
