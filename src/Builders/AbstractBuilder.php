@@ -19,6 +19,7 @@ use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelFulledException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQRequeueException;
 use Workbunny\WebmanRabbitMQ\Traits\ConfigMethods;
+use Workerman\Coroutine\Exception\PoolException;
 use Workerman\Timer;
 use Workerman\Worker;
 
@@ -167,8 +168,9 @@ abstract class AbstractBuilder
     public function consume(ConnectionInterface $connection, BuilderConfig $config): ?string
     {
         try {
-            $consumer = $connection->channel();
-        } catch (WebmanRabbitMQChannelFulledException) {
+            $consumer = $connection->channels()->get();
+        } catch (PoolException|\Throwable) {
+            $this->logger?->error('Consumer channel pool is fulled.');
             ConnectionsManagement::connection(function (ConnectionInterface $connection) use ($config) {
                 $this->consume($connection, $config);
             });
