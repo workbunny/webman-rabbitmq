@@ -289,19 +289,25 @@ class Channel
      */
     public function consume(
         Closure $callback,
-        string   $queue = '',
+        string $queue = '',
         string $consumerTag = '',
         bool $noLocal = false,
         bool $noAck = false,
-        bool     $exclusive = false,
+        bool $exclusive = false,
         bool $nowait = false,
         array $arguments = []
     ): MethodBasicConsumeOkFrame {
+        // 如果调用方提供了 consumerTag，在发送 basic.consume 前就注册回调，
+        // 避免服务端在回复 consume-ok 后立即推送堆积消息时，回调尚未注册导致消息被丢弃
+        if ($consumerTag !== '') {
+            $this->deliverCallbacks[$consumerTag] = $callback;
+        }
         $this->basicConsume($this->id(), $queue, $consumerTag, $noLocal, $noAck, $exclusive, $nowait, $arguments);
         /** @var MethodBasicConsumeOkFrame $frame */
         $frame = $this->connection->await(MethodBasicConsumeOkFrame::class, function (MethodBasicConsumeOkFrame $frame) {
             return $frame->channel === $this->id();
         });
+        // 确保以服务端返回的 consumerTag 为准（可能与传入的不同，如空字符串时服务端自动生成）
         $this->deliverCallbacks[$frame->consumerTag] = $callback;
 
         return $frame;
