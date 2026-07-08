@@ -162,9 +162,9 @@ abstract class AbstractBuilder
      *
      * @param ConnectionInterface $connection
      * @param BuilderConfig $config
-     * @return void
+     * @return null|string consumerTag
      */
-    public function consume(ConnectionInterface $connection, BuilderConfig $config): void
+    public function consume(ConnectionInterface $connection, BuilderConfig $config): ?string
     {
         try {
             $consumer = $connection->channel();
@@ -173,7 +173,7 @@ abstract class AbstractBuilder
                 $this->consume($connection, $config);
             });
 
-            return;
+            return null;
         }
         $consumer->exchangeDeclare(
             $consumer->id(),
@@ -206,7 +206,7 @@ abstract class AbstractBuilder
         );
         $consumer->qos($config->getPrefetchSize(), $config->getPrefetchCount(), $config->isGlobal(), $config->isNowait());
 
-        $consumer->consume(
+        $consumeOk = $consumer->consume(
             function (Message $message) use ($config, $consumer, $connection) {
                 // 如果事件循环开始重启或停止时停止消费
                 if (in_array($status = Worker::getStatus(), [
@@ -275,6 +275,16 @@ abstract class AbstractBuilder
             $config->isNowait(),
             $config->getArguments()
         );
+
+        // register a timer to poll channel for server-side cancellation (e.g. queue deleted)
+        $timerId = Timer::repeat(5, function () use (&$timerId, $consumer, $consumeOk) {
+            if ($consumer->isConsumerCancelled($consumeOk->consumerTag)) {
+                Timer::del($timerId);
+                Worker::stopAll();
+            }
+        });
+
+        return $consumeOk->consumerTag;
     }
 
     /**

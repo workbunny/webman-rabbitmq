@@ -17,6 +17,7 @@ use Bunny\Protocol\Buffer;
 use Bunny\Protocol\ContentBodyFrame;
 use Bunny\Protocol\ContentHeaderFrame;
 use Bunny\Protocol\MethodBasicAckFrame;
+use Bunny\Protocol\MethodBasicCancelFrame;
 use Bunny\Protocol\MethodBasicCancelOkFrame;
 use Bunny\Protocol\MethodBasicConsumeOkFrame;
 use Bunny\Protocol\MethodBasicDeliverFrame;
@@ -52,6 +53,9 @@ class Channel
 
     /** @var array<string, Closure> deliver callbacks */
     protected array $deliverCallbacks = [];
+
+    /** @var array<string, bool> service cancelled consumer tags (e.g. queue deleted) */
+    protected array $cancelledConsumerTags = [];
 
     /** @var array<int, Closure> get callbacks */
     protected array $getCallbacks = [];
@@ -323,6 +327,17 @@ class Channel
     }
 
     /**
+     * check if consumer was cancelled by server (e.g. queue deleted)
+     *
+     * @param string $consumerTag
+     * @return bool
+     */
+    public function isConsumerCancelled(string $consumerTag): bool
+    {
+        return $this->cancelledConsumerTags[$consumerTag] ?? false;
+    }
+
+    /**
      * current channel close
      *
      * @param int $replyCode
@@ -484,6 +499,14 @@ class Channel
                 $this->setState(ChannelStateEnum::READY);
                 $this->onBodyFramesComplete();
             }
+
+            return;
+        }
+        // server cancelled consumer (e.g. queue deleted externally) — record for timer polling
+        if ($frame instanceof MethodBasicCancelFrame) {
+            $consumerTag = $frame->consumerTag ?? '';
+            unset($this->deliverCallbacks[$consumerTag]);
+            $this->cancelledConsumerTags[$consumerTag] = true;
 
             return;
         }
