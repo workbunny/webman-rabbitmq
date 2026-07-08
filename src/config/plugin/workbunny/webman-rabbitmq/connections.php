@@ -27,8 +27,9 @@ return [
             'timeout'            => 10,
             // 重启间隔
             'restart_interval'   => 5,
-            // 通道池
+            // 通道池，max_connections 限制单连接最大通道数，避免通道无限增长
             'channels_pool'      => [
+                'max_connections'  => 256,
                 'idle_timeout'     => 60,
                 'wait_timeout'     => 10,
             ],

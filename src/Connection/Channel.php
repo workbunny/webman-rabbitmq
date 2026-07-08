@@ -335,13 +335,7 @@ class Channel
         if (in_array($this->getState(), [ChannelStateEnum::CLOSING, ChannelStateEnum::CLOSED])) {
             return null;
         }
-        $f = new MethodChannelCloseFrame();
-        $f->channel = $this->id;
-        $f->replyCode = $replyCode;
-        $f->replyText = $replyText;
-        $f->closeClassId = 0;
-        $f->closeMethodId = 0;
-        $res = $this->frameSend($f);
+        $res = $this->channelClose($this->id, $replyCode, $replyText, 0, 0);
         if (!$nowait and $res) {
             $res = $this->connection->await(MethodChannelCloseOkFrame::class, function (MethodChannelCloseOkFrame $frame) {
                 return $frame->channel === $this->id;

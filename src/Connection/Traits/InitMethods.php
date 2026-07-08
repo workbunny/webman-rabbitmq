@@ -111,7 +111,9 @@ trait InitMethods
     public function channels(): Pool
     {
         if (!$this->channels) {
-            $this->channels = new Pool($this->channelLimit, $this->getConfig('channels', []));
+            $poolConfig = $this->getConfig('channels_pool', []);
+            $maxConnections = min($poolConfig['max_connections'] ?? $this->channelLimit, $this->channelLimit);
+            $this->channels = new Pool(max($maxConnections, 1), $poolConfig);
             $this->channels->setConnectionCreator(function () {
                 $this->channel(true)->channelOpen($channelId = $this->getChannelId());
                 // await channel.openOk
@@ -230,9 +232,26 @@ trait InitMethods
                 ;
                 $this->state = ClientStateEnum::CONNECTED;
                 // set heartbeat
-                $this->heartbeat = Timer::repeat($this->heartbeatInterval, function () use ($connection) {
+                $this->heartbeat = Timer::repeat($this->heartbeatInterval, function () {
                     if ($this->getState() === ClientStateEnum::CONNECTED) {
-                        $this->connectionHeartbeat();
+                        if (!$this->connectionHeartbeat()) {
+                            $this->logger?->warning('Heartbeat send failed, connection is dead.');
+                            // stop self
+                            if ($this->heartbeat) {
+                                Timer::del($this->heartbeat);
+                                $this->heartbeat = 0;
+                            }
+                            // mark as error so onClose won't throw
+                            $this->setState(ClientStateEnum::ERROR);
+                            // wakeup all awaiting coroutines before destroying TCP
+                            $this->wakeupAllAwaiting(new WebmanRabbitMQConnectException(
+                                '[' . ($this->id ?? 'NaN') . '] Connection broken (heartbeat send failed).'
+                            ));
+                            $this->tcpConnection?->destroy();
+                            $this->tcpConnection = null;
+
+                            return;
+                        }
                         $this->lastHeartbeatSendTime = microtime(true);
                     }
                 });
@@ -263,15 +282,33 @@ trait InitMethods
             };
             $this->tcpConnection->onClose = function () {
                 $clientId = $this->tcpConnection->clientId ?? 'NaN';
-                // if not normal close, throw error
-                if (!in_array($this->getState(), [ClientStateEnum::NOT_CONNECTED, ClientStateEnum::DISCONNECTING])) {
-                    throw new WebmanRabbitMQConnectException("[$clientId] Connection closed.");
+                $state = $this->getState();
+                // normal close: NOT_CONNECTED (after disconnect), DISCONNECTING (during disconnect), ERROR (self-detected)
+                if (!in_array($state, [ClientStateEnum::NOT_CONNECTED, ClientStateEnum::DISCONNECTING, ClientStateEnum::ERROR])) {
+                    $this->logger?->warning("[$clientId <state:$state>] Connection closed unexpectedly.");
+                    // stop heartbeat
+                    if ($this->heartbeat) {
+                        Timer::del($this->heartbeat);
+                        $this->heartbeat = 0;
+                    }
+                    $this->setState(ClientStateEnum::ERROR);
+                    $this->wakeupAllAwaiting(new WebmanRabbitMQConnectException(
+                        "[$clientId <state:$state>] Connection closed.",
+                        Constants::STATUS_CONNECTION_FORCED
+                    ));
                 }
             };
             // onError
             $this->tcpConnection->onError = function (AsyncTcpConnection $connection, $code, $msg) {
                 $clientId = $connection->clientId ?? 'NaN';
-                throw new WebmanRabbitMQConnectException("[$clientId]: $msg", $code);
+                $this->logger?->error("[$clientId]: $msg", ['code' => $code]);
+                // stop heartbeat
+                if ($this->heartbeat) {
+                    Timer::del($this->heartbeat);
+                    $this->heartbeat = 0;
+                }
+                $this->setState(ClientStateEnum::ERROR);
+                $this->wakeupAllAwaiting(new WebmanRabbitMQConnectException("[$clientId]: $msg", $code));
             };
             $this->tcpConnection->onBufferDrain = function (AsyncTcpConnection $connection) {
                 $clientId = $connection->clientId ?? 'NaN';
