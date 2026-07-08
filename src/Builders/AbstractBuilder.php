@@ -251,19 +251,18 @@ abstract class AbstractBuilder
                 $res = $consumer->$call($message);
                 if (!$res) {
                     $this->logger?->notice("Consume $tag failed [timer retrying].");
-                    // ACK失败则定时器重试，直到成功
-                    $id = Timer::delay(5, function (string $tag, string $call, Message $message) use (&$id, $connection, $config) {
+                    // ACK失败则定时器重试，必须使用原 channel（AMQP 要求 ACK 在接收消息的同一 channel 上发送）
+                    $id = Timer::delay(5, function (string $tag, string $call, Message $message) use (&$id, $consumer, $config) {
                         try {
                             if (in_array($call, [Constants::REJECT, Constants::NACK])) {
-                                $res = $connection->channel()->$call($message, requeue: $config->isIsRequeue());
+                                $res = $consumer->$call($message, requeue: $config->isIsRequeue());
                             } else {
-                                $res = $connection->channel()->$call($message);
+                                $res = $consumer->$call($message);
                             }
                             if ($res) {
                                 Timer::del($id);
                             }
-                        } catch (Throwable) {
-                        }
+                        } catch (Throwable) {}
                     }, [$tag, $call, $message]);
                 }
             },
