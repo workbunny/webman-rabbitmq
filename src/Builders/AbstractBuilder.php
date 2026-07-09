@@ -84,6 +84,16 @@ abstract class AbstractBuilder
     }
 
     /**
+     * 获取连接名
+     *
+     * @return string
+     */
+    public function getConnectionName(): string
+    {
+        return $this->connection;
+    }
+
+    /**
      * @return string
      */
     public function getBuilderName(): string
@@ -114,6 +124,7 @@ abstract class AbstractBuilder
         try {
             $producer = $connection->channel();
         } catch (WebmanRabbitMQChannelFulledException) {
+            $this->logger?->error('Producer channel pool is fulled.');
             return ConnectionsManagement::connection(function (ConnectionInterface $connection) use ($config) {
                 return $this->publish($connection, $config);
             });
@@ -168,8 +179,8 @@ abstract class AbstractBuilder
     public function consume(ConnectionInterface $connection, BuilderConfig $config): ?string
     {
         try {
-            $consumer = $connection->channels()->get();
-        } catch (PoolException|\Throwable) {
+            $consumer = $connection->channel();
+        } catch (WebmanRabbitMQChannelFulledException) {
             $this->logger?->error('Consumer channel pool is fulled.');
             ConnectionsManagement::connection(function (ConnectionInterface $connection) use ($config) {
                 $this->consume($connection, $config);

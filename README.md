@@ -247,16 +247,58 @@ publish(new TestBuilder(), 'abc', headers: [
 > - 向延迟队列发布普通消息会抛出 `WebmanRabbitMQPublishException` 异常
 > - 首先使用命令行工具或者手动创建对应的 `Builder`，以下以 `Workbunny\Tests\TestBuilders\TestPublishBuilder` 举例
 
+| # | 方式 | 适用场景 | 连接 | exchange/queue |
+|---|------|----------|------|----------------|
+| 一 | `publish($builder, $body)` | 单次快捷发送 | 自动借还 | ✅ 自动声明 |
+| 二 | `publish($builder, $body, connection: $conn)` | consumer 内复用已有连接 | 复用传入 | ✅ 自动声明 |
+| 三 | `$builder->publish($connection, $config)` | 需自定义 BuilderConfig | 自行管理 | ✅ 自动声明 |
+| 四 | `$channel->publish()` | 完全自定义 | 自行管理 | ❌ 自行处理 |
+
+> 💡 **Tips**
+> - **consumer 内消息流转**：handler 中发消息时，建议复用 consumer 已有的连接，避免池借还竞态。
+> - **高频发送**：批量或循环调用时，用 `action()` 外包一层，一次借还多次发送：
+>   ```php
+>   use function Workbunny\WebmanRabbitMQ\action;
+>   $configs = [...]; // BuilderConfig[]
+>   action(function (ConnectionInterface $connection) use ($configs) {
+>       $channel = $connection->channel();
+>       foreach ($configs as $config) {
+>           $channel->publish(
+>               $config->getBody(),
+>               $config->getHeaders(),
+>               $config->getExchange(),
+>               $config->getRoutingKey()
+>           );
+>       }
+>   });
+>   ```
+
 ### 方式一：快捷发送
 
 ```php
 use function Workbunny\WebmanRabbitMQ\publish;
 use Workbunny\Tests\TestBuilders\TestPublishBuilder;
 
-publish(new TestPublishBuilder(), 'abc'); // return bool
+publish(new TestPublishBuilder(), 'abc');
 ```
 
-### 方式二：Builder 发送
+### 方式二：快捷复用发送
+
+consumer handler 内复用已有的 `$connection`，避免每次从池子借还：
+
+```php
+use function Workbunny\WebmanRabbitMQ\publish;
+
+public function handler(BunnyMessage $message, Channel $channel, ConnectionInterface $connection): string
+{
+    // 复用 consumer 连接，不额外借还
+    publish(new OtherBuilder(), $message->content, connection: $connection);
+
+    return Constants::ACK;
+}
+```
+
+### 方式三：构造发送
 
 ```php
 use Workbunny\Tests\TestBuilders\TestPublishBuilder;
@@ -264,25 +306,24 @@ use Workbunny\WebmanRabbitMQ\BuilderConfig;
 use Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface;
 
 $builder = new TestPublishBuilder();
-$body = 'abc';
 
-return $builder->action(function (ConnectionInterface $connection) use ($builder, $body) {
+return $builder->action(function (ConnectionInterface $connection) use ($builder) {
     $config = new BuilderConfig($builder->getBuilderConfig()());
-    $config->setBody($body);
-    $builder->publish($connection, $config);
+    $config->setBody('abc');
+    return $builder->publish($connection, $config);
 });
 ```
 
-### 方式三：原生发送
+### 方式四：原生发送
 
-需要自行指定 `exchange` 等参数
+使用 `BuilderConfig` 作为消息、配置的统一结构体：
 
 ```php
 use Workbunny\WebmanRabbitMQ\BuilderConfig;
 use Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface;
 use Workbunny\WebmanRabbitMQ\ConnectionsManagement;
 
-$config = new \Workbunny\WebmanRabbitMQ\BuilderConfig();
+$config = new BuilderConfig();
 $config->setExchange('your_exchange');
 $config->setRoutingKey('your_routing_key');
 $config->setQueue('your_queue');
@@ -290,7 +331,6 @@ $config->setBody('abc');
 $config->setMandatory(true);
 $config->setImmediate(false);
 
-// 使用 your_connection 配置连接发送
 return ConnectionsManagement::connection(function (ConnectionInterface $connection) use ($config) {
     $connection->channel()->publish(
         $config->getBody(),
@@ -300,7 +340,7 @@ return ConnectionsManagement::connection(function (ConnectionInterface $connecti
         $config->getMandatory(),
         $config->getImmediate()
     );
-}, 'your_connection');
+});
 ```
 
 ---
