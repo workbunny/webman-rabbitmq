@@ -15,9 +15,16 @@ use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQPublishException;
  * @param string $body
  * @param string|null $routingKey
  * @param array|null $headers
+ * @param ConnectionInterface|null $connection 传入已有连接可跳过池借还，适合 consumer 内高频调用
  * @return int|null
  */
-function publish(AbstractBuilder $builder, string $body, ?string $routingKey = null, ?array $headers = null): int|null
+function publish(
+    AbstractBuilder $builder,
+    string $body,
+    ?string $routingKey = null,
+    ?array $headers = null,
+    ?ConnectionInterface $connection = null
+): int|null
 {
     $config = new BuilderConfig($builder->getBuilderConfig()());
     if (
@@ -30,9 +37,37 @@ function publish(AbstractBuilder $builder, string $body, ?string $routingKey = n
     $config->setHeaders($headers ?? $config->getHeaders());
     $config->setRoutingKey($routingKey ?? $config->getRoutingKey());
 
+    // 如果传入了已有连接，直接复用，避免 pool 借还竞态
+    if ($connection !== null) {
+        return $builder->publish($connection, $config);
+    }
+
     return $builder->action(function (ConnectionInterface $connection) use ($builder, $config) {
         return $builder->publish($connection, $config);
     });
+}
+
+/**
+ * 复用连接进行多次操作
+ *
+ * 从连接池借一个连接，执行回调后自动归还。
+ * 适合高频 publish 场景，避免每次 publish() 都单独借还连接。
+ *
+ * ```
+ * // consumer handler 中复用同一个连接
+ * action(function (ConnectionInterface $connection) use ($builder, $a, $b) {
+ *     publish($builder, $a, connection: $connection);
+ *     publish($builder, $b, connection: $connection);
+ * });
+ * ```
+ *
+ * @param callable(ConnectionInterface): mixed $callback
+ * @param string $connection
+ * @return mixed
+ */
+function action(callable $callback, string $connection = 'default'): mixed
+{
+    return ConnectionsManagement::action($callback, $connection);
 }
 
 /**

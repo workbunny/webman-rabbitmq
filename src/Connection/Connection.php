@@ -269,7 +269,8 @@ class Connection implements ConnectionInterface
             if ($this->tcpConnection) {
                 try {
                     $this->channels()->closeConnections();
-                } catch (\Throwable) {}
+                } catch (\Throwable) {
+                }
                 $this->connectionClose($replyCode, $replyText, 0, 0);
                 try {
                     $this->await(MethodConnectionCloseOkFrame::class, function (MethodConnectionCloseOkFrame $frame) {

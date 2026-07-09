@@ -12,6 +12,7 @@ use Bunny\Protocol\Buffer;
 use Bunny\Protocol\MethodChannelOpenOkFrame;
 use Bunny\Protocol\MethodConnectionStartFrame;
 use Bunny\Protocol\MethodConnectionTuneFrame;
+use Closure;
 use Protocols\AMQP;
 use Webman\Context;
 use Workbunny\WebmanRabbitMQ\Connection\Channel;
@@ -111,7 +112,10 @@ trait InitMethods
     public function channels(): Pool
     {
         if (!$this->channels) {
-            $this->channels = new Pool($this->channelLimit, $this->getConfig('channels', []));
+            $poolConfig = $this->getConfig('channels_pool', []);
+            $maxConnections = min($poolConfig['max_connections'] ?? $this->channelLimit, $this->channelLimit);
+            unset($poolConfig['max_connections']);
+            $this->channels = new Pool(max($maxConnections, 1), $poolConfig);
             $this->channels->setConnectionCreator(function () {
                 $this->channel(true)->channelOpen($channelId = $this->getChannelId());
                 // await channel.openOk
@@ -125,8 +129,9 @@ trait InitMethods
             $this->channels->setConnectionCloser(function (Channel $channel) {
                 try {
                     $channel->close();
-                    $this->channelRemove($channel->id());
                 } catch (\Throwable) {
+                } finally {
+                    $this->channelRemove($channel->id());
                 }
             });
         }
@@ -137,16 +142,22 @@ trait InitMethods
     /**
      * get ready channel
      *
+     * - 不传 $closure：Context 模式，同一协程复用，defer 归还（适合消费者）
+     * - 传入 $closure：回调模式，借 → 执行 → 立即归还（适合 HTTP publish）
+     *
      * @param bool $master
-     * @return Channel
+     * @param Closure(Channel): mixed|null $closure
+     * @return ($closure is null ? Channel : mixed)
      * @throws WebmanRabbitMQChannelException
      */
-    public function channel(bool $master = false): Channel
+    public function channel(bool $master = false, ?Closure $closure = null): mixed
     {
         if ($master) {
             return $this->channelUsedList[Constants::CONNECTION_CHANNEL];
         }
-        $channel = Context::get('workbunny.webman-rabbitmq.channel');
+
+        // closure mode 则跳过 context
+        $channel = $closure ? null : Context::get('workbunny.webman-rabbitmq.channel');
         if (!$channel) {
             try {
                 /** @var Channel $channel */
@@ -154,27 +165,39 @@ trait InitMethods
             } catch (Coroutine\Exception\PoolException|\Throwable) {
                 throw new WebmanRabbitMQChannelFulledException('No available channel.');
             }
-            Context::set('workbunny.webman-rabbitmq.channel', $channel);
-            Coroutine::defer(function () use ($channel) {
+            // 闭包模式
+            if ($closure) {
                 try {
-                    // just put it back, do not care its state
-                    $this->channels()->put($channel);
-                } catch (\Throwable) {
+                    return $closure($channel);
+                } finally {
+                    try {
+                        if ($channel->getState() === ChannelStateEnum::READY) {
+                            $this->channels()->put($channel);
+                        } else {
+                            $this->channels()->closeConnection($channel);
+                        }
+                    } catch (\Throwable) {}
                 }
-            });
+            } else { // 协程模式
+                Context::set('workbunny.webman-rabbitmq.channel', $channel);
+                Coroutine::defer(function () use ($channel) {
+                    try {
+                        if ($channel->getState() === ChannelStateEnum::READY) {
+                            $this->channels()->put($channel);
+                        } else {
+                            $this->channels()->closeConnection($channel);
+                        }
+                    } catch (\Throwable) {
+                    }
+                });
+            }
 
             return $channel;
         }
-
-        // check current coroutine context.channel state
-        if ($channel->getState() === ChannelStateEnum::READY) {
-            return $channel;
-        } else {
-            Context::set('workbunny.webman-rabbitmq.channel', null);
-            // close it
-            $this->channels()->closeConnection($channel);
-            // get new channel - recursion
-            $channel = $this->channel();
+        if ($channel->getState() !== ChannelStateEnum::READY) {
+            throw new WebmanRabbitMQChannelException(
+                'Channel [' . $channel->id() . '] state is not READY in current coroutine context.'
+            );
         }
 
         return $channel;
@@ -193,7 +216,7 @@ trait InitMethods
             if ($this->getConfig('context.ssl', [])) {
                 $this->tcpConnection->transport = 'ssl';
             }
-            $this->tcpConnection->onConnect = function (AsyncTcpConnection $connection) {
+            $this->tcpConnection->onConnect = function () {
                 $this->state = ClientStateEnum::CONNECTING;
                 // protocol header
                 $buffer = new Buffer();
@@ -230,9 +253,26 @@ trait InitMethods
                 ;
                 $this->state = ClientStateEnum::CONNECTED;
                 // set heartbeat
-                $this->heartbeat = Timer::repeat($this->heartbeatInterval, function () use ($connection) {
+                $this->heartbeat = Timer::repeat($this->heartbeatInterval, function () {
                     if ($this->getState() === ClientStateEnum::CONNECTED) {
-                        $this->connectionHeartbeat();
+                        if (!$this->connectionHeartbeat()) {
+                            $this->logger?->warning('Heartbeat send failed, connection is dead.');
+                            // stop self
+                            if ($this->heartbeat) {
+                                Timer::del($this->heartbeat);
+                                $this->heartbeat = 0;
+                            }
+                            // mark as error so onClose won't throw
+                            $this->setState(ClientStateEnum::ERROR);
+                            // wakeup all awaiting coroutines before destroying TCP
+                            $this->wakeupAllAwaiting(new WebmanRabbitMQConnectException(
+                                '[' . ($this->id ?? 'NaN') . '] Connection broken (heartbeat send failed).'
+                            ));
+                            $this->tcpConnection?->destroy();
+                            $this->tcpConnection = null;
+
+                            return;
+                        }
                         $this->lastHeartbeatSendTime = microtime(true);
                     }
                 });
@@ -263,15 +303,33 @@ trait InitMethods
             };
             $this->tcpConnection->onClose = function () {
                 $clientId = $this->tcpConnection->clientId ?? 'NaN';
-                // if not normal close, throw error
-                if (!in_array($this->getState(), [ClientStateEnum::NOT_CONNECTED, ClientStateEnum::DISCONNECTING])) {
-                    throw new WebmanRabbitMQConnectException("[$clientId] Connection closed.");
+                $state = $this->getState();
+                // normal close: NOT_CONNECTED (after disconnect), DISCONNECTING (during disconnect), ERROR (self-detected)
+                if (!in_array($state, [ClientStateEnum::NOT_CONNECTED, ClientStateEnum::DISCONNECTING, ClientStateEnum::ERROR])) {
+                    $this->logger?->warning("[$clientId <state:$state>] Connection closed unexpectedly.");
+                    // stop heartbeat
+                    if ($this->heartbeat) {
+                        Timer::del($this->heartbeat);
+                        $this->heartbeat = 0;
+                    }
+                    $this->setState(ClientStateEnum::ERROR);
+                    $this->wakeupAllAwaiting(new WebmanRabbitMQConnectException(
+                        "[$clientId <state:$state>] Connection closed.",
+                        Constants::STATUS_CONNECTION_FORCED
+                    ));
                 }
             };
             // onError
             $this->tcpConnection->onError = function (AsyncTcpConnection $connection, $code, $msg) {
                 $clientId = $connection->clientId ?? 'NaN';
-                throw new WebmanRabbitMQConnectException("[$clientId]: $msg", $code);
+                $this->logger?->error("[$clientId]: $msg", ['code' => $code]);
+                // stop heartbeat
+                if ($this->heartbeat) {
+                    Timer::del($this->heartbeat);
+                    $this->heartbeat = 0;
+                }
+                $this->setState(ClientStateEnum::ERROR);
+                $this->wakeupAllAwaiting(new WebmanRabbitMQConnectException("[$clientId]: $msg", $code));
             };
             $this->tcpConnection->onBufferDrain = function (AsyncTcpConnection $connection) {
                 $clientId = $connection->clientId ?? 'NaN';

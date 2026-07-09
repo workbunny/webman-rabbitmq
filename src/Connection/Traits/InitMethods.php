@@ -129,8 +129,9 @@ trait InitMethods
             $this->channels->setConnectionCloser(function (Channel $channel) {
                 try {
                     $channel->close();
-                    $this->channelRemove($channel->id());
                 } catch (\Throwable) {
+                } finally {
+                    $this->channelRemove($channel->id());
                 }
             });
         }
@@ -141,16 +142,22 @@ trait InitMethods
     /**
      * get ready channel
      *
+     * - 不传 $closure：Context 模式，同一协程复用，defer 归还（适合消费者）
+     * - 传入 $closure：回调模式，借 → 执行 → 立即归还（适合 HTTP publish）
+     *
      * @param bool $master
-     * @return Channel
+     * @param Closure(Channel): mixed|null $closure
+     * @return ($closure is null ? Channel : mixed)
      * @throws WebmanRabbitMQChannelException
      */
-    public function channel(bool $master = false): Channel
+    public function channel(bool $master = false, ?Closure $closure = null): mixed
     {
         if ($master) {
             return $this->channelUsedList[Constants::CONNECTION_CHANNEL];
         }
-        $channel = Context::get('workbunny.webman-rabbitmq.channel');
+
+        // closure mode 则跳过 context
+        $channel = $closure ? null : Context::get('workbunny.webman-rabbitmq.channel');
         if (!$channel) {
             try {
                 /** @var Channel $channel */
@@ -158,23 +165,36 @@ trait InitMethods
             } catch (Coroutine\Exception\PoolException|\Throwable) {
                 throw new WebmanRabbitMQChannelFulledException('No available channel.');
             }
-            Context::set('workbunny.webman-rabbitmq.channel', $channel);
-            Coroutine::defer(function () use ($channel) {
+            // 闭包模式
+            if ($closure) {
                 try {
-                    // 只归还 READY 的 channel；非 READY 直接关闭回收，不污染池
-                    if ($channel->getState() === ChannelStateEnum::READY) {
-                        $this->channels()->put($channel);
-                    } else {
-                        $this->channels()->closeConnection($channel);
+                    return $closure($channel);
+                } finally {
+                    try {
+                        if ($channel->getState() === ChannelStateEnum::READY) {
+                            $this->channels()->put($channel);
+                        } else {
+                            $this->channels()->closeConnection($channel);
+                        }
+                    } catch (\Throwable) {
                     }
-                } catch (\Throwable) {
                 }
-            });
+            } else { // 协程模式
+                Context::set('workbunny.webman-rabbitmq.channel', $channel);
+                Coroutine::defer(function () use ($channel) {
+                    try {
+                        if ($channel->getState() === ChannelStateEnum::READY) {
+                            $this->channels()->put($channel);
+                        } else {
+                            $this->channels()->closeConnection($channel);
+                        }
+                    } catch (\Throwable) {
+                    }
+                });
+            }
 
             return $channel;
         }
-
-        // 同一协程内缓存的 channel 非 READY 即为异常，上层自行处理
         if ($channel->getState() !== ChannelStateEnum::READY) {
             throw new WebmanRabbitMQChannelException(
                 'Channel [' . $channel->id() . '] state is not READY in current coroutine context.'
@@ -182,33 +202,6 @@ trait InitMethods
         }
 
         return $channel;
-    }
-
-    /**
-     * 直接从 channel 池借一个 channel 执行回调，绕过 Context，用完后归还。
-     * 适合 publish 等高频操作，调用方自行管理生命周期。
-     *
-     * @param Closure(Channel): mixed $closure
-     * @return mixed
-     */
-    public function channelAction(Closure $closure): mixed
-    {
-        try {
-            $channel = $this->channels()->get();
-        } catch (\Throwable) {
-            throw new WebmanRabbitMQChannelFulledException('No available channel.');
-        }
-        try {
-            return $closure($channel);
-        } finally {
-            try {
-                if ($channel->getState() === ChannelStateEnum::READY) {
-                    $this->channels()->put($channel);
-                } else {
-                    $this->channels()->closeConnection($channel);
-                }
-            } catch (\Throwable) {}
-        }
     }
 
     /**

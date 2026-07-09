@@ -18,7 +18,7 @@ return [
             'wait_timeout'          => 10,
         ],
         'logger'                 => null,
-        'config' => [
+        'config'                 => [
             'debug'              => false,
             'host'               => '127.0.0.1',
             'vhost'              => '/',

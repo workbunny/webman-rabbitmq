@@ -17,9 +17,9 @@ use Psr\Log\LoggerInterface;
 use Workbunny\WebmanRabbitMQ\Connection\Traits\ConnectionMethods;
 use Workbunny\WebmanRabbitMQ\Connection\Traits\InitMethods;
 use Workbunny\WebmanRabbitMQ\Connection\Traits\LoggerMethods;
-use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
 use Workbunny\WebmanRabbitMQ\Traits\ConfigMethods;
 use Workerman\Coroutine;
+use Workerman\Timer;
 
 class Connection implements ConnectionInterface
 {
@@ -54,7 +54,7 @@ class Connection implements ConnectionInterface
                 $mechanism,
                 sprintf(
                     "\0%s\0%s",
-                    $this->getConfig('user', 'guest'),
+                    $this->getConfig('username', 'guest'),
                     $this->getConfig('password', 'guest')
                 ),
                 $start->locales
@@ -64,7 +64,7 @@ class Connection implements ConnectionInterface
         static::registerMechanismHandler('AMQPLAIN', function (string $mechanism, MethodConnectionStartFrame $start) {
             $responseBuffer = new Buffer();
             AMQP::writer()->appendTable([
-                'LOGIN'    => $this->getConfig('user', 'guest'),
+                'LOGIN'    => $this->getConfig('username', 'guest'),
                 'PASSWORD' => $this->getConfig('password', 'guest'),
             ], $responseBuffer);
 
@@ -136,6 +136,7 @@ class Connection implements ConnectionInterface
      * @param class-string<AbstractFrame>|string $frameClassOrEvent
      * @param callable|null $checker = function(AbstractFrame|mixed $frame): bool{} DO NOT have coroutine switching in callback
      * @return AbstractFrame|mixed
+     * @throws \Throwable when connection is broken and wakeupAllAwaiting resumes with an exception
      */
     public function await(string $frameClassOrEvent, null|callable $checker = null): mixed
     {
@@ -146,7 +147,12 @@ class Connection implements ConnectionInterface
             'timestamp'  => microtime(true),
         ];
 
-        return $co::suspend();
+        $result = $co::suspend();
+        if ($result instanceof \Throwable) {
+            throw $result;
+        }
+
+        return $result;
     }
 
     /**
@@ -193,6 +199,25 @@ class Connection implements ConnectionInterface
         }
     }
 
+    /**
+     * wakeup all awaiting coroutines with an exception when connection is broken
+     *
+     * @param \Throwable $exception
+     * @return void
+     */
+    public function wakeupAllAwaiting(\Throwable $exception): void
+    {
+        foreach ($this->awaits as $frameClassOrEvent => $list) {
+            foreach ($list as $await) {
+                try {
+                    $await['coroutine']->resume($exception);
+                } catch (\Throwable) {
+                }
+            }
+        }
+        $this->awaits = [];
+    }
+
     /** @inheritDoc */
     public function frameSend(AbstractFrame|Buffer $frame): ?bool
     {
@@ -235,18 +260,29 @@ class Connection implements ConnectionInterface
         $replyText = $options['replyText'] ?? '';
         if ($this->state === ClientStateEnum::CONNECTED) {
             $this->state = ClientStateEnum::DISCONNECTING;
-            // close channels
-            $this->channels()->closeConnections();
-            // send connection close message
-            $this->connectionClose($replyCode, $replyText, 0, 0);
-            // wait for closeOk
-            $this->await(MethodConnectionCloseOkFrame::class, function (MethodConnectionCloseOkFrame $frame) {
-                return $frame->channel === Constants::CONNECTION_CHANNEL;
-            });
+            // stop heartbeat
+            if ($this->heartbeat) {
+                Timer::del($this->heartbeat);
+                $this->heartbeat = 0;
+            }
+            // close channels & send connection.close (AMQP-level handshake, only if TCP is alive)
+            if ($this->tcpConnection) {
+                try {
+                    $this->channels()->closeConnections();
+                } catch (\Throwable) {}
+                $this->connectionClose($replyCode, $replyText, 0, 0);
+                try {
+                    $this->await(MethodConnectionCloseOkFrame::class, function (MethodConnectionCloseOkFrame $frame) {
+                        return $frame->channel === Constants::CONNECTION_CHANNEL;
+                    });
+                } catch (\Throwable) {
+                    // connection already broken, skip waiting for close-ok
+                }
+                // close tcp connection
+                $this->tcpConnection->destroy();
+            }
             // set state
             $this->state = ClientStateEnum::NOT_CONNECTED;
-            // close tcp connection
-            $this->tcpConnection->destroy();
             $this->tcpConnection = null;
             // wakeup connection.disconnected, if has it
             $this->wakeup('connection.disconnected', true);
@@ -261,13 +297,15 @@ class Connection implements ConnectionInterface
     {
         // connection receive
         if ($frame instanceof MethodConnectionCloseFrame) {
+            $this->logger?->info('Connection closed by server: ' . $frame->replyText);
             $this->disconnect([
                 'replyCode' => $frame->replyCode,
                 'replyText' => $frame->replyText,
                 'message'   => 'Connection closed by server. ',
                 'code'      => Constants::STATUS_CONNECTION_FORCED,
             ]);
-            throw new WebmanRabbitMQConnectException('Connection closed by server: ' . $frame->replyText, $frame->replyCode);
+
+            return;
         }
         if ($frame instanceof HeartbeatFrame) {
             $this->lastHeartbeatRecvTime = microtime(true);

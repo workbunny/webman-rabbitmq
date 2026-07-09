@@ -72,21 +72,25 @@
 
 - `Connection` 由 `ConnectionManagement` 管理，连接池为静态，不会因为 `Builder` 的释放而释放
 - `Connection Pool` 中通过 `get` 拿取 `Connection` 后需要手动调用 `release` 归还，或者使用 `action` 通过传入回调函数来执行并自动归还
+- 支持 **pool-less 模式**：设置 `connections_pool.enable = false` 后使用专用长连接，消除池借还竞态
 - **配置信息**：
+  - `enable`: 是否启用连接池
   - `min_connections`: 最小连接数
   - `max_connections`: 最大连接数
-  - `idel_timeout`: 空闲回收时间 [s]
+  - `idle_timeout`: 空闲回收时间 [s]
   - `wait_timeout`: 等待连接超时时间 [s]
 
 #### 📡 Channel
 抽象的通道对象
 
 - 每一个 `Connection` 都具备一个 `Channel` 池
-  - 多协程时，自动创建新的 `Channel` 消费，并在协程结束后自动归还/释放
-  - 单协程时，复用 `Channel` 消费
+- `channel()` 支持两种模式：
+  - **Context 模式**（默认）：`$connection->channel()` — 同一协程复用，defer 归还（消费者专用）
+  - **回调模式**：`$connection->channel(false, fn($ch) => ...)` — 借→用→立即归还（HTTP publish 等短生命周期场景）
 - **配置信息**：
-  - `idel_timeout`: 空闲回收时间 [s]
-  - `wait_timeout`: 等待连接超时时间 [s]
+  - `max_connections`: 最大通道数 (null时使用server约定)
+  - `idle_timeout`: 空闲回收时间 [s]
+  - `wait_timeout`: 等待超时时间 [s]
 
 #### 📦 AMQP
 `workerman` 支持的协议封装
@@ -142,6 +146,8 @@ return [
         'connection'       => Connection::class,
         // 连接池，用于支撑影子模式
         'connections_pool' => [
+            // 是否启用连接池
+            'enable'                => false,
             'min_connections'       => 1,
             'max_connections'       => 20,
             'idle_timeout'          => 60,
@@ -160,6 +166,8 @@ return [
             'restart_interval'   => 5,
             // 通道池
             'channels_pool'      => [
+                // 最大通道数，默认根据server约定
+                'max_connections'  => null,
                 'idle_timeout'     => 60,
                 'wait_timeout'     => 10,
             ],
@@ -247,14 +255,15 @@ publish(new TestBuilder(), 'abc', headers: [
 > - 向延迟队列发布普通消息会抛出 `WebmanRabbitMQPublishException` 异常
 > - 首先使用命令行工具或者手动创建对应的 `Builder`，以下以 `Workbunny\Tests\TestBuilders\TestPublishBuilder` 举例
 
-| # | 方式 | 适用场景 | 连接 | exchange/queue |
-|---|------|----------|------|----------------|
-| 一 | `publish($builder, $body)` | 单次快捷发送 | 自动借还 | ✅ 自动声明 |
-| 二 | `publish($builder, $body, connection: $conn)` | consumer 内复用已有连接 | 复用传入 | ✅ 自动声明 |
-| 三 | `$builder->publish($connection, $config)` | 需自定义 BuilderConfig | 自行管理 | ✅ 自动声明 |
-| 四 | `$channel->publish()` | 完全自定义 | 自行管理 | ❌ 自行处理 |
+| # | 方式 | 适用场景 | 连接 | Channel 生命周期 |
+|---|------|----------|------|-----------------|
+| 一 | `publish($builder, $body)` | 单次快捷发送 | 自动借还 | 回调模式，用完即还 |
+| 二 | `publish($builder, $body, connection: $conn)` | consumer 内复用连接 | 复用传入 | 回调模式，用完即还 |
+| 三 | `$builder->publish($connection, $config)` | 需自定义 config | 自行管理 | 回调模式，用完即还 |
+| 四 | `$channel->publish()` | 完全自定义 | 自行管理 | 自行管理 |
 
 > 💡 **Tips**
+> - `publish()` 内部使用 `channel(false, $callback)` 回调模式借还 channel，不依赖 `Coroutine::defer`，HTTP 和 consumer 场景均可靠归还。
 > - **consumer 内消息流转**：handler 中发消息时，建议复用 consumer 已有的连接，避免池借还竞态。
 > - **高频发送**：批量或循环调用时，用 `action()` 外包一层，一次借还多次发送：
 >   ```php

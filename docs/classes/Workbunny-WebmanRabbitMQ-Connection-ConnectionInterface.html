@@ -6,7 +6,10 @@
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="../">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png"/>
     <link rel="icon" href="images/favicon.ico"/>
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png"/>
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/base.css">
             <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -114,9 +117,9 @@
         <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Connection/ConnectionInterface.php"><a href="files/connection-connectioninterface.html"><abbr title="Connection/ConnectionInterface.php">ConnectionInterface.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">13</span>
+    <span class="phpdocumentor-element-found-in__line">14</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.13" class="phpdocumentor-element-found-in__source" data-line="13" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.14" class="phpdocumentor-element-found-in__source" data-line="14" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
     </aside>
 
         
@@ -150,7 +153,7 @@
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#method_channel">channel()</a>
     <span>
-                                &nbsp;: <a href="classes/Workbunny-WebmanRabbitMQ-Connection-Channel.html"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\Channel">Channel</abbr></a>    </span>
+                                &nbsp;: <abbr title="($closure is null ? \Workbunny\WebmanRabbitMQ\Connection\Channel : mixed)">Channel : mixed)</abbr>    </span>
 </dt>
 <dd>get free channel</dd>
 
@@ -224,6 +227,8 @@
 
         
 
+        
+
             <section class="phpdocumentor-methods">
         <h3 class="phpdocumentor-elements__header" id="methods">
             Methods
@@ -244,46 +249,64 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Connection/ConnectionInterface.php"><a href="files/connection-connectioninterface.html"><abbr title="Connection/ConnectionInterface.php">ConnectionInterface.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">50</span>
+    <span class="phpdocumentor-element-found-in__line">53</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.50" class="phpdocumentor-element-found-in__source" data-line="50" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.53" class="phpdocumentor-element-found-in__source" data-line="53" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">get free channel</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">channel</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><a href="classes/Workbunny-WebmanRabbitMQ-Connection-Channel.html"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\Channel">Channel</abbr></a></span></code>
+                    <span class="phpdocumentor-signature__name">channel</span><span>(</span><span class="phpdocumentor-signature__argument"><span>[</span><span class="phpdocumentor-signature__argument__type">bool&nbsp;</span><span class="phpdocumentor-signature__argument__name">$master</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">false</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">callable(<a href="classes/Workbunny-WebmanRabbitMQ-Connection-Channel.html"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\Channel">Channel</abbr></a>): mixed|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$closure</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="($closure is null ? \Workbunny\WebmanRabbitMQ\Connection\Channel : mixed)">Channel : mixed)</abbr></span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
     
     
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$master</span>
+                : <span class="phpdocumentor-argument-list__argument__type">bool</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">false</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$closure</span>
+                : <span class="phpdocumentor-argument-list__argument__type">callable(<a href="classes/Workbunny-WebmanRabbitMQ-Connection-Channel.html"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\Channel">Channel</abbr></a>): mixed|null</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">null</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>传入回调则借→用→还模式，null 则 Context 复用模式</p>
+</section>
+
+            </dd>
+            </dl>
+
     
-    
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
+    <h5 class="phpdocumentor-tag-list__heading" id="method_channel_tags">
         Tags
-        <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#method_channel#tags" class="headerlink"><i class="fas fa-link"></i></a>
+        <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#method_channel_tags" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h5>
     <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">throws</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
+                    <dt class="phpdocumentor-tag-list__entry">
+                <span class="phpdocumentor-tag__name">throws</span>
+            </dt>
+                            <dd class="phpdocumentor-tag-list__definition">
                                                                 <span class="phpdocumentor-tag-link"><a href="classes/Workbunny-WebmanRabbitMQ-Exceptions-WebmanRabbitMQChannelFulledException.html"><abbr title="\Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelFulledException">WebmanRabbitMQChannelFulledException</abbr></a></span>
-                                                            
-                                                 <section class="phpdocumentor-description"><p>if all channels are used</p>
+                                                                                        <section class="phpdocumentor-description"><p>if all channels are used</p>
 </section>
 
                                     </dd>
-                                            </dl>
+                        </dl>
 
         
     
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type"><a href="classes/Workbunny-WebmanRabbitMQ-Connection-Channel.html"><abbr title="\Workbunny\WebmanRabbitMQ\Connection\Channel">Channel</abbr></a></span>
+        <span class="phpdocumentor-signature__response_type"><abbr title="($closure is null ? \Workbunny\WebmanRabbitMQ\Connection\Channel : mixed)">Channel : mixed)</abbr></span>
             </section>
 
 </article>
@@ -301,9 +324,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Connection/ConnectionInterface.php"><a href="files/connection-connectioninterface.html"><abbr title="Connection/ConnectionInterface.php">ConnectionInterface.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">57</span>
+    <span class="phpdocumentor-element-found-in__line">60</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.57" class="phpdocumentor-element-found-in__source" data-line="57" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.60" class="phpdocumentor-element-found-in__source" data-line="60" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">get channels pool</p>
@@ -341,9 +364,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Connection/ConnectionInterface.php"><a href="files/connection-connectioninterface.html"><abbr title="Connection/ConnectionInterface.php">ConnectionInterface.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">80</span>
+    <span class="phpdocumentor-element-found-in__line">83</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.80" class="phpdocumentor-element-found-in__source" data-line="80" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.83" class="phpdocumentor-element-found-in__source" data-line="83" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">连接</p>
@@ -358,21 +381,20 @@
     
     
     
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
+    <h5 class="phpdocumentor-tag-list__heading" id="method_connect_tags">
         Tags
-        <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#method_connect#tags" class="headerlink"><i class="fas fa-link"></i></a>
+        <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#method_connect_tags" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h5>
     <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">throws</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
+                    <dt class="phpdocumentor-tag-list__entry">
+                <span class="phpdocumentor-tag__name">throws</span>
+            </dt>
+                            <dd class="phpdocumentor-tag-list__definition">
                                                                 <span class="phpdocumentor-tag-link"><a href="classes/Workbunny-WebmanRabbitMQ-Exceptions-WebmanRabbitMQConnectException.html"><abbr title="\Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException">WebmanRabbitMQConnectException</abbr></a></span>
-                                                            
-                                             
+                                                                                    
                                     </dd>
-                                            </dl>
+                        </dl>
 
         
     
@@ -392,9 +414,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Connection/ConnectionInterface.php"><a href="files/connection-connectioninterface.html"><abbr title="Connection/ConnectionInterface.php">ConnectionInterface.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">42</span>
+    <span class="phpdocumentor-element-found-in__line">43</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.42" class="phpdocumentor-element-found-in__source" data-line="42" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.43" class="phpdocumentor-element-found-in__source" data-line="43" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">tcp connection</p>
@@ -432,9 +454,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Connection/ConnectionInterface.php"><a href="files/connection-connectioninterface.html"><abbr title="Connection/ConnectionInterface.php">ConnectionInterface.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">89</span>
+    <span class="phpdocumentor-element-found-in__line">92</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.89" class="phpdocumentor-element-found-in__source" data-line="89" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.92" class="phpdocumentor-element-found-in__source" data-line="92" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">关闭连接</p>
@@ -459,21 +481,20 @@
             </dl>
 
     
-    <h5 class="phpdocumentor-tag-list__heading" id="tags">
+    <h5 class="phpdocumentor-tag-list__heading" id="method_disconnect_tags">
         Tags
-        <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#method_disconnect#tags" class="headerlink"><i class="fas fa-link"></i></a>
+        <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#method_disconnect_tags" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h5>
     <dl class="phpdocumentor-tag-list">
-                                    <dt class="phpdocumentor-tag-list__entry">
-                    <span class="phpdocumentor-tag__name">throws</span>
-                </dt>
-                <dd class="phpdocumentor-tag-list__definition">
+                    <dt class="phpdocumentor-tag-list__entry">
+                <span class="phpdocumentor-tag__name">throws</span>
+            </dt>
+                            <dd class="phpdocumentor-tag-list__definition">
                                                                 <span class="phpdocumentor-tag-link"><a href="classes/Workbunny-WebmanRabbitMQ-Exceptions-WebmanRabbitMQConnectException.html"><abbr title="\Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException">WebmanRabbitMQConnectException</abbr></a></span>
-                                                            
-                                             
+                                                                                    
                                     </dd>
-                                            </dl>
+                        </dl>
 
         
     
@@ -493,9 +514,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Connection/ConnectionInterface.php"><a href="files/connection-connectioninterface.html"><abbr title="Connection/ConnectionInterface.php">ConnectionInterface.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">72</span>
+    <span class="phpdocumentor-element-found-in__line">75</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.72" class="phpdocumentor-element-found-in__source" data-line="72" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.75" class="phpdocumentor-element-found-in__source" data-line="75" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">send protocol frame</p>
@@ -543,9 +564,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Connection/ConnectionInterface.php"><a href="files/connection-connectioninterface.html"><abbr title="Connection/ConnectionInterface.php">ConnectionInterface.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">27</span>
+    <span class="phpdocumentor-element-found-in__line">28</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.27" class="phpdocumentor-element-found-in__source" data-line="27" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.28" class="phpdocumentor-element-found-in__source" data-line="28" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">get state</p>
@@ -583,9 +604,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Connection/ConnectionInterface.php"><a href="files/connection-connectioninterface.html"><abbr title="Connection/ConnectionInterface.php">ConnectionInterface.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">20</span>
+    <span class="phpdocumentor-element-found-in__line">21</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.20" class="phpdocumentor-element-found-in__source" data-line="20" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.21" class="phpdocumentor-element-found-in__source" data-line="21" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">get id</p>
@@ -623,9 +644,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Connection/ConnectionInterface.php"><a href="files/connection-connectioninterface.html"><abbr title="Connection/ConnectionInterface.php">ConnectionInterface.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">64</span>
+    <span class="phpdocumentor-element-found-in__line">67</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.64" class="phpdocumentor-element-found-in__source" data-line="64" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.67" class="phpdocumentor-element-found-in__source" data-line="67" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">master channel</p>
@@ -663,9 +684,9 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="Connection/ConnectionInterface.php"><a href="files/connection-connectioninterface.html"><abbr title="Connection/ConnectionInterface.php">ConnectionInterface.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">35</span>
+    <span class="phpdocumentor-element-found-in__line">36</span>
 
-            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.35" class="phpdocumentor-element-found-in__source" data-line="35" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
+            <a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#source-view.36" class="phpdocumentor-element-found-in__source" data-line="36" data-modal="source-view" data-src="files/Connection/ConnectionInterface.php.txt"></a>
     </aside>
 
         <p class="phpdocumentor-summary">set state</p>
@@ -794,7 +815,7 @@
     </article>
                                 </section>
                 <section class="phpdocumentor-on-this-page__sidebar">
-                            
+                                
     <section class="phpdocumentor-on-this-page__content">
         <strong class="phpdocumentor-on-this-page__title">On this page</strong>
 
@@ -802,10 +823,10 @@
             <li class="phpdocumentor-on-this-page-section__title">Table Of Contents</li>
             <li>
                 <ul class="phpdocumentor-list -clean">
-                    <li><a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#toc-constants">Constants</a></li>
-                    <li><a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#toc-methods">Methods</a></li>
-                </ul>
+                                                                                <li><a href="classes/Workbunny-WebmanRabbitMQ-Connection-ConnectionInterface.html#toc-methods">Methods</a></li>
+                                    </ul>
             </li>
+            
                             <li class="phpdocumentor-on-this-page-section__title">Methods</li>
                 <li>
                     <ul class="phpdocumentor-list -clean">

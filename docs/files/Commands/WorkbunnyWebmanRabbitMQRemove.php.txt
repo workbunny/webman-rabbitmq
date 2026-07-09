@@ -50,7 +50,7 @@ class WorkbunnyWebmanRabbitMQRemove extends AbstractCommand
             if (file_put_contents(
                 $process,
                 preg_replace_callback(
-                    "/    '$processName' => [[\s\S]*?],\r\n/",
+                    "/    '$processName' => [[\s\S]*?],\R/",
                     function () {
                         return '';
                     },

@@ -34,6 +34,8 @@ class BuilderConfig
     protected bool $_noLocal = false;
     protected bool $_noAck = false;
 
+    protected bool $_isRequeue = true;
+
     protected $_callback;
 
     public function __construct(array $config = [])
@@ -64,6 +66,16 @@ class BuilderConfig
         }
 
         return $result;
+    }
+
+    public function isIsRequeue(): bool
+    {
+        return $this->_isRequeue;
+    }
+
+    public function setIsRequeue(bool $isRequeue): void
+    {
+        $this->_isRequeue = $isRequeue;
     }
 
     public function getExchangeType(): string

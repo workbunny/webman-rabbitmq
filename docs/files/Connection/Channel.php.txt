@@ -17,12 +17,14 @@ use Bunny\Protocol\Buffer;
 use Bunny\Protocol\ContentBodyFrame;
 use Bunny\Protocol\ContentHeaderFrame;
 use Bunny\Protocol\MethodBasicAckFrame;
+use Bunny\Protocol\MethodBasicCancelFrame;
 use Bunny\Protocol\MethodBasicCancelOkFrame;
 use Bunny\Protocol\MethodBasicConsumeOkFrame;
 use Bunny\Protocol\MethodBasicDeliverFrame;
 use Bunny\Protocol\MethodBasicGetEmptyFrame;
 use Bunny\Protocol\MethodBasicGetOkFrame;
 use Bunny\Protocol\MethodBasicNackFrame;
+use Bunny\Protocol\MethodBasicQosOkFrame;
 use Bunny\Protocol\MethodBasicReturnFrame;
 use Bunny\Protocol\MethodChannelCloseFrame;
 use Bunny\Protocol\MethodChannelCloseOkFrame;
@@ -51,6 +53,9 @@ class Channel
 
     /** @var array<string, Closure> deliver callbacks */
     protected array $deliverCallbacks = [];
+
+    /** @var array<string, bool> service cancelled consumer tags (e.g. queue deleted) */
+    protected array $cancelledConsumerTags = [];
 
     /** @var array<int, Closure> get callbacks */
     protected array $getCallbacks = [];
@@ -247,6 +252,29 @@ class Channel
     }
 
     /**
+     * qos
+     *
+     * @param int $prefetchSize
+     * @param int $prefetchCount
+     * @param bool $global
+     * @param bool $nowait
+     * @return MethodBasicQosOkFrame|bool
+     */
+    public function qos(int $prefetchSize = 0, int $prefetchCount = 0, bool $global = false, bool $nowait = false): MethodBasicQosOkFrame|bool
+    {
+        $this->basicQos($channel = $this->id(), $prefetchSize, $prefetchCount, $global);
+        if (!$nowait) {
+            /** @var MethodBasicQosOkFrame $f */
+            $f = $this->connection->await(MethodBasicQosOkFrame::class, function (MethodBasicQosOkFrame $frame) use($channel) {
+                return $frame->channel === $channel;
+            });
+
+            return $f;
+        }
+        return true;
+    }
+
+    /**
      * consume message
      *
      * @param Closure $callback = function(Message $message, Channel $channel, Connection $connection) {}
@@ -261,11 +289,11 @@ class Channel
      */
     public function consume(
         Closure $callback,
-        string   $queue = '',
+        string $queue = '',
         string $consumerTag = '',
         bool $noLocal = false,
         bool $noAck = false,
-        bool     $exclusive = false,
+        bool $exclusive = false,
         bool $nowait = false,
         array $arguments = []
     ): MethodBasicConsumeOkFrame {
@@ -274,6 +302,7 @@ class Channel
         $frame = $this->connection->await(MethodBasicConsumeOkFrame::class, function (MethodBasicConsumeOkFrame $frame) {
             return $frame->channel === $this->id();
         });
+        // 确保以服务端返回的 consumerTag 为准（可能与传入的不同，如空字符串时服务端自动生成）
         $this->deliverCallbacks[$frame->consumerTag] = $callback;
 
         return $frame;
@@ -299,6 +328,17 @@ class Channel
     }
 
     /**
+     * check if consumer was cancelled by server (e.g. queue deleted)
+     *
+     * @param string $consumerTag
+     * @return bool
+     */
+    public function isConsumerCancelled(string $consumerTag): bool
+    {
+        return $this->cancelledConsumerTags[$consumerTag] ?? false;
+    }
+
+    /**
      * current channel close
      *
      * @param int $replyCode
@@ -311,13 +351,7 @@ class Channel
         if (in_array($this->getState(), [ChannelStateEnum::CLOSING, ChannelStateEnum::CLOSED])) {
             return null;
         }
-        $f = new MethodChannelCloseFrame();
-        $f->channel = $this->id;
-        $f->replyCode = $replyCode;
-        $f->replyText = $replyText;
-        $f->closeClassId = 0;
-        $f->closeMethodId = 0;
-        $res = $this->frameSend($f);
+        $res = $this->channelClose($this->id, $replyCode, $replyText, 0, 0);
         if (!$nowait and $res) {
             $res = $this->connection->await(MethodChannelCloseOkFrame::class, function (MethodChannelCloseOkFrame $frame) {
                 return $frame->channel === $this->id;
@@ -455,6 +489,11 @@ class Channel
             $this->currentContentBodyBuffer->discard($this->currentContentBodyBuffer->getLength());
             if ($this->currentContentHeaderFrame->bodySize > 0) {
                 $this->setState(ChannelStateEnum::AWAITING_BODY);
+            } else {
+                // bodySize == 0 → 消息无体，直接完成 → 恢复 READY 并触发回调
+                // 不回到 READY 会导致状态机卡死，后续所有消息被丢弃
+                $this->setState(ChannelStateEnum::READY);
+                $this->onBodyFramesComplete();
             }
 
             return;
@@ -466,6 +505,14 @@ class Channel
                 $this->setState(ChannelStateEnum::READY);
                 $this->onBodyFramesComplete();
             }
+
+            return;
+        }
+        // server cancelled consumer (e.g. queue deleted externally) — record for timer polling
+        if ($frame instanceof MethodBasicCancelFrame) {
+            $consumerTag = $frame->consumerTag ?? '';
+            unset($this->deliverCallbacks[$consumerTag]);
+            $this->cancelledConsumerTags[$consumerTag] = true;
 
             return;
         }
