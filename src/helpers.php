@@ -24,8 +24,7 @@ function publish(
     ?string $routingKey = null,
     ?array $headers = null,
     ?ConnectionInterface $connection = null
-): int|null
-{
+): int|null {
     $config = new BuilderConfig($builder->getBuilderConfig()());
     if (
         ($config->getExchangeType() !== Constants::DELAYED and $headers['x-delay'] ?? 0) or

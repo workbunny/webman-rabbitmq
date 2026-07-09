@@ -16,6 +16,16 @@ Search.appendIndex(
             "summary": "\u8F6C\u6570\u7EC4",
             "url": "classes/Workbunny-WebmanRabbitMQ-BuilderConfig.html#method___invoke"
         },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\BuilderConfig\u003A\u003AisIsRequeue\u0028\u0029",
+            "name": "isIsRequeue",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-BuilderConfig.html#method_isIsRequeue"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\BuilderConfig\u003A\u003AsetIsRequeue\u0028\u0029",
+            "name": "setIsRequeue",
+            "summary": "",
+            "url": "classes/Workbunny-WebmanRabbitMQ-BuilderConfig.html#method_setIsRequeue"
+        },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\BuilderConfig\u003A\u003AgetExchangeType\u0028\u0029",
             "name": "getExchangeType",
             "summary": "",
@@ -256,6 +266,11 @@ Search.appendIndex(
             "summary": "\u6CE8\u518C\u6A21\u5F0F",
             "url": "classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#method_registerMode"
         },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Builders\\AbstractBuilder\u003A\u003AgetConnectionName\u0028\u0029",
+            "name": "getConnectionName",
+            "summary": "\u83B7\u53D6\u8FDE\u63A5\u540D",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Builders-AbstractBuilder.html#method_getConnectionName"
+        },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Builders\\AbstractBuilder\u003A\u003AgetBuilderName\u0028\u0029",
             "name": "getBuilderName",
             "summary": "",
@@ -466,6 +481,11 @@ Search.appendIndex(
             "summary": "get\u0020message",
             "url": "classes/Workbunny-WebmanRabbitMQ-Connection-Channel.html#method_get"
         },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connection\\Channel\u003A\u003Aqos\u0028\u0029",
+            "name": "qos",
+            "summary": "qos",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Connection-Channel.html#method_qos"
+        },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connection\\Channel\u003A\u003Aconsume\u0028\u0029",
             "name": "consume",
             "summary": "consume\u0020message",
@@ -475,6 +495,11 @@ Search.appendIndex(
             "name": "cancel",
             "summary": "",
             "url": "classes/Workbunny-WebmanRabbitMQ-Connection-Channel.html#method_cancel"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connection\\Channel\u003A\u003AisConsumerCancelled\u0028\u0029",
+            "name": "isConsumerCancelled",
+            "summary": "check\u0020if\u0020consumer\u0020was\u0020cancelled\u0020by\u0020server\u0020\u0028e.g.\u0020queue\u0020deleted\u0029",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Connection-Channel.html#method_isConsumerCancelled"
         },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connection\\Channel\u003A\u003Aclose\u0028\u0029",
             "name": "close",
@@ -545,6 +570,11 @@ Search.appendIndex(
             "name": "wakeup",
             "summary": "wakeup",
             "url": "classes/Workbunny-WebmanRabbitMQ-Connection-Connection.html#method_wakeup"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connection\\Connection\u003A\u003AwakeupAllAwaiting\u0028\u0029",
+            "name": "wakeupAllAwaiting",
+            "summary": "wakeup\u0020all\u0020awaiting\u0020coroutines\u0020with\u0020an\u0020exception\u0020when\u0020connection\u0020is\u0020broken",
+            "url": "classes/Workbunny-WebmanRabbitMQ-Connection-Connection.html#method_wakeupAllAwaiting"
         },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\Connection\\Connection\u003A\u003AframeSend\u0028\u0029",
             "name": "frameSend",
@@ -936,6 +966,11 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Workbunny-WebmanRabbitMQ-ConnectionsManagement.html"
         },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\ConnectionsManagement\u003A\u003AisPoolEnabled\u0028\u0029",
+            "name": "isPoolEnabled",
+            "summary": "\u662F\u5426\u542F\u7528\u8FDE\u63A5\u6C60",
+            "url": "classes/Workbunny-WebmanRabbitMQ-ConnectionsManagement.html#method_isPoolEnabled"
+        },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\ConnectionsManagement\u003A\u003Aget\u0028\u0029",
             "name": "get",
             "summary": "\u83B7\u53D6\u8FDE\u63A5\n\u0020\u002D\u0020\u624B\u52A8\u4F7F\u7528\u5B8C\u540E\u8BF7\u8C03\u7528release\u65B9\u6CD5\u5F52\u8FD8\u8FDE\u63A5",
@@ -961,10 +996,20 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Workbunny-WebmanRabbitMQ-ConnectionsManagement.html#method_destroy"
         },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\ConnectionsManagement\u003A\u003Areset\u0028\u0029",
+            "name": "reset",
+            "summary": "\u91CD\u7F6E\u6240\u6709\u8FDE\u63A5\u6C60\/\u4E13\u7528\u8FDE\u63A5\uFF08\u6D4B\u8BD5\/\u70ED\u91CD\u542F\u573A\u666F\uFF09",
+            "url": "classes/Workbunny-WebmanRabbitMQ-ConnectionsManagement.html#method_reset"
+        },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\ConnectionsManagement\u003A\u003Ainitialize\u0028\u0029",
             "name": "initialize",
             "summary": "\u521D\u59CB\u5316",
             "url": "classes/Workbunny-WebmanRabbitMQ-ConnectionsManagement.html#method_initialize"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\ConnectionsManagement\u003A\u003Astart\u0028\u0029",
+            "name": "start",
+            "summary": "\u542F\u52A8",
+            "url": "classes/Workbunny-WebmanRabbitMQ-ConnectionsManagement.html#method_start"
         },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\ConnectionsManagement\u003A\u003Aconfig\u0028\u0029",
             "name": "config",
@@ -1110,6 +1155,11 @@ Search.appendIndex(
             "name": "publish",
             "summary": "\u751F\u4EA7",
             "url": "namespaces/workbunny-webmanrabbitmq.html#function_publish"
+        },                {
+            "fqsen": "\\Workbunny\\WebmanRabbitMQ\\action\u0028\u0029",
+            "name": "action",
+            "summary": "\u590D\u7528\u8FDE\u63A5\u8FDB\u884C\u591A\u6B21\u64CD\u4F5C",
+            "url": "namespaces/workbunny-webmanrabbitmq.html#function_action"
         },                {
             "fqsen": "\\Workbunny\\WebmanRabbitMQ\\is_empty_dir\u0028\u0029",
             "name": "is_empty_dir",

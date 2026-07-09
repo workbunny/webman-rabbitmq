@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Builders;
 
-use Bunny\Message;
 use Bunny\Message as BunnyMessage;
 use Closure;
 use Psr\Log\LoggerInterface;
@@ -19,7 +18,6 @@ use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelFulledException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQRequeueException;
 use Workbunny\WebmanRabbitMQ\Traits\ConfigMethods;
-use Workerman\Coroutine\Exception\PoolException;
 use Workerman\Timer;
 use Workerman\Worker;
 
@@ -121,52 +119,55 @@ abstract class AbstractBuilder
      */
     public function publish(ConnectionInterface $connection, BuilderConfig $config): bool|int
     {
+        $action = function (Channel $producer) use ($connection, $config) {
+            $producer->exchangeDeclare(
+                $producer->id(),
+                $config->getExchange(),
+                $config->getExchangeType(),
+                $config->isPassive(),
+                $config->isDurable(),
+                $config->isAutoDelete(),
+                $config->isInternal(),
+                $config->isNowait(),
+                $config->getArguments()
+            );
+            $producer->queueDeclare(
+                $producer->id(),
+                $config->getQueue(),
+                $config->isPassive(),
+                $config->isDurable(),
+                $config->isExclusive(),
+                $config->isAutoDelete(),
+                $config->isNowait(),
+                $config->getArguments()
+            );
+            $producer->queueBind(
+                $producer->id(),
+                $config->getQueue(),
+                $config->getExchange(),
+                $config->getRoutingKey(),
+                $config->isNowait(),
+                $config->getArguments()
+            );
+
+            return $producer->publish(
+                $config->getBody(),
+                $config->getHeaders(),
+                $config->getExchange(),
+                $config->getRoutingKey(),
+                $config->isMandatory(),
+                $config->isImmediate()
+            );
+        };
         try {
-            $producer = $connection->channel();
+            return $connection->channel(false, $action);
         } catch (WebmanRabbitMQChannelFulledException) {
             $this->logger?->error('Producer channel pool is fulled.');
+
             return ConnectionsManagement::connection(function (ConnectionInterface $connection) use ($config) {
                 return $this->publish($connection, $config);
             });
         }
-        $producer->exchangeDeclare(
-            $producer->id(),
-            $config->getExchange(),
-            $config->getExchangeType(),
-            $config->isPassive(),
-            $config->isDurable(),
-            $config->isAutoDelete(),
-            $config->isInternal(),
-            $config->isNowait(),
-            $config->getArguments()
-        );
-        $producer->queueDeclare(
-            $producer->id(),
-            $config->getQueue(),
-            $config->isPassive(),
-            $config->isDurable(),
-            $config->isExclusive(),
-            $config->isAutoDelete(),
-            $config->isNowait(),
-            $config->getArguments()
-        );
-        $producer->queueBind(
-            $producer->id(),
-            $config->getQueue(),
-            $config->getExchange(),
-            $config->getRoutingKey(),
-            $config->isNowait(),
-            $config->getArguments()
-        );
-
-        return $producer->publish(
-            $config->getBody(),
-            $config->getHeaders(),
-            $config->getExchange(),
-            $config->getRoutingKey(),
-            $config->isMandatory(),
-            $config->isImmediate()
-        );
     }
 
     /**
@@ -178,8 +179,120 @@ abstract class AbstractBuilder
      */
     public function consume(ConnectionInterface $connection, BuilderConfig $config): ?string
     {
+        $action = function (Channel $consumer) use ($connection, $config) {
+            $consumer->exchangeDeclare(
+                $consumer->id(),
+                $config->getExchange(),
+                $config->getExchangeType(),
+                $config->isPassive(),
+                $config->isDurable(),
+                $config->isAutoDelete(),
+                $config->isInternal(),
+                $config->isNowait(),
+                $config->getArguments()
+            );
+            $consumer->queueDeclare(
+                $consumer->id(),
+                $config->getQueue(),
+                $config->isPassive(),
+                $config->isDurable(),
+                $config->isExclusive(),
+                $config->isAutoDelete(),
+                $config->isNowait(),
+                $config->getArguments()
+            );
+            $consumer->queueBind(
+                $consumer->id(),
+                $config->getQueue(),
+                $config->getExchange(),
+                $config->getRoutingKey(),
+                $config->isNowait(),
+                $config->getArguments()
+            );
+            $consumer->qos($config->getPrefetchSize(), $config->getPrefetchCount(), $config->isGlobal(), $config->isNowait());
+
+            $consumeOk = $consumer->consume(
+                function (BunnyMessage $message) use ($config, $consumer, $connection) {
+                    // 如果事件循环开始重启或停止时停止消费
+                    if (in_array($status = Worker::getStatus(), [
+                        Worker::STATUS_SHUTDOWN, Worker::STATUS_RELOADING,
+                    ])) {
+                        $this->logger?->info("Consumer stopping [worker status $status]");
+
+                        return;
+                    }
+                    try {
+                        $tag = $config->getCallback()($message, $consumer, $connection);
+                        if (!in_array($tag, [Constants::ACK, Constants::NACK, Constants::REQUEUE, Constants::REJECT])) {
+                            $tag = Constants::ACK;
+                        }
+                    } catch (Throwable $throwable) {
+                        $tag = Constants::REQUEUE;
+                        $this->logger?->info('Consume Throwable', [
+                            'message' => $throwable->getMessage(),
+                            'code'    => $throwable->getCode(),
+                            'file'    => $throwable->getFile() . ':' . $throwable->getLine(),
+                        ]);
+                    }
+                    // requeue原则保证重试，不保证可能存在多次消费，因为原数据可能ack失败
+                    if ($tag === Constants::REQUEUE) {
+                        $headers = $message->headers;
+                        $headers['workbunny-requeue-count'] = ($headers['workbunny-requeue-count'] ?? 0) + 1;
+                        $headers['workbunny-requeue-first-time'] = $headers['workbunny-requeue-first-time'] ?? microtime(true);
+                        if (!$consumer->publish(
+                            $message->content,
+                            $headers,
+                            $message->exchange,
+                            $message->routingKey,
+                            $config->isMandatory(),
+                            $config->isImmediate()
+                        )) {
+                            $c = clone $config;
+                            $c->setHeaders($headers);
+                            throw new WebmanRabbitMQRequeueException('Consume requeue-publish failed.', 0, $c);
+                        }
+                    }
+                    $call = $tag === Constants::REQUEUE ? Constants::ACK : $tag;
+                    $res = $consumer->$call($message);
+                    if (!$res) {
+                        $this->logger?->info("Consume $tag failed [timer retrying].");
+                        // ACK失败则定时器重试，必须使用原 channel（AMQP 要求 ACK 在接收消息的同一 channel 上发送）
+                        $id = Timer::delay(5, function (string $tag, string $call, Message $message) use (&$id, $consumer, $config) {
+                            try {
+                                if (in_array($call, [Constants::REJECT, Constants::NACK])) {
+                                    $res = $consumer->$call($message, requeue: $config->isIsRequeue());
+                                } else {
+                                    $res = $consumer->$call($message);
+                                }
+                                if ($res) {
+                                    Timer::del($id);
+                                }
+                            } catch (Throwable) {
+                            }
+                        }, [$tag, $call, $message]);
+                    }
+                },
+                $config->getQueue(),
+                $config->getConsumerTag(),
+                $config->isNoLocal(),
+                $config->isNoAck(),
+                $config->isExclusive(),
+                $config->isNowait(),
+                $config->getArguments()
+            );
+
+            // register a timer to poll channel for server-side cancellation (e.g. queue deleted)
+            $timerId = Timer::repeat(5, function () use (&$timerId, $consumer, $consumeOk) {
+                if ($consumer->isConsumerCancelled($consumeOk->consumerTag)) {
+                    Timer::del($timerId);
+                    Worker::stopAll();
+                }
+            });
+
+            return $consumeOk->consumerTag;
+        };
         try {
-            $consumer = $connection->channel();
+            return $connection->channel(false, $action);
         } catch (WebmanRabbitMQChannelFulledException) {
             $this->logger?->error('Consumer channel pool is fulled.');
             ConnectionsManagement::connection(function (ConnectionInterface $connection) use ($config) {
@@ -188,115 +301,6 @@ abstract class AbstractBuilder
 
             return null;
         }
-        $consumer->exchangeDeclare(
-            $consumer->id(),
-            $config->getExchange(),
-            $config->getExchangeType(),
-            $config->isPassive(),
-            $config->isDurable(),
-            $config->isAutoDelete(),
-            $config->isInternal(),
-            $config->isNowait(),
-            $config->getArguments()
-        );
-        $consumer->queueDeclare(
-            $consumer->id(),
-            $config->getQueue(),
-            $config->isPassive(),
-            $config->isDurable(),
-            $config->isExclusive(),
-            $config->isAutoDelete(),
-            $config->isNowait(),
-            $config->getArguments()
-        );
-        $consumer->queueBind(
-            $consumer->id(),
-            $config->getQueue(),
-            $config->getExchange(),
-            $config->getRoutingKey(),
-            $config->isNowait(),
-            $config->getArguments()
-        );
-        $consumer->qos($config->getPrefetchSize(), $config->getPrefetchCount(), $config->isGlobal(), $config->isNowait());
-
-        $consumeOk = $consumer->consume(
-            function (Message $message) use ($config, $consumer, $connection) {
-                // 如果事件循环开始重启或停止时停止消费
-                if (in_array($status = Worker::getStatus(), [
-                    Worker::STATUS_SHUTDOWN, Worker::STATUS_RELOADING,
-                ])) {
-                    $this->logger?->info("Consumer stopping [worker status $status]");
-
-                    return;
-                }
-                try {
-                    $tag = $config->getCallback()($message, $consumer, $connection);
-                    if (!in_array($tag, [Constants::ACK, Constants::NACK, Constants::REQUEUE, Constants::REJECT])) {
-                        $tag = Constants::ACK;
-                    }
-                } catch (Throwable $throwable) {
-                    $tag = Constants::REQUEUE;
-                    $this->logger?->info('Consume Throwable', [
-                        'message' => $throwable->getMessage(),
-                        'code'    => $throwable->getCode(),
-                        'file'    => $throwable->getFile() . ':' . $throwable->getLine(),
-                    ]);
-                }
-                // requeue原则保证重试，不保证可能存在多次消费，因为原数据可能ack失败
-                if ($tag === Constants::REQUEUE) {
-                    $headers = $message->headers;
-                    $headers['workbunny-requeue-count'] = ($headers['workbunny-requeue-count'] ?? 0) + 1;
-                    $headers['workbunny-requeue-first-time'] = $headers['workbunny-requeue-first-time'] ?? microtime(true);
-                    if (!$consumer->publish(
-                        $message->content,
-                        $headers,
-                        $message->exchange,
-                        $message->routingKey,
-                        $config->isMandatory(),
-                        $config->isImmediate()
-                    )) {
-                        $c = clone $config;
-                        $c->setHeaders($headers);
-                        throw new WebmanRabbitMQRequeueException('Consume requeue-publish failed.', 0, $c);
-                    }
-                }
-                $call = $tag === Constants::REQUEUE ? Constants::ACK : $tag;
-                $res = $consumer->$call($message);
-                if (!$res) {
-                    $this->logger?->info("Consume $tag failed [timer retrying].");
-                    // ACK失败则定时器重试，必须使用原 channel（AMQP 要求 ACK 在接收消息的同一 channel 上发送）
-                    $id = Timer::delay(5, function (string $tag, string $call, Message $message) use (&$id, $consumer, $config) {
-                        try {
-                            if (in_array($call, [Constants::REJECT, Constants::NACK])) {
-                                $res = $consumer->$call($message, requeue: $config->isIsRequeue());
-                            } else {
-                                $res = $consumer->$call($message);
-                            }
-                            if ($res) {
-                                Timer::del($id);
-                            }
-                        } catch (Throwable) {}
-                    }, [$tag, $call, $message]);
-                }
-            },
-            $config->getQueue(),
-            $config->getConsumerTag(),
-            $config->isNoLocal(),
-            $config->isNoAck(),
-            $config->isExclusive(),
-            $config->isNowait(),
-            $config->getArguments()
-        );
-
-        // register a timer to poll channel for server-side cancellation (e.g. queue deleted)
-        $timerId = Timer::repeat(5, function () use (&$timerId, $consumer, $consumeOk) {
-            if ($consumer->isConsumerCancelled($consumeOk->consumerTag)) {
-                Timer::del($timerId);
-                Worker::stopAll();
-            }
-        });
-
-        return $consumeOk->consumerTag;
     }
 
     /**

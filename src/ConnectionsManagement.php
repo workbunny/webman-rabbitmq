@@ -152,7 +152,8 @@ class ConnectionsManagement implements Bootstrap
                 if ($pool instanceof ConnectionInterface) {
                     $pool->disconnect();
                 }
-            } catch (\Throwable) {}
+            } catch (\Throwable) {
+            }
         }
         self::$pools = [];
     }

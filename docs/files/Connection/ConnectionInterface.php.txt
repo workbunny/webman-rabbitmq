@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Workbunny\WebmanRabbitMQ\Connection;
 
 use Bunny\Protocol\AbstractFrame;
+use Closure;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQChannelFulledException;
 use Workbunny\WebmanRabbitMQ\Exceptions\WebmanRabbitMQConnectException;
 use Workerman\Connection\AsyncTcpConnection;
@@ -44,10 +45,12 @@ interface ConnectionInterface
     /**
      * get free channel
      *
-     * @return Channel
+     * @param bool $master
+     * @param Closure(Channel): mixed|null $closure 传入回调则借→用→还模式，null 则 Context 复用模式
+     * @return ($closure is null ? Channel : mixed)
      * @throws WebmanRabbitMQChannelFulledException if all channels are used
      */
-    public function channel(): Channel;
+    public function channel(bool $master = false, ?Closure $closure = null): mixed;
 
     /**
      * get channels pool

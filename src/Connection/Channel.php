@@ -265,12 +265,13 @@ class Channel
         $this->basicQos($channel = $this->id(), $prefetchSize, $prefetchCount, $global);
         if (!$nowait) {
             /** @var MethodBasicQosOkFrame $f */
-            $f = $this->connection->await(MethodBasicQosOkFrame::class, function (MethodBasicQosOkFrame $frame) use($channel) {
+            $f = $this->connection->await(MethodBasicQosOkFrame::class, function (MethodBasicQosOkFrame $frame) use ($channel) {
                 return $frame->channel === $channel;
             });
 
             return $f;
         }
+
         return true;
     }
 

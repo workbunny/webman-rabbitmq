@@ -16,14 +16,23 @@ abstract class QueueBuilder extends AbstractBuilder
     /**
      * 队列配置
      *
-     * @var array = [
+     * @var array{
+     *     name: string,
+     *     delayed: bool,
+     *     prefetch_count: int,
+     *     prefetch_size: int,
+     *     is_global: bool,
+     *     routing_key: string,
+     *     is_requeue: bool,
+     * } = [
      *            'name'           => 'example',
      *            'delayed'        => false,
      *            'prefetch_count' => 1,
      *            'prefetch_size'  => 0,
      *            'is_global'      => false,
      *            'routing_key'    => '',
-     *            ]
+     *            'is_requeue'     => true,
+     *     ]
      */
     protected array $queueConfig = [];
 
@@ -50,6 +59,7 @@ abstract class QueueBuilder extends AbstractBuilder
         $this->getBuilderConfig()->setPrefetchSize($this->queueConfig['prefetch_size'] ?? 0);
         $this->getBuilderConfig()->setGlobal($this->queueConfig['is_global'] ?? false);
         $this->getBuilderConfig()->setCallback([$this, 'handler']);
+        $this->getBuilderConfig()->setIsRequeue($this->queueConfig['is_requeue'] ?? true);
         if ($this->queueConfig['delayed'] ?? false) {
             $this->getBuilderConfig()->setArguments([
                 'x-delayed-type' => $this->getBuilderConfig()->getExchangeType(),
@@ -66,7 +76,7 @@ abstract class QueueBuilder extends AbstractBuilder
                 $this->consume($connection, $this->getBuilderConfig());
             });
         } catch (WebmanRabbitMQException $exception) {
-            $this->logger?->notice("Queue $worker->id exception, retry after $this->restartInterval seconds. ", [
+            $this->logger?->info("Queue $worker->id exception, retry after $this->restartInterval seconds. ", [
                 'message' => $exception->getMessage(),
                 'code'    => $exception->getCode(),
                 'file'    => $exception->getFile() . ':' . $exception->getLine(),
@@ -89,7 +99,7 @@ abstract class QueueBuilder extends AbstractBuilder
     public function onWorkerReload(Worker $worker): void
     {
         $queue = $this->getBuilderConfig()->getQueue();
-        $this->logger?->notice("Consumer $worker->id [queue: $queue] reload.");
+        $this->logger?->info("Consumer $worker->id [queue: $queue] reload.");
     }
 
     /** @inheritDoc */
@@ -115,14 +125,25 @@ class $className extends QueueBuilder
     protected ?string \$connection = '$connection';
     
     /**
-     * @var array = [
-     *   'name'           => 'example',
-     *   'delayed'        => false,
-     *   'prefetch_count' => 1,
-     *   'prefetch_size'  => 0,
-     *   'is_global'      => false,
-     *   'routing_key'    => '',
-     * ]
+     * 队列配置
+     *
+     * @var array{
+     *     name: string,
+     *     delayed: bool,
+     *     prefetch_count: int,
+     *     prefetch_size: int,
+     *     is_global: bool,
+     *     routing_key: string,
+     *     is_requeue: bool,
+     * } = [
+     *            'name'           => 'example',
+     *            'delayed'        => false,
+     *            'prefetch_count' => 1,
+     *            'prefetch_size'  => 0,
+     *            'is_global'      => false,
+     *            'routing_key'    => '',
+     *            'is_requeue'     => true,
+     *     ]
      */
     protected array \$queueConfig = [
         // 队列名称 ，默认由类名自动生成
