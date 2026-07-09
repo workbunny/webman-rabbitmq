@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Workbunny\WebmanRabbitMQ\Builders;
 
-use Bunny\Message as BunnyMessage;
+use Bunny\Message;
 use Closure;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -212,7 +212,7 @@ abstract class AbstractBuilder
             $consumer->qos($config->getPrefetchSize(), $config->getPrefetchCount(), $config->isGlobal(), $config->isNowait());
 
             $consumeOk = $consumer->consume(
-                function (BunnyMessage $message) use ($config, $consumer, $connection) {
+                function (Message $message) use ($config, $consumer, $connection) {
                     // 如果事件循环开始重启或停止时停止消费
                     if (in_array($status = Worker::getStatus(), [
                         Worker::STATUS_SHUTDOWN, Worker::STATUS_RELOADING,
@@ -329,12 +329,12 @@ abstract class AbstractBuilder
 
     /**
      * 消息处理
-     * @param BunnyMessage $message
+     * @param Message $message
      * @param Channel $channel
      * @param ConnectionInterface $connection
      * @return string
      */
-    abstract public function handler(BunnyMessage $message, Channel $channel, ConnectionInterface $connection): string;
+    abstract public function handler(Message $message, Channel $channel, ConnectionInterface $connection): string;
 
     /**
      * Command 获取需要创建的类文件内容
