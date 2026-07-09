@@ -37,7 +37,11 @@ class ConnectionsManagement implements Bootstrap
         try {
             return $pool->get();
         } catch (\Throwable $e) {
-            throw new WebmanRabbitMQConnectException($e->getMessage(), $e->getCode(), $e);
+            throw new WebmanRabbitMQConnectException(
+                "[$connection] Failed to get connection <{$e->getMessage()}>",
+                $e->getCode(),
+                $e
+            );
         }
     }
 
