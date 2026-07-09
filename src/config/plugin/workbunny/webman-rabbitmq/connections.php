@@ -9,7 +9,9 @@ return [
     'default' => [
         'connection'       => Connection::class,
         // 连接池，用于支撑影子模式
+        //  - enable: true 使用连接池，false 使用专用长连接（consumer/publish 共用，无借还竞态）
         'connections_pool' => [
+            'enable'                => true,
             'min_connections'       => 1,
             'max_connections'       => 20,
             'idle_timeout'          => 60,

@@ -15,11 +15,27 @@ use Workerman\Worker;
 class ConnectionsManagement implements Bootstrap
 {
     /**
-     * 连接池
+     * 连接池（pool 模式） / 连接（pool-less）
      *
-     * @var Pool[]
+     * @var array<string, Pool|ConnectionInterface>
      */
     private static array $pools = [];
+
+    /**
+     * @var bool[] 池模式
+     */
+    private static array $poolEnabled = [];
+
+    /**
+     * 是否启用连接池
+     *
+     * @param string $connection
+     * @return bool|null
+     */
+    public static function isPoolEnabled(string $connection = 'default'): ?bool
+    {
+        return self::$poolEnabled[$connection] ?? null;
+    }
 
     /**
      * 获取连接
@@ -33,6 +49,10 @@ class ConnectionsManagement implements Bootstrap
         $pool = self::$pools[$connection] ?? null;
         if (!$pool) {
             throw new WebmanRabbitMQConnectException("Please initialize the connection [$connection] pool first");
+        }
+        // pool-less 模式无需归还
+        if (!self::isPoolEnabled($connection)) {
+            return $pool;
         }
         try {
             return $pool->get();
@@ -54,12 +74,17 @@ class ConnectionsManagement implements Bootstrap
      */
     public static function release(?ConnectionInterface $connectionObject, string $connection = 'default'): void
     {
-        if ($connectionObject) {
-            if ($pool = self::pool($connection)) {
-                try {
-                    $pool->put($connectionObject);
-                } catch (\Throwable) {
-                }
+        if (!$connectionObject) {
+            return;
+        }
+        // pool-less 模式无需归还
+        if (!self::isPoolEnabled($connection)) {
+            return;
+        }
+        if ($pool = self::pool($connection)) {
+            try {
+                $pool->put($connectionObject);
+            } catch (\Throwable) {
             }
         }
     }
@@ -99,22 +124,35 @@ class ConnectionsManagement implements Bootstrap
     public static function destroy(string $connection = 'default'): void
     {
         if ($pool = self::pool($connection)) {
-            $pool->closeConnections();
+            // pool mode
+            if ($pool instanceof Pool) {
+                $pool->closeConnections();
+            }
+            // pool-less mode
+            if ($pool instanceof ConnectionInterface) {
+                $pool->disconnect();
+            }
             unset(self::$pools[$connection]);
         }
     }
 
     /**
-     * 重置所有连接池（测试/热重启场景）
+     * 重置所有连接池/专用连接（测试/热重启场景）
      * @return void
      */
     public static function reset(): void
     {
         foreach (self::$pools as $pool) {
             try {
-                $pool->closeConnections();
-            } catch (\Throwable) {
-            }
+                // pool mode
+                if ($pool instanceof Pool) {
+                    $pool->closeConnections();
+                }
+                // pool-less mode
+                if ($pool instanceof ConnectionInterface) {
+                    $pool->disconnect();
+                }
+            } catch (\Throwable) {}
         }
         self::$pools = [];
     }
@@ -131,8 +169,11 @@ class ConnectionsManagement implements Bootstrap
             return;
         }
         $config = self::config($connection);
-        $pool = new Pool($config['connections_pool']['max_connections'] ?? 1, $config['connections_pool'] ?? []);
-        $pool->setConnectionCreator(function () use ($connection, $config, $logger) {
+        if (!$config) {
+            throw new WebmanRabbitMQConnectException("Not found connection [$connection] config");
+        }
+        self::$poolEnabled[$connection] = $config['connections_pool']['enable'] ?? true;
+        $creator = function () use ($connection, $config, $logger) {
             $connectionClass = $config['connections'] ?? Connection::class;
             if (!is_a($connectionClass, ConnectionInterface::class, true)) {
                 throw new WebmanRabbitMQConnectException('Connection class must be a subclass of ' . ConnectionInterface::class);
@@ -142,10 +183,18 @@ class ConnectionsManagement implements Bootstrap
             $connection->connect();
 
             return $connection;
-        });
-        $pool->setConnectionCloser(function (ConnectionInterface $connection) {
-            $connection->disconnect();
-        });
+        };
+
+        // pool-less
+        if (!self::isPoolEnabled($connection)) {
+            $pool = $creator();
+        } else {
+            $pool = new Pool($config['connections_pool']['max_connections'] ?? 1, $config['connections_pool'] ?? []);
+            $pool->setConnectionCreator($creator);
+            $pool->setConnectionCloser(function (ConnectionInterface $connection) {
+                $connection->disconnect();
+            });
+        }
         self::$pools[$connection] = $pool;
     }
 
@@ -185,16 +234,16 @@ class ConnectionsManagement implements Bootstrap
     /**
      * 获取连接池
      * @param string $connection
-     * @return Pool|null
+     * @return Pool|ConnectionInterface|null
      */
-    public static function pool(string$connection = 'default'): ?Pool
+    public static function pool(string$connection = 'default'): null|Pool|ConnectionInterface
     {
         return self::$pools[$connection] ?? null;
     }
 
     /**
      * 获取所有连接池
-     * @return Pool[]
+     * @return Pool[]|ConnectionInterface[]
      */
     public static function pools(): array
     {
