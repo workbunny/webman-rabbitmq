@@ -138,8 +138,7 @@ return [
 ```php
 <?php declare(strict_types=1);
 
-use Workbunny\WebmanRabbitMQ\Clients\AbstractClient;
-use Workbunny\WebmanRabbitMQ\Connections\Connection;
+use Workbunny\WebmanRabbitMQ\Connection\Connection;
 
 return [
     'default' => [

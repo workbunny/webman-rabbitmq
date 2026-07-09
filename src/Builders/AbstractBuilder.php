@@ -78,6 +78,8 @@ abstract class AbstractBuilder
             throw new WebmanRabbitMQException("Class [{$className}] not AbstractBuilder.");
         }
 
+        static::$modes[$mode] = $className;
+
         return static::$modes;
     }
 
@@ -257,7 +259,7 @@ abstract class AbstractBuilder
                     if (!$res) {
                         $this->logger?->info("Consume $tag failed [timer retrying].");
                         // ACK失败则定时器重试，必须使用原 channel（AMQP 要求 ACK 在接收消息的同一 channel 上发送）
-                        $id = Timer::delay(5, function (string $tag, string $call, Message $message) use (&$id, $consumer, $config) {
+                        $id = Timer::repeat(5, function (string $tag, string $call, Message $message) use (&$id, $consumer, $config) {
                             try {
                                 if (in_array($call, [Constants::REJECT, Constants::NACK])) {
                                     $res = $consumer->$call($message, requeue: $config->isIsRequeue());
@@ -295,11 +297,10 @@ abstract class AbstractBuilder
             return $connection->channel(false, $action);
         } catch (WebmanRabbitMQChannelFulledException) {
             $this->logger?->error('Consumer channel pool is fulled.');
-            ConnectionsManagement::connection(function (ConnectionInterface $connection) use ($config) {
-                $this->consume($connection, $config);
-            });
 
-            return null;
+            return ConnectionsManagement::connection(function (ConnectionInterface $connection) use ($config) {
+                return $this->consume($connection, $config);
+            });
         }
     }
 

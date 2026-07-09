@@ -14,7 +14,7 @@ class WebmanRabbitMQException extends RuntimeException
     public function __construct(string $message, int $code = 0, ?\Throwable $previous = null, mixed $extra = null)
     {
         $this->extra = $extra;
-        $coroutine = Coroutine::getCurrent()->id();
+        $coroutine = Coroutine::getCurrent()?->id() ?? 'NaN';
         parent::__construct("[Co: $coroutine] $message", $code, $previous);
     }
 }

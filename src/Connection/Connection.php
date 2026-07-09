@@ -61,7 +61,7 @@ class Connection implements ConnectionInterface
             );
         });
         // register mechanism handlers AMQPLAIN
-        static::registerMechanismHandler('AMQPLAIN', function (string $mechanism, MethodConnectionStartFrame $start) {
+        $this->registerMechanismHandler('AMQPLAIN', function (string $mechanism, MethodConnectionStartFrame $start) {
             $responseBuffer = new Buffer();
             AMQP::writer()->appendTable([
                 'LOGIN'    => $this->getConfig('username', 'guest'),

@@ -175,7 +175,7 @@ class ConnectionsManagement implements Bootstrap
         }
         self::$poolEnabled[$connection] = $config['connections_pool']['enable'] ?? true;
         $creator = function () use ($connection, $config, $logger) {
-            $connectionClass = $config['connections'] ?? Connection::class;
+            $connectionClass = $config['connection'] ?? Connection::class;
             if (!is_a($connectionClass, ConnectionInterface::class, true)) {
                 throw new WebmanRabbitMQConnectException('Connection class must be a subclass of ' . ConnectionInterface::class);
             }

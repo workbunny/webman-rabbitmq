@@ -81,9 +81,7 @@ abstract class QueueBuilder extends AbstractBuilder
                 'code'    => $exception->getCode(),
                 'file'    => $exception->getFile() . ':' . $exception->getLine(),
             ]);
-            if (isset($connection)) {
-                ConnectionsManagement::destroy($this->connection);
-            }
+            ConnectionsManagement::destroy($this->connection);
             Timer::sleep($this->restartInterval);
             $worker::stopAll();
         }

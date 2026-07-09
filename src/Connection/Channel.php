@@ -28,6 +28,7 @@ use Bunny\Protocol\MethodBasicQosOkFrame;
 use Bunny\Protocol\MethodBasicReturnFrame;
 use Bunny\Protocol\MethodChannelCloseFrame;
 use Bunny\Protocol\MethodChannelCloseOkFrame;
+use Bunny\Protocol\MethodConfirmSelectOkFrame;
 use Bunny\Protocol\MethodTxCommitOkFrame;
 use Bunny\Protocol\MethodTxRollbackOkFrame;
 use Bunny\Protocol\MethodTxSelectOkFrame;
@@ -438,7 +439,7 @@ class Channel
 
         $this->confirmSelect($this->id());
         if (!$nowait) {
-            $this->connection->await(MethodTxSelectOkFrame::class, function (MethodTxSelectOkFrame $frame) {
+            $this->connection->await(MethodConfirmSelectOkFrame::class, function (MethodConfirmSelectOkFrame $frame) {
                 return $frame->channel === $this->id();
             });
         }

@@ -251,7 +251,6 @@ trait InitMethods
                 // master channel == connection,
                 // master channel has channel-methods, connection has connection-methods
                 $this->channelUsedList[Constants::CONNECTION_CHANNEL] = new Channel($this, Constants::CONNECTION_CHANNEL);
-                ;
                 $this->state = ClientStateEnum::CONNECTED;
                 // set heartbeat
                 $this->heartbeat = Timer::repeat($this->heartbeatInterval, function () {
