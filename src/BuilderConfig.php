@@ -68,6 +68,11 @@ class BuilderConfig
         return $result;
     }
 
+    public function clone(): BuilderConfig|static
+    {
+        return clone $this;
+    }
+
     public function isIsRequeue(): bool
     {
         return $this->_isRequeue;

@@ -445,7 +445,7 @@ class Channel
         }
         $action();
         /** @var MethodBasicAckFrame|MethodBasicNackFrame $frame */
-        $frame = $this->connection->await('confirm.select');
+        $frame = $this->connection->await('confirm.select.' . $this->id());
 
         return $frame;
     }
@@ -520,7 +520,7 @@ class Channel
         }
         // confirm recv - ack or nack
         if ($frame instanceof MethodBasicAckFrame or $frame instanceof MethodBasicNackFrame) {
-            $this->connection->wakeup('confirm.select', $frame);
+            $this->connection->wakeup('confirm.select.' . $this->id(), $frame);
         }
     }
 

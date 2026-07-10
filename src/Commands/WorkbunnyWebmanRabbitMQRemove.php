@@ -67,7 +67,7 @@ class WorkbunnyWebmanRabbitMQRemove extends AbstractCommand
             $this->info($output, 'Builder removed.');
         }
         // remove empty dir
-        if (dirname($file) !== base_path() . DIRECTORY_SEPARATOR . self::$baseProcessPath) {
+        if (!$close and dirname($file) !== base_path() . DIRECTORY_SEPARATOR . self::$baseProcessPath) {
             is_empty_dir(dirname($file), true);
             $this->info($output, 'Empty dir removed.');
         }
