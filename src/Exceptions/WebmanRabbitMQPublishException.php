@@ -9,7 +9,7 @@ use Workbunny\WebmanRabbitMQ\BuilderConfig;
 
 class WebmanRabbitMQPublishException extends WebmanRabbitMQException
 {
-    protected BuilderConfig $builderConfig;
+    protected ?BuilderConfig $builderConfig = null;
 
     public function __construct(string $message = '', int $code = 0, ?BuilderConfig $builderConfig = null, ?Throwable $previous = null)
     {

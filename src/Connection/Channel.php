@@ -434,7 +434,7 @@ class Channel
     public function confirm(Closure $action, bool $nowait = false): MethodBasicAckFrame|MethodBasicNackFrame
     {
         if ($this->mode !== ChannelModeEnum::REGULAR) {
-            throw new WebmanRabbitMQException('Channel not in regular mode, cannot change to transactional mode.');
+            throw new WebmanRabbitMQException('Channel not in regular mode, cannot change to confirm mode.');
         }
 
         $this->confirmSelect($this->id());
@@ -443,6 +443,7 @@ class Channel
                 return $frame->channel === $this->id();
             });
         }
+        $this->setMode(ChannelModeEnum::CONFIRM);
         $action();
         /** @var MethodBasicAckFrame|MethodBasicNackFrame $frame */
         $frame = $this->connection->await('confirm.select.' . $this->id());
@@ -539,7 +540,7 @@ class Channel
                 $frame = $this->currentContentStartFrame;
                 if ($callback = array_shift($this->getCallbacks)) {
                     $message = new Message(
-                        $frame->consumerTag,
+                        null,
                         $frame->deliveryTag,
                         $frame->redelivered,
                         $frame->exchange,
