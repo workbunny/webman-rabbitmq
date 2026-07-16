@@ -10,6 +10,8 @@ return [
         'connection'       => Connection::class,
         // 连接池，用于支撑影子模式
         //  - enable: true 使用连接池，false 使用专用长连接（consumer/publish 共用，无借还竞态）
+        //  - ⚠️ 影子模式（channel 池耗尽时换连接重试）的递归深度由 max_connections 控制，
+        //     不要将 max_connections 设得过大，避免递归调用栈过深
         'connections_pool' => [
             'enable'                => true,
             'min_connections'       => 1,

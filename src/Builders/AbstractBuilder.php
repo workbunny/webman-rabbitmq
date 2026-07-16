@@ -115,6 +115,10 @@ abstract class AbstractBuilder
     /**
      * 发布
      *
+     * 当 channel 池耗尽时，影子模式会递归从连接池借新连接重试。
+     * 递归深度由 connections_pool.max_connections 控制，池满后自然终止。
+     * ⚠️ pool-less 模式（enable=false）下只有一个连接，影子模式直接抛异常。
+     *
      * @param ConnectionInterface $connection
      * @param BuilderConfig $config
      * @return bool|int
@@ -163,8 +167,13 @@ abstract class AbstractBuilder
         };
         try {
             return $connection->channel(false, $action);
-        } catch (WebmanRabbitMQChannelFulledException) {
+        } catch (WebmanRabbitMQChannelFulledException $e) {
             $this->logger?->error('Producer channel pool is fulled.');
+
+            // pool-less直接抛出异常
+            if (!ConnectionsManagement::isPoolEnabled($this->connection)) {
+                throw $e;
+            }
 
             return ConnectionsManagement::connection(function (ConnectionInterface $connection) use ($config) {
                 return $this->publish($connection, $config);
@@ -174,6 +183,10 @@ abstract class AbstractBuilder
 
     /**
      * 消费
+     *
+     * 当 channel 池耗尽时，影子模式会递归从连接池借新连接重试。
+     * 递归深度由 connections_pool.max_connections 控制，池满后自然终止。
+     * ⚠️ pool-less 模式（enable=false）下只有一个连接，影子模式直接抛异常。
      *
      * @param ConnectionInterface $connection
      * @param BuilderConfig $config
@@ -294,9 +307,13 @@ abstract class AbstractBuilder
             return $consumeOk->consumerTag;
         };
         try {
-            return $connection->channel(false, $action);
-        } catch (WebmanRabbitMQChannelFulledException) {
+            return $action($connection->channel(false));
+        } catch (WebmanRabbitMQChannelFulledException $e) {
             $this->logger?->error('Consumer channel pool is fulled.');
+            // pool-less 模式下只有一个连接，影子模式会拿到同一个连接导致死循环
+            if (!ConnectionsManagement::isPoolEnabled($this->connection)) {
+                throw $e;
+            }
 
             return ConnectionsManagement::connection(function (ConnectionInterface $connection) use ($config) {
                 return $this->consume($connection, $config);
