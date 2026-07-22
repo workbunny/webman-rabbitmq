@@ -119,9 +119,7 @@ trait InitMethods
             $this->channels->setConnectionCreator(function () {
                 $this->channel(true)->channelOpen($channelId = $this->getChannelId());
                 // await channel.openOk
-                $this->await(MethodChannelOpenOkFrame::class, function (MethodChannelOpenOkFrame $frame) use ($channelId) {
-                    return intval($frame->channel) === $channelId;
-                });
+                $this->await(MethodChannelOpenOkFrame::class, channel: $channelId);
 
                 // channel
                 return $this->channelUsedList[$channelId] = new Channel($this, $channelId);
@@ -289,7 +287,7 @@ trait InitMethods
                     return;
                 }
                 // attempt to wakeup await*
-                $this->wakeup($data::class, $data);
+                $this->wakeup($data::class, $data, $data->channel);
                 // connection recv
                 if ($data->channel === Constants::CONNECTION_CHANNEL) {
                     $this->onFrameReceived($data);

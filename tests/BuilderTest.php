@@ -84,7 +84,7 @@ class BuilderTest extends BaseTestCase
             $builder = new TestConsumeBuilder();
             // 模拟进程启动 消费
             $builder->onWorkerStart(new Worker());
-            Timer::sleep(10);
+            Timer::sleep(5);
             // 发送消息
             for ($i = 0; $i < $count; $i++) {
                 $res = \Workbunny\WebmanRabbitMQ\publish($builder, $payload = __FUNCTION__ . '_' . $i);
@@ -96,7 +96,7 @@ class BuilderTest extends BaseTestCase
                 ];
             }
             // 出让协程，等待消费完毕
-            Timer::sleep(10);
+            Timer::sleep(5);
             // 验证
             $this->assertTrue(file_exists($log));
 
@@ -128,7 +128,7 @@ class BuilderTest extends BaseTestCase
             $this->assertTrue($res > 0);
             // 模拟消费
             $builder->onWorkerStart(new Worker());
-            Timer::sleep(10);
+            Timer::sleep(5);
 
             $actual = [];
             $content = new \SplFileObject($log);

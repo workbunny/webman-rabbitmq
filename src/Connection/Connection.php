@@ -34,7 +34,7 @@ class Connection implements ConnectionInterface
     /** @var int state */
     protected int $state = ClientStateEnum::NOT_CONNECTED;
 
-    /** @var array<class-string<AbstractFrame>|string, array<int, array{checker: callable|null, coroutine: Coroutine\Coroutine\CoroutineInterface, timestamp: float}>> $awaits */
+    /** @var array<string, array<int, array{checker: callable|null, coroutine: Coroutine\Coroutine\CoroutineInterface, timestamp: float}>> $awaits */
     protected array $awaits = [];
 
     /**
@@ -131,17 +131,18 @@ class Connection implements ConnectionInterface
     /**
      * await
      *  - string event: pub/sub mode, ONLY RUN FIRST EVENT'S CHECKER!!!
-     *  - AbstractFrame: queue mode - FIFO
+     *  - AbstractFrame: queue mode - FIFO, keyed by "channelId:frameClass" to isolate per-channel queues
      *
      * @param class-string<AbstractFrame>|string $frameClassOrEvent
      * @param callable|null $checker = function(AbstractFrame|mixed $frame): bool{} DO NOT have coroutine switching in callback
+     * @param int $channel channel id, default to CONNECTION_CHANNEL (0) for connection-level frames
      * @return AbstractFrame|mixed
      * @throws \Throwable when connection is broken and wakeupAllAwaiting resumes with an exception
      */
-    public function await(string $frameClassOrEvent, null|callable $checker = null): mixed
+    public function await(string $frameClassOrEvent, null|callable $checker = null, int $channel = Constants::CONNECTION_CHANNEL): mixed
     {
         $co = Coroutine::getCurrent();
-        $this->awaits[$frameClassOrEvent][] = [
+        $this->awaits[$channel][$frameClassOrEvent][] = [
             'checker'    => $checker,
             'coroutine'  => $co,
             'timestamp'  => microtime(true),
@@ -160,11 +161,12 @@ class Connection implements ConnectionInterface
      *
      * @param string $frameClassOrEvent
      * @param AbstractFrame|mixed $return
+     * @param int $channel channel id, default to CONNECTION_CHANNEL (0) for connection-level frames
      * @return void
      */
-    public function wakeup(string $frameClassOrEvent, mixed $return): void
+    public function wakeup(string $frameClassOrEvent, mixed $return, int $channel = Constants::CONNECTION_CHANNEL): void
     {
-        if ($awaits = $this->awaits[$frameClassOrEvent] ?? []) {
+        if ($awaits = $this->awaits[$channel][$frameClassOrEvent] ?? []) {
             if (!is_a($frameClassOrEvent, AbstractFrame::class, true)) {
                 // string event use pub/sub mode
                 foreach ($awaits as $index => $await) {
@@ -179,18 +181,18 @@ class Connection implements ConnectionInterface
                     $coroutine->resume($return);
                 }
                 // remove event
-                unset($this->awaits[$frameClassOrEvent]);
+                unset($this->awaits[$channel][$frameClassOrEvent]);
 
                 return;
             }
 
             // AbstractFrame use queue mode - FIFO
-            $await = array_shift($this->awaits[$frameClassOrEvent]);
+            $await = array_shift($this->awaits[$channel][$frameClassOrEvent]);
             /** @var Coroutine\Coroutine\CoroutineInterface $coroutine */
             $coroutine = $await['coroutine'];
             if ($checker = $await['checker']) {
                 if (!$checker($return)) {
-                    array_unshift($this->awaits[$frameClassOrEvent], $await);
+                    array_unshift($this->awaits[$channel][$frameClassOrEvent], $await);
 
                     return;
                 }
@@ -207,13 +209,16 @@ class Connection implements ConnectionInterface
      */
     public function wakeupAllAwaiting(\Throwable $exception): void
     {
-        foreach ($this->awaits as $frameClassOrEvent => $list) {
-            foreach ($list as $await) {
-                try {
-                    $await['coroutine']->resume($exception);
-                } catch (\Throwable) {
+        foreach ($this->awaits as $channel => $queue) {
+            foreach ($queue as $frameClassOrEvent => $list) {
+                foreach ($list as $await) {
+                    try {
+                        $await['coroutine']->resume($exception);
+                    } catch (\Throwable) {
+                    }
                 }
             }
+            unset($this->awaits[$channel]);
         }
         $this->awaits = [];
     }
@@ -273,9 +278,7 @@ class Connection implements ConnectionInterface
                 }
                 $this->connectionClose($replyCode, $replyText, 0, 0);
                 try {
-                    $this->await(MethodConnectionCloseOkFrame::class, function (MethodConnectionCloseOkFrame $frame) {
-                        return $frame->channel === Constants::CONNECTION_CHANNEL;
-                    });
+                    $this->await(MethodConnectionCloseOkFrame::class, channel: Constants::CONNECTION_CHANNEL);
                 } catch (\Throwable) {
                     // connection already broken, skip waiting for close-ok
                 }

@@ -170,9 +170,7 @@ trait ChannelsMethods
         $res = $this->frameSend($f);
         if (!$nowait and $res) {
             /** @var MethodExchangeDeclareOkFrame $f */
-            $f = $this->connection->await(MethodExchangeDeclareOkFrame::class, function (MethodExchangeDeclareOkFrame $frame) use ($channel) {
-                return $frame->channel === $channel;
-            });
+            $f = $this->connection->await(MethodExchangeDeclareOkFrame::class, channel: $channel);
 
             return $f;
         }
@@ -199,9 +197,7 @@ trait ChannelsMethods
         $res = $this->frameSend($f);
         if (!$nowait and $res) {
             /** @var MethodExchangeDeleteOkFrame $f */
-            $f = $this->connection->await(MethodExchangeDeleteOkFrame::class, function (MethodExchangeDeleteOkFrame $frame) use ($channel) {
-                return $frame->channel === $channel;
-            });
+            $f = $this->connection->await(MethodExchangeDeleteOkFrame::class, channel: $channel);
 
             return $f;
         }
@@ -238,9 +234,7 @@ trait ChannelsMethods
         $res = $this->frameSend($f);
         if (!$nowait and $res) {
             /** @var MethodExchangeBindOkFrame $f */
-            $f = $this->connection->await(MethodExchangeBindOkFrame::class, function (MethodExchangeBindOkFrame $frame) use ($channel) {
-                return $frame->channel === $channel;
-            });
+            $f = $this->connection->await(MethodExchangeBindOkFrame::class, channel: $channel);
 
             return $f;
         }
@@ -277,9 +271,7 @@ trait ChannelsMethods
         $res = $this->frameSend($f);
         if (!$nowait and $res) {
             /** @var MethodExchangeUnbindOkFrame $f */
-            $f = $this->connection->await(MethodExchangeUnbindOkFrame::class, function (MethodExchangeUnbindOkFrame $frame) use ($channel) {
-                return $frame->channel === $channel;
-            });
+            $f = $this->connection->await(MethodExchangeUnbindOkFrame::class, channel: $channel);
 
             return $f;
         }
@@ -322,9 +314,7 @@ trait ChannelsMethods
         $res = $this->frameSend($f);
         if (!$nowait and $res) {
             /** @var MethodQueueDeclareOkFrame $f */
-            $f = $this->connection->await(MethodQueueDeclareOkFrame::class, function (MethodQueueDeclareOkFrame $frame) use ($channel) {
-                return $frame->channel === $channel;
-            });
+            $f = $this->connection->await(MethodQueueDeclareOkFrame::class, channel: $channel);
 
             return $f;
         }
@@ -361,9 +351,7 @@ trait ChannelsMethods
         $res = $this->frameSend($f);
         if (!$nowait and $res) {
             /** @var MethodQueueBindOkFrame $f */
-            $f = $this->connection->await(MethodQueueBindOkFrame::class, function (MethodQueueBindOkFrame $f) use ($channel) {
-                return $f->channel === $channel;
-            });
+            $f = $this->connection->await(MethodQueueBindOkFrame::class, channel: $channel);
 
             return $f;
         }
@@ -415,9 +403,7 @@ trait ChannelsMethods
         $res = $this->frameSend($f);
         if (!$nowait and $res) {
             /** @var MethodQueuePurgeOkFrame $f */
-            $f = $this->connection->await(MethodQueuePurgeOkFrame::class, function (MethodQueuePurgeOkFrame $frame) use ($channel) {
-                return $frame->channel === $channel;
-            });
+            $f = $this->connection->await(MethodQueuePurgeOkFrame::class, channel: $channel);
 
             return $f;
         }
@@ -451,9 +437,7 @@ trait ChannelsMethods
         $res = $this->frameSend($f);
         if (!$nowait and $res) {
             /** @var MethodQueueDeleteOkFrame $f */
-            $f = $this->connection->await(MethodQueueDeleteOkFrame::class, function (MethodQueueDeleteOkFrame $frame) use ($channel) {
-                return $frame->channel === $channel;
-            });
+            $f = $this->connection->await(MethodQueueDeleteOkFrame::class, channel: $channel);
 
             return $f;
         }

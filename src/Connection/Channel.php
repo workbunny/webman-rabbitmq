@@ -266,9 +266,7 @@ class Channel
         $this->basicQos($channel = $this->id(), $prefetchSize, $prefetchCount, $global);
         if (!$nowait) {
             /** @var MethodBasicQosOkFrame $f */
-            $f = $this->connection->await(MethodBasicQosOkFrame::class, function (MethodBasicQosOkFrame $frame) use ($channel) {
-                return $frame->channel === $channel;
-            });
+            $f = $this->connection->await(MethodBasicQosOkFrame::class, channel: $channel);
 
             return $f;
         }
@@ -301,9 +299,7 @@ class Channel
     ): MethodBasicConsumeOkFrame {
         $this->basicConsume($this->id(), $queue, $consumerTag, $noLocal, $noAck, $exclusive, $nowait, $arguments);
         /** @var MethodBasicConsumeOkFrame $frame */
-        $frame = $this->connection->await(MethodBasicConsumeOkFrame::class, function (MethodBasicConsumeOkFrame $frame) {
-            return $frame->channel === $this->id();
-        });
+        $frame = $this->connection->await(MethodBasicConsumeOkFrame::class, channel: $this->id());
         // 确保以服务端返回的 consumerTag 为准（可能与传入的不同，如空字符串时服务端自动生成）
         $this->deliverCallbacks[$frame->consumerTag] = $callback;
 
@@ -320,9 +316,7 @@ class Channel
         $res = $this->basicCancel($this->id(), $consumerTag, $nowait);
         if (!$nowait) {
             /** @var MethodBasicCancelOkFrame $res */
-            $res = $this->connection->await(MethodBasicCancelOkFrame::class, function (MethodBasicCancelOkFrame $frame) {
-                return $frame->channel === $this->id();
-            });
+            $res = $this->connection->await(MethodBasicCancelOkFrame::class, channel: $this->id());
         }
         unset($this->deliverCallbacks[$consumerTag]);
 
@@ -355,9 +349,7 @@ class Channel
         }
         $res = $this->channelClose($this->id, $replyCode, $replyText, 0, 0);
         if (!$nowait and $res) {
-            $res = $this->connection->await(MethodChannelCloseOkFrame::class, function (MethodChannelCloseOkFrame $frame) {
-                return $frame->channel === $this->id;
-            });
+            $res = $this->connection->await(MethodChannelCloseOkFrame::class, channel: $this->id());
         }
         $this->setState(ChannelStateEnum::CLOSED);
         $this->connection->channels()->closeConnection($this);
@@ -378,9 +370,7 @@ class Channel
 
         $this->txSelect($this->id());
         /** @var MethodTxSelectOkFrame $frame */
-        $frame = $this->connection->await(MethodTxSelectOkFrame::class, function (MethodTxSelectOkFrame $frame) {
-            return $frame->channel === $this->id();
-        });
+        $frame = $this->connection->await(MethodTxSelectOkFrame::class, channel: $this->id());
         $this->setMode(ChannelModeEnum::TRANSACTIONAL);
 
         return $frame;
@@ -398,9 +388,7 @@ class Channel
         }
         $this->txCommit($this->id());
         /** @var MethodTxCommitOkFrame $res */
-        $res = $this->connection->await(MethodTxCommitOkFrame::class, function (MethodTxCommitOkFrame $frame) {
-            return $frame->channel === $this->id();
-        });
+        $res = $this->connection->await(MethodTxCommitOkFrame::class, channel: $this->id());
 
         return $res;
     }
@@ -417,9 +405,7 @@ class Channel
         }
         $this->txRollback($this->id());
         /** @var MethodTxRollbackOkFrame $res */
-        $res = $this->connection->await(MethodTxRollbackOkFrame::class, function (MethodTxRollbackOkFrame $frame) {
-            return $frame->channel === $this->id();
-        });
+        $res = $this->connection->await(MethodTxRollbackOkFrame::class, channel: $this->id());
 
         return $res;
     }
@@ -439,9 +425,7 @@ class Channel
 
         $this->confirmSelect($this->id());
         if (!$nowait) {
-            $this->connection->await(MethodConfirmSelectOkFrame::class, function (MethodConfirmSelectOkFrame $frame) {
-                return $frame->channel === $this->id();
-            });
+            $this->connection->await(MethodConfirmSelectOkFrame::class, channel: $this->id());
         }
         $this->setMode(ChannelModeEnum::CONFIRM);
         $action();
@@ -521,7 +505,7 @@ class Channel
         }
         // confirm recv - ack or nack
         if ($frame instanceof MethodBasicAckFrame or $frame instanceof MethodBasicNackFrame) {
-            $this->connection->wakeup('confirm.select.' . $this->id(), $frame);
+            $this->connection->wakeup('confirm.select.' . $this->id(), $frame, Constants::CONNECTION_CHANNEL);
         }
     }
 
@@ -550,7 +534,7 @@ class Channel
                     );
                     $id = spl_object_id($callback);
                     $callback($message, $this, $this->connection);
-                    $this->connection->wakeup("basic.get.$id", true);
+                    $this->connection->wakeup("basic.get.$id", true, Constants::CONNECTION_CHANNEL);
                 }
                 break;
                 // deliver
