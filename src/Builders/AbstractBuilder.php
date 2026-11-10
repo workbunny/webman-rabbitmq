@@ -30,7 +30,8 @@ abstract class AbstractBuilder
      * @var class-string[]
      */
     protected static array $modes = [
-        'queue' => QueueBuilder::class,
+        'queue'  => QueueBuilder::class,
+        'simple' => QueueSimpleBuilder::class,
     ];
 
     /**

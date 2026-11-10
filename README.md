@@ -32,6 +32,7 @@
 - ✅ 支持 5 种消费模式：简单队列、workQueue、routing、pub/sub、exchange
 - ✅ 支持延迟队列（RabbitMQ 须安装插件）
 - ✅ 支持连接池、通道池，`Builder` 支持影子模式（并发补偿）
+- ✅ 提供 `QueueSimpleBuilder`：消费与生产使用不同连接（TCP 隔离），避免消费回调阻塞导致生产侧心跳失效
 - ✅ 3.0 版本相比之前版本，更符合 `AMQP` 协议约定，更合理的架构设计和使用逻辑
   - 使用 `ConnectionManagement` 多连接管理器管理 `Connection`（`Client`），合理复用机制及并发使用能力
   - 使用 `Channel-Pool` 管理 `Channel`，合理的复用和并发机制
@@ -66,6 +67,12 @@
 - `Builder` 可以指定不同的 `connection` 配置进行连接，以区分业务/服务
 - `Builder` 的 `publish`/`consume` 使用了影子模式（当前 `Connection` 的 `Channel` 耗尽时，会自动从 `Connection Pool` 获取新的连接创建 `Channel`）
   - 影子模式下请尽量将 `Connection Pool` 和 `Channels Pool` 的配置 `wait_timeout` 改小，避免过长时间的等待（等待中会出让控制权，不会阻塞）
+- **Builder 模式**：
+
+  | 模式 | 类 | 消费/生产连接 | 说明 |
+  |------|-----|--------------|------|
+  | `queue`（默认） | `QueueBuilder` | 共用 | 常规队列消费/生产，同一连接内以 `Channel` 区分 |
+  | `simple` | `QueueSimpleBuilder` | **隔离** | 消费独占一条连接且不归还；生产走连接池中另一条连接（详见 [消费与生产 TCP 隔离](#-消费与生产-tcp-隔离-queuesimplebuilder)） |
 
 #### 🔗 Connection
 基于 `AsyncTcpConnection` 封装的 `AMQP-client`
@@ -375,3 +382,142 @@ $builder->action(function (ConnectionInterface $connection) use ($builder) {
 ```
 
 > ⚠️ **注意**：需要保持该进程常驻
+
+---
+
+## 🔀 消费与生产 TCP 隔离 `QueueSimpleBuilder`
+
+### 为什么需要
+
+PHP 的协程是**单线程 + 协作式**的：只有协程主动出让（`suspend`）才会切换。`consumer` 的 `handler()`
+是在 `onMessage` 的协程中**同步执行**的（见 `Channel::onBodyFramesComplete()`），如果 `handler()`
+内部使用同步阻塞 API（`file_get_contents`、`curl_*`、原生 `PDO` 等），整个事件循环会被占住：
+
+```
+handler() 阻塞 → 事件循环停摆 → 心跳定时器无法触发 → 服务端判定连接死亡 → 关闭连接
+```
+
+`QueueBuilder` 下消费与生产**共用同一条连接**（`connections_pool.enable = false` 时就是同一条 TCP），
+所以消费阻塞不仅会让消费者掉线，**同进程内所有 producer 也会一起失效**。
+
+`QueueSimpleBuilder` 通过「消费独占一条连接、生产走另一条连接」把影响面隔离开：
+
+```
+┌── consumer 进程 ─────────────────────────────┐
+│  Connection A ── TCP-1 ──┐  ← 消费专用（独占）│
+│     ├ heartbeat          │                   │
+│     └ channel: consume   │                   │
+│                          │                   │
+│  Connection B ── TCP-2 ──┤  ← 生产使用（池内）│
+│     ├ heartbeat          ▼                   │
+│     └ channel: publish  RabbitMQ             │
+└──────────────────────────────────────────────┘
+```
+
+消费阻塞时只有 `TCP-1` 心跳失效，`TCP-2` 上的生产完全不受影响；消费者重连后消息仍在队列中继续消费。
+
+### ⚠️ 前置要求
+
+启动时会校验连接配置，**不满足直接抛 `WebmanRabbitMQException`**：
+
+| 配置项 | 要求 | 原因 |
+|--------|------|------|
+| `connections_pool.enable` | 必须为 `true` | 池模式下才有多条连接可用 |
+| `connections_pool.min_connections` | `>= 2` | 一条被消费长期占用，预留的另一条不能被 `idle_timeout` 回收 |
+| `connections_pool.max_connections` | `>= 2` | 容量上限必须能容纳消费 + 生产两条连接 |
+
+连接配置示例：
+
+```php
+// config/plugin/workbunny/webman-rabbitmq/connections.php
+return [
+    'default' => [
+        'connection'       => Connection::class,
+        'connections_pool' => [
+            'enable'          => true,   // ✅ 必须
+            'min_connections' => 2,      // ✅ 必须 >= 2
+            'max_connections' => 10,     // ✅ 必须 >= 2
+            'idle_timeout'    => 60,
+            'wait_timeout'    => 10,
+        ],
+        'config' => [
+            // 消费者侧建议把心跳调大，给慢回调留出缓冲
+            'channels_pool' => [
+                'max_connections' => null,
+                'idle_timeout'    => 60,
+                'wait_timeout'    => 10,
+            ],
+        ],
+    ],
+];
+```
+
+### 创建 Builder
+
+```bash
+# 使用 simple 模式生成
+php webman workbunny:rabbitmq-builder MySimpleBuilder -m simple
+```
+
+或手动继承：
+
+```php
+<?php declare(strict_types=1);
+
+namespace app\queue;
+
+use Bunny\Message as BunnyMessage;
+use Workbunny\WebmanRabbitMQ\Builders\QueueSimpleBuilder;
+use Workbunny\WebmanRabbitMQ\Connection\Channel;
+use Workbunny\WebmanRabbitMQ\Connection\ConnectionInterface;
+use Workbunny\WebmanRabbitMQ\Constants;
+
+class MySimpleBuilder extends QueueSimpleBuilder
+{
+    protected ?string $connection = 'default';
+
+    protected array $queueConfig = [
+        'name'           => 'my-queue',
+        'prefetch_count' => 1,
+    ];
+
+    public function handler(BunnyMessage $message, Channel $channel, ConnectionInterface $connection): string
+    {
+        // 耗时逻辑（建议仍使用协程化 IO）
+        $result = doSomething($message->content);
+
+        // ✅ 发消息走连接池中另一条连接，与消费连接隔离
+        $this->send(json_encode($result));
+
+        return Constants::ACK;
+    }
+}
+```
+
+### 行为说明
+
+| 环节 | 行为 |
+|------|------|
+| `onWorkerStart` | 先校验池配置 → `ConnectionsManagement::get()` **借出并长期持有**一条连接（不 `release`）→ 在其上 `consume()` |
+| `send()` / `publish($this, ...)` | 走 `$this->action()` → 连接池借出**另一条**连接 → 用完归还 |
+| `onWorkerStop` | 先释放持有的消费连接引用，再销毁整个连接池 |
+| 池耗尽 | 记录 `channel pool exhausted` 日志 → 销毁连接池 → `Timer::sleep(restartInterval)` → `stopAll()`（由 webman 重新拉起进程） |
+
+### 使用注意
+
+- **不要**在 `handler()` 中把 consumer 连接传给 `publish()`：
+
+  ```php
+  // ❌ 会退回共用同一条 TCP，隔离失效
+  publish(new OtherBuilder(), 'body', connection: $connection);
+
+  // ✅ 让 Builder 自己从池中借另一条连接
+  publish(new OtherBuilder(), 'body');
+  $this->send('body');   // 等价写法（发往自身交换机/队列）
+  ```
+
+- `QueueSimpleBuilder` 只解决「**阻塞影响面隔离**」，**不解决**阻塞本身：
+  消费连接自身的心跳仍会因阻塞而超时，进程会掉线重连。要彻底避免，`handler()` 仍需使用协程化 IO
+  （`Coroutine\Http\Client`、`workerman/redis` 等）。
+- 每条连接都会维护独立的心跳与 `Channel` 池，连接数消耗高于 `QueueBuilder`；
+  同一个 `Builder` 类不要同时用于高并发 `HTTP` 生产场景，生产侧请用普通 `QueueBuilder`。

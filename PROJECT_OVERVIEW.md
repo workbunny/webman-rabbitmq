@@ -145,8 +145,9 @@ builder->onWorkerStart(worker)
 
 | File | Responsibility |
 |------|---------------|
-| `src/Builders/AbstractBuilder.php` | Abstract builder: `publish()`, `consume()`, `action()`, shadow mode |
+| `src/Builders/AbstractBuilder.php` | Abstract builder: `publish()`, `consume()`, `action()`, shadow mode, mode registry (`queue`, `simple`) |
 | `src/Builders/QueueBuilder.php` | Queue builder: `onWorkerStart()`/`onWorkerStop()`/`onWorkerReload()` |
+| `src/Builders/QueueSimpleBuilder.php` | Queue builder with consumer/producer **TCP isolation**: holds one pooled connection for consuming, publishes over another one. Requires `connections_pool.enable=true` and `min_connections>=2` (validated on startup) |
 | `src/Builders/Traits/BuilderConfigManagement.php` | BuilderConfig getter/setter trait |
 
 ### Commands
